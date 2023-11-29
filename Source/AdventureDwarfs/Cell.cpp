@@ -56,8 +56,9 @@ bool ACell::CheckAdjecentCell(AdjecentDirections directionToCheck)
 			UE_LOG(LogTemp, Log, TEXT("RaycastDownToPosition hit"));
 			if (hit.GetActor()->IsA(ACell::StaticClass()))
 			{
-				UE_LOG(LogTemp, Log, TEXT("IsA(ACell::StaticClass(): %s"), *hit.GetActor()->GetName());
-				*CellToCheck = *Cast<ACell>(hit.GetActor());
+				ACell* cellAtPos = Cast<ACell>(hit.GetActor());
+				// CellToCheck = cellAtPos; TODO: Why can't I do this, but I have to do the bottom one?
+				SetAdjecentCell(cellAtPos, directionToCheck);
 				return true;
 			}
 		}
@@ -68,6 +69,37 @@ bool ACell::CheckAdjecentCell(AdjecentDirections directionToCheck)
 	}
 	
 	return true;
+}
+
+void ACell::SetAdjecentCell(ACell* cell, AdjecentDirections directionToGet)
+{
+	switch (directionToGet)
+	{
+	case AdjecentDirections::TopLeft:
+		Adjecent_TL = cell;
+		break;
+	case AdjecentDirections::TopCenter:
+		Adjecent_TC = cell;
+		break;
+	case AdjecentDirections::TopRight:
+		Adjecent_TR = cell;
+		break;
+	case AdjecentDirections::Left:
+		Adjecent_L = cell;
+		break;
+	case AdjecentDirections::Right:
+		Adjecent_R = cell;
+		break;
+	case AdjecentDirections::BottomLeft:
+		Adjecent_BL= cell;
+		break;
+	case AdjecentDirections::BottomCenter:
+		Adjecent_BC = cell;
+		break;
+	case AdjecentDirections::BottomRight:
+		Adjecent_BR = cell;
+		break;
+	}
 }
 
 ACell* ACell::GetAdjecentCell(AdjecentDirections directionToGet)

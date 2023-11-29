@@ -23,13 +23,21 @@ public:
 	// Sets default values for this actor's properties
 	ACell();
 	GridPosition pos;
+	UPROPERTY()
 	ACell* Adjecent_TL = nullptr; // top left adjecent cell
+	UPROPERTY()
 	ACell* Adjecent_TC = nullptr; // top center adjecent cell
+	UPROPERTY()
 	ACell* Adjecent_TR = nullptr; // top right adjecent cell
+	UPROPERTY()
 	ACell* Adjecent_L = nullptr;  // left adjecent cell
+	UPROPERTY()
 	ACell* Adjecent_R = nullptr;  // right adjecent cell
+	UPROPERTY()
 	ACell* Adjecent_BL = nullptr; // bottom left adjecent cell
+	UPROPERTY()
 	ACell* Adjecent_BC = nullptr; // bottom center adjecent cell
+	UPROPERTY()
 	ACell* Adjecent_BR = nullptr; // bottom right adjecent cell
 	FCellEvent CellSteppedEvent;
 
@@ -64,4 +72,5 @@ public:
 	bool CheckAdjecentCell(AdjecentDirections directionToCheck);
 	GridPosition GetAdjecentPosition(AdjecentDirections directionToGet);
 	ACell* GetAdjecentCell(AdjecentDirections directionToGet);
+	void SetAdjecentCell(ACell* cell, AdjecentDirections directionToGet);
 };
