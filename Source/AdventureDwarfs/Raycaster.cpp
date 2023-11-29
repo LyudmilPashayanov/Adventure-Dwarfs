@@ -50,6 +50,29 @@ void URaycaster::CheckFacingObject()
         }
     }
 }
+
+bool URaycaster::RaycastDownToPosition(int posX, int posY, FHitResult& result)
+{
+    FVector StartRaycastLocation = FVector(posX, posY, 100);
+    FVector DownwardVector = GetOwner()->GetActorUpVector() * -1;
+    FVector EndLocation = StartRaycastLocation + DownwardVector * TraceDistance;
+
+    FHitResult HitResult;
+
+    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, ECC_GameTraceChannel1);
+
+    if (bHit)
+    {
+        result = HitResult;
+        DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Green, false, 3, 0, 1);
+    }
+    else
+    {
+        DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Red, false, 3, 0, 1);
+    }
+    return bHit;
+}
+
 // Called when the game starts
 void URaycaster::BeginPlay()
 {

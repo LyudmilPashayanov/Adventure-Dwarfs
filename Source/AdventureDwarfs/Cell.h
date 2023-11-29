@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
+#include "GridPosition.h"
 #include "Cell.generated.h"
 
 class UBoxComponent;
+class URaycaster;
+enum class AdjecentDirections;
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FCellEvent, ACell*);
 
 
@@ -19,16 +22,15 @@ class ADVENTUREDWARFS_API ACell : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ACell();
-	int posX;
-	int posY;
-	ACell* Adjecent_TL; // top left adjecent cell
-	ACell* Adjecent_TC; // top center adjecent cell
-	ACell* Adjecent_TR; // top right adjecent cell
-	ACell* Adjecent_L;  // left adjecent cell
-	ACell* Adjecent_R;  // right adjecent cell
-	ACell* Adjecent_BL; // bottom left adjecent cell
-	ACell* Adjecent_BC; // bottom center adjecent cell
-	ACell* Adjecent_BR; // bottom right adjecent cell
+	GridPosition pos;
+	ACell* Adjecent_TL = nullptr; // top left adjecent cell
+	ACell* Adjecent_TC = nullptr; // top center adjecent cell
+	ACell* Adjecent_TR = nullptr; // top right adjecent cell
+	ACell* Adjecent_L = nullptr;  // left adjecent cell
+	ACell* Adjecent_R = nullptr;  // right adjecent cell
+	ACell* Adjecent_BL = nullptr; // bottom left adjecent cell
+	ACell* Adjecent_BC = nullptr; // bottom center adjecent cell
+	ACell* Adjecent_BR = nullptr; // bottom right adjecent cell
 	FCellEvent CellSteppedEvent;
 
 protected:
@@ -45,6 +47,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	URaycaster* RaycastChecker;
+	UFUNCTION(BlueprintCallable, Category = "Raycaster")
+	void InjectRaycaster(URaycaster* raycastClass);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Base Components")
 	UBoxComponent* BoxComponent;
 
@@ -54,5 +60,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Base Components")
 	UStaticMeshComponent* MeshComponent;
 	
-	void Init(int PosX, int PosY);
+	void Init(GridPosition position);
+	bool CheckAdjecentCell(AdjecentDirections directionToCheck);
+	GridPosition GetAdjecentPosition(AdjecentDirections directionToGet);
+	ACell* GetAdjecentCell(AdjecentDirections directionToGet);
 };

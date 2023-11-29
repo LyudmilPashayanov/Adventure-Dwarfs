@@ -27,5 +27,5 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void CheckFacingObject();
-		
+	bool RaycastDownToPosition(int posX, int posY, FHitResult& result);
 };
