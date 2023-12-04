@@ -26,8 +26,6 @@ ACell::ACell()
 void ACell::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 }
 
 void ACell::Init(GridPosition position)
@@ -53,11 +51,10 @@ bool ACell::CheckAdjecentCell(AdjecentDirections directionToCheck)
 	{
 		if (RaycastChecker->RaycastDownToPosition(positionToCheck.X, positionToCheck.Y, hit)) // check top left
 		{
-			UE_LOG(LogTemp, Log, TEXT("RaycastDownToPosition hit"));
 			if (hit.GetActor()->IsA(ACell::StaticClass()))
 			{
 				ACell* cellAtPos = Cast<ACell>(hit.GetActor());
-				// CellToCheck = cellAtPos; TODO: Why can't I do this, but I have to do the bottom one?
+				//CellToCheck = cellAtPos; //TODO: Why can't I do this, but I have to do the bottom one?
 				SetAdjecentCell(cellAtPos, directionToCheck);
 				return true;
 			}
@@ -67,7 +64,6 @@ bool ACell::CheckAdjecentCell(AdjecentDirections directionToCheck)
 			return false;
 		}
 	}
-	
 	return true;
 }
 
@@ -107,10 +103,6 @@ ACell* ACell::GetAdjecentCell(AdjecentDirections directionToGet)
 	switch (directionToGet)
 	{
 	case AdjecentDirections::TopLeft:
-		UE_LOG(LogTemp, Log, TEXT("returning TopLeft"));
-		if (Adjecent_TL)
-			UE_LOG(LogTemp, Log, TEXT("works! %s"), *Adjecent_TL->GetName());
-
 		return Adjecent_TL;
 		break;
 	case AdjecentDirections::TopCenter:
