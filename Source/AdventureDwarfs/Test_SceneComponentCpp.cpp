@@ -19,9 +19,12 @@ void UTest_SceneComponentCpp::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f , y- %f , z- %f"), GetComponentLocation().X, GetComponentLocation().Y, GetComponentLocation().Z);
 }
 
+void UTest_SceneComponentCpp::PrintLocation()
+{
+	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f , y- %f , z- %f"), GetComponentLocation().X, GetComponentLocation().Y, GetComponentLocation().Z);
+}
 
 // Called every frame
 void UTest_SceneComponentCpp::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

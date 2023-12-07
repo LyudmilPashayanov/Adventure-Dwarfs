@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
-#include "Test_SceneComponentCpp.generated.h"
+#include "NewCellClass.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ADVENTUREDWARFS_API UTest_SceneComponentCpp : public USceneComponent
+class ADVENTUREDWARFS_API UNewCellClass : public USceneComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UTest_SceneComponentCpp();
-	void PrintLocation();
+	UNewCellClass();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
