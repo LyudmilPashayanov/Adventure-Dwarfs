@@ -2,7 +2,7 @@
 
 
 #include "GridManager.h"
-#include "Cell.h"
+//#include "Cell.h"
 #include "AdjecentDirections.h"
 #include "GridPosition.h"
 
@@ -30,31 +30,31 @@ void AGridManager::Tick(float DeltaTime)
 
 void AGridManager::GenerateGrid(int rows, int columns)
 {
-	ACell* spawnedCell = SpawnCell(0, 0);
+	//ACell* spawnedCell = SpawnCell(0, 0);
 }
 
-ACell* AGridManager::SpawnCell(int posX, int posY)
-{
-	ACell* spawnedCell = GetWorld()->SpawnActor<ACell>(CellPrefab, FVector(posX, posY, 0), FRotator().ZeroRotator);
-	spawnedCell->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-	spawnedCell->Init(GridPosition(posX,posY));
-	spawnedCell->CellSteppedEvent.AddUObject(this, &AGridManager::OnCellEventReceived);
-	return spawnedCell;
-}
+//ACell* AGridManager::SpawnCell(int posX, int posY)
+//{
+//	//ACell* spawnedCell = GetWorld()->SpawnActor<ACell>(CellPrefab, FVector(posX, posY, 0), FRotator().ZeroRotator);
+//	//spawnedCell->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+//	//spawnedCell->Init(GridPosition(posX,posY));
+//	//spawnedCell->CellSteppedEvent.AddUObject(this, &AGridManager::OnCellEventReceived);
+//	return nullptr;
+//}
 
-void AGridManager::OnCellEventReceived(ACell* SteppedCell)
-{
-	// Handle the event
-	//UE_LOG(LogTemp, Warning, TEXT("CellEvent received from Cell x= %d AND y= %d"), SteppedCell->posX, SteppedCell->posY);
-	for (int i = 0; i < static_cast<int>(AdjecentDirections::Count); ++i) {
-		AdjecentDirections currentEnumValue = static_cast<AdjecentDirections>(i);
-
-		if (!SteppedCell->CheckAdjecentCell(currentEnumValue))
-		{
-			GridPosition pos = SteppedCell->GetAdjecentPosition(currentEnumValue);
-			SpawnCell(pos.X, pos.Y);
-		}
-	}
-	
-}
+//void AGridManager::OnCellEventReceived(ACell* SteppedCell)
+//{
+//	// Handle the event
+//	//UE_LOG(LogTemp, Warning, TEXT("CellEvent received from Cell x= %d AND y= %d"), SteppedCell->posX, SteppedCell->posY);
+//	/*for (int i = 0; i < static_cast<int>(AdjecentDirections::Count); ++i) {
+//		AdjecentDirections currentEnumValue = static_cast<AdjecentDirections>(i);
+//
+//		if (!SteppedCell->CheckAdjecentCell(currentEnumValue))
+//		{
+//			GridPosition pos = SteppedCell->GetAdjecentPosition(currentEnumValue);
+//			SpawnCell(pos.X, pos.Y);
+//		}
+//	}*/
+//	
+//}
 
