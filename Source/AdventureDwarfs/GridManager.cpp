@@ -55,6 +55,5 @@ void AGridManager::GenerateGrid(int rows, int columns)
 //			SpawnCell(pos.X, pos.Y);
 //		}
 //	}*/
-//	
 //}
 
