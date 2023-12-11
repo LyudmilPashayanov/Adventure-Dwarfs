@@ -8,7 +8,7 @@
 #include "GridManager.generated.h"
 
 
-//class ACell;
+class AChunk;
 
 UCLASS()
 class ADVENTUREDWARFS_API AGridManager : public AActor
@@ -29,8 +29,11 @@ private:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	//UPROPERTY(EditAnywhere, Category = "Cell Manager")
-//	TSubclassOf<class ACell> CellPrefab;
+	UPROPERTY(EditAnywhere, Category = "Cell Manager")
+	TSubclassOf<class AChunk> ChunkFlat_Prefab;
 	void GenerateGrid(int rows, int columns);
-	//ACell* SpawnCell(int posX, int posY);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
+	TArray<AChunk*> SpawnedChunks;
+
+	AChunk* SpawnChunk(int posX, int posY);
 };

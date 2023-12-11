@@ -34,7 +34,7 @@ AChunk::AChunk()
 			CellMeshComponent->SetStaticMesh(CellMeshAsset.Object);
 			// Reposition
 			StaticMeshComponents.Add(CellMeshComponent);
-			CellMeshComponent->SetRelativeLocation(FVector(posX, posY, 0.0));
+			CellMeshComponent->SetRelativeLocation(FVector(posX-470, posY-470, 0.0)); // -470, so that the center of the grid is the center of the blueprint actor.
 			CellMeshComponent->SetRelativeRotation(FRotator(90, 0.0, 0.0));
 			
 			
@@ -65,20 +65,6 @@ AChunk::AChunk()
 void AChunk::BeginPlay()
 {
 	Super::BeginPlay();
-
-	/*GetComponents<UStaticMeshComponent>(StaticMeshComponents);
-	for (UStaticMeshComponent* MeshComponent : StaticMeshComponents)
-	{
-		UCell* CellInstance = NewObject<UCell>(this);
-		CellInstance->RegisterComponent();
-		CellInstance->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
-		CellInstance->SetIsVisualizationComponent(true);
-		if (CellInstance)
-		{
-			Cells.Add(CellInstance);
-			CellInstance->PrintLocation();
-		}
-	}*/
 }
 
 void AChunk::OnCellEventReceived(UCell* SteppedCell)

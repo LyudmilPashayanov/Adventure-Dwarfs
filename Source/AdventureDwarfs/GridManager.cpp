@@ -2,7 +2,7 @@
 
 
 #include "GridManager.h"
-//#include "Cell.h"
+#include "Chunk.h"
 #include "AdjecentDirections.h"
 #include "GridPosition.h"
 
@@ -28,19 +28,25 @@ void AGridManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+// GRID ARE 945 units apart from one another.
 void AGridManager::GenerateGrid(int rows, int columns)
 {
-	//ACell* spawnedCell = SpawnCell(0, 0);
+	SpawnChunk(0, 0);
+	SpawnChunk(945, 0);
+	SpawnChunk(-945, 0);
+	SpawnChunk(0, 945);
+	SpawnChunk(0, -945);
 }
 
-//ACell* AGridManager::SpawnCell(int posX, int posY)
-//{
-//	//ACell* spawnedCell = GetWorld()->SpawnActor<ACell>(CellPrefab, FVector(posX, posY, 0), FRotator().ZeroRotator);
-//	//spawnedCell->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-//	//spawnedCell->Init(GridPosition(posX,posY));
-//	//spawnedCell->CellSteppedEvent.AddUObject(this, &AGridManager::OnCellEventReceived);
-//	return nullptr;
-//}
+AChunk* AGridManager::SpawnChunk(int posX, int posY)
+{
+	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunkFlat_Prefab, FVector(posX, posY, 0), FRotator().ZeroRotator);
+	spawnedChunk->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+	SpawnedChunks.Add(spawnedChunk);
+	//spawnedChunk->Init(GridPosition(posX,posY));
+	//spawnedChunk->CellSteppedEvent.AddUObject(this, &AGridManager::OnCellEventReceived);
+	return spawnedChunk;
+}
 
 //void AGridManager::OnCellEventReceived(ACell* SteppedCell)
 //{
