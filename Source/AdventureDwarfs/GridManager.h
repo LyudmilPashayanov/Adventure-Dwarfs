@@ -35,5 +35,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
 	TArray<AChunk*> SpawnedChunks;
 
-	AChunk* SpawnChunk(int posX, int posY);
+	AChunk* SpawnChunk(int posX, int posY, bool hidden);
+	void InitializeCells();
 };

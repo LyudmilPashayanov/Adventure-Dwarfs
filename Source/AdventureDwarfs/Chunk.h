@@ -32,10 +32,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 private:
-	void OnCellEventReceived(UCell* Cell);
+	void OnCellStepped(UCell* Cell);
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	void InitializeCells();
+	void Hide();
 };

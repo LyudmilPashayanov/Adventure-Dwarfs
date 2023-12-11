@@ -31,21 +31,37 @@ void AGridManager::Tick(float DeltaTime)
 // GRID ARE 945 units apart from one another.
 void AGridManager::GenerateGrid(int rows, int columns)
 {
-	SpawnChunk(0, 0);
-	SpawnChunk(945, 0);
-	SpawnChunk(-945, 0);
-	SpawnChunk(0, 945);
-	SpawnChunk(0, -945);
+	SpawnChunk(0, 0,false);
+	SpawnChunk(945, 0,true);
+	SpawnChunk(-945, 0,true);
+	SpawnChunk(0, 945, true);
+	SpawnChunk(0, -945, true);
+
+	SpawnChunk(945, -945, true);
+	SpawnChunk(-945, -945, true);
+	SpawnChunk(945, 945, true);
+	SpawnChunk(-945, 945, true);
+	InitializeCells();
 }
 
-AChunk* AGridManager::SpawnChunk(int posX, int posY)
+AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
 {
 	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunkFlat_Prefab, FVector(posX, posY, 0), FRotator().ZeroRotator);
 	spawnedChunk->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+	if (hidden)
+	{
+		spawnedChunk->Hide();
+	}
 	SpawnedChunks.Add(spawnedChunk);
-	//spawnedChunk->Init(GridPosition(posX,posY));
-	//spawnedChunk->CellSteppedEvent.AddUObject(this, &AGridManager::OnCellEventReceived);
 	return spawnedChunk;
+}
+
+void AGridManager::InitializeCells()
+{
+	for (AChunk* chunk : SpawnedChunks)
+	{
+		chunk->InitializeCells();
+	}
 }
 
 //void AGridManager::OnCellEventReceived(ACell* SteppedCell)

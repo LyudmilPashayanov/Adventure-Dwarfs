@@ -2,6 +2,7 @@
 
 
 #include "Chunk.h"
+#include "AdjecentDirections.h"
 #include "Cell.h"
 
 
@@ -45,6 +46,8 @@ AChunk::AChunk()
 			FName CellInstanceName(cellInstanceBaseName);
 			UCell* Cell = CreateDefaultSubobject<UCell>(CellInstanceName);
 			Cell->SetupAttachment(CellMeshComponent);
+			Cell->CellSteppedEvent.AddUObject(this, &AChunk::OnCellStepped);
+			Cell->CellMesh = CellMeshComponent;
 			Cells.Add(Cell);
 			
 			
@@ -61,30 +64,37 @@ AChunk::AChunk()
 	}
 }
 
+void AChunk::Hide()
+{
+	for (UStaticMeshComponent* meshComp : StaticMeshComponents)
+	{
+		meshComp->SetVisibility(false); // You could also target the Cell and call the HideCell function
+	}
+}
+
 // Called when the game starts or when spawned
 void AChunk::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AChunk::OnCellEventReceived(UCell* SteppedCell)
+void AChunk::OnCellStepped(UCell* SteppedCell)
 {
 	// Handle the event
-	SteppedCell->PrintLocation();
-	/*for (int i = 0; i < static_cast<int>(AdjecentDirections::Count); ++i) {
-		AdjecentDirections currentEnumValue = static_cast<AdjecentDirections>(i);
-
-		if (!SteppedCell->CheckAdjecentCell(currentEnumValue))
-		{
-			GridPosition pos = SteppedCell->GetAdjecentPosition(currentEnumValue);
-			SpawnCell(pos.X, pos.Y);
-		}
-	}*/
+	SteppedCell->ShowAdjecentCells(3);
 }
 
 // Called every frame
 void AChunk::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AChunk::InitializeCells()
+{
+	for (UCell* cell : Cells)
+	{
+		cell->SetAdjecentCells();
+	}
 }
 
