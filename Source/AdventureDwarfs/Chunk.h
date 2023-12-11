@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include <vector>
+#include <Components/BoxComponent.h>
 
 #include "Chunk.generated.h"
 
@@ -17,7 +17,17 @@ class ADVENTUREDWARFS_API AChunk : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AChunk();
-	TArray<UCell*> cells;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
+	TArray<UStaticMeshComponent*> StaticMeshComponents;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
+	TArray<UCell*> Cells;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
+	TArray<UBoxComponent*> BoxColliders;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

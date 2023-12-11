@@ -32,31 +32,47 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     RaycastForPlayer();
-    PrintLocation();
+}
+
+void UCell::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    if (OtherActor && OtherActor->IsA(AAdventureDwarfsCharacter::StaticClass()))
+    {
+        UE_LOG(LogTemp, Log, TEXT("KRESHTQQQ KRESHTQQQ KRESHTQQQ KRESHTQQQ KRESHTQQQ KRESHTQQQ KRESHTQQQ KRESHTQQQ KRESHTQQQ KRESHTQQQ "));
+        CellSteppedEvent.Broadcast(this);
+    }
 }
 
 void UCell::RaycastForPlayer()
 {
-    FVector StartRaycastLocation = GetComponentLocation(); 
-    FVector EndLocation = StartRaycastLocation + GetRightVector() * -1 * TraceDistance; // Using the "right" vector, because the Cells are turned 90 degrees in the scene.
-    if (ShouldRaycast)
-    {
-        FHitResult HitResult;
-        bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, ECC_GameTraceChannel2);
-
-        if (bHit)
-        {
-            DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Green, false, 0.1f, 0, 1);
-            if (HitResult.GetActor() && HitResult.GetActor()->IsA(AAdventureDwarfsCharacter::StaticClass()))
-            {
-                CellSteppedEvent.Broadcast(this);
-                UE_LOG(LogTemp, Log, TEXT("PLAYER IS ON ME !!!!!!!!!!!!!!!!!!! "));
-            }
-        }
-        else
-        {
-            DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Yellow, false, 0.1f, 0, 1);
-        }
-    }
+    //FVector StartRaycastLocation = GetComponentLocation(); 
+    //FVector EndLocation = StartRaycastLocation + GetRightVector() * -1 * TraceDistance; // Using the "right" vector, because the Cells are turned 90 degrees in the scene.
+    //if (ShouldRaycast)
+    //{
+    //    FHitResult HitResult;
+    //    // Single line raycasted:
+    //    //bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, ECC_GameTraceChannel2);
+    //    
+    //    // Capsule Shape raycasted:
+    //    FCollisionShape CapsuleShape = FCollisionShape::MakeCapsule(20, /* Half Height */ 1);
+    //    FCollisionQueryParams CollisionParams;
+    //    CollisionParams.AddIgnoredActor(GetOwner()); // Ignore the actor initiating the trace
+    //    bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation, FQuat::Identity, ECC_GameTraceChannel2, CapsuleShape, CollisionParams);
+    //    if (bHit)
+    //    {
+    //        //DrawDebugCapsule(GetWorld(), (StartRaycastLocation + EndLocation) * 0.5f,0.5f, 20, FQuat::Identity, FColor::Green, false, 0.1f, 0, 1.0f);
+    //        DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Green, false, 0.1f, 0, 20);
+    //        if (HitResult.GetActor() && HitResult.GetActor()->IsA(AAdventureDwarfsCharacter::StaticClass()))
+    //        {
+    //            CellSteppedEvent.Broadcast(this);
+    //            //UE_LOG(LogTemp, Log, TEXT("PLAYER IS ON ME !!!!!!!!!!!!!!!!!!! "));
+    //        }
+    //    }
+    //    else
+    //    {
+    //        //DrawDebugCapsule(GetWorld(), (StartRaycastLocation + EndLocation) * 0.5f, 0.5f, 20, FQuat::Identity, FColor::Yellow, false, 2.0f, 0, 1.0f);
+    //        DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Yellow, false, 0.1f, 0, 1);
+    //    }
+    //}
 }
 
