@@ -4,7 +4,7 @@
 #include "Chunk.h"
 #include "AdjecentDirections.h"
 #include "Cell.h"
-
+#include "JsonObjectConverter.h"
 
 // Sets default values
 AChunk::AChunk()
