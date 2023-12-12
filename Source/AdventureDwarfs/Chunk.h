@@ -18,20 +18,24 @@ public:
 	// Sets default values for this actor's properties
 	AChunk();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UStaticMeshComponent*> StaticMeshComponents;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UCell*> Cells;
 
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UBoxComponent*> BoxColliders;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 private:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
+	FString ChunkData;
+	
 	void OnCellStepped(UCell* Cell);
 
 public:	
@@ -39,4 +43,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void InitializeCells();
 	void Hide();
+	void LoadJsonData(const FString& JsonString);
 };

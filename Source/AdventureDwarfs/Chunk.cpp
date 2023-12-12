@@ -4,7 +4,8 @@
 #include "Chunk.h"
 #include "AdjecentDirections.h"
 #include "Cell.h"
-#include "JsonObjectConverter.h"
+#include "Templates/SharedPointer.h"
+#include "JsonUtilities/Public/JsonObjectConverter.h"
 
 // Sets default values
 AChunk::AChunk()
@@ -64,6 +65,38 @@ AChunk::AChunk()
 	}
 }
 
+void AChunk::LoadJsonData(const FString& JsonString)
+{
+	TSharedPtr<FJsonObject> JsonObject;
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(JsonString);
+
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
+	{
+		const TArray<TSharedPtr<FJsonValue>>* CellsData;
+		if (JsonObject->TryGetArrayField("CellsData", CellsData))
+		{
+			for (const auto& CellData : *CellsData)
+			{
+				TSharedPtr<FJsonObject> CellObject = CellData->AsObject();
+
+				const TArray<TSharedPtr<FJsonValue>>* TranslationArray;
+				FVector Translation;
+				FRotator Rotation;
+				FVector Scale;
+
+				if(CellObject->TryGetArrayField("translation", TranslationArray))
+				{
+					Translation.X = (*TranslationArray)[0]->AsNumber();
+					Translation.Y = (*TranslationArray)[1]->AsNumber();
+					Translation.Z = (*TranslationArray)[2]->AsNumber();
+				}
+
+				UE_LOG(LogTemp, Log, TEXT("Vector information = x- %f, y- %f, z-%f"),Translation.X, Translation.Y, Translation.Z);
+			}
+		}
+	}
+}
+
 void AChunk::Hide()
 {
 	for (UStaticMeshComponent* meshComp : StaticMeshComponents)
@@ -76,6 +109,7 @@ void AChunk::Hide()
 void AChunk::BeginPlay()
 {
 	Super::BeginPlay();
+	LoadJsonData(ChunkData);
 }
 
 void AChunk::OnCellStepped(UCell* SteppedCell)
