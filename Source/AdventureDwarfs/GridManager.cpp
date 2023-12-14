@@ -32,15 +32,15 @@ void AGridManager::Tick(float DeltaTime)
 void AGridManager::GenerateGrid(int rows, int columns)
 {
 	SpawnChunk(0, 0,false);
-	SpawnChunk(945, 0,true);
-	SpawnChunk(-945, 0,true);
-	SpawnChunk(0, 945, true);
-	SpawnChunk(0, -945, true);
-
-	SpawnChunk(945, -945, true);
-	SpawnChunk(-945, -945, true);
-	SpawnChunk(945, 945, true);
-	SpawnChunk(-945, 945, true);
+	SpawnChunk(1000, 0,true);
+	SpawnChunk(-1000, 0,true);
+	SpawnChunk(0, 1000, true);
+	SpawnChunk(0, -1000, true);
+	
+	SpawnChunk(1000, -1000, true);
+	SpawnChunk(-1000, -1000, true);
+	SpawnChunk(1000, 1000, true);
+	SpawnChunk(-1000, 1000, true);
 	InitializeCells();
 }
 

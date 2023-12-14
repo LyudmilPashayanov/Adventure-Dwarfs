@@ -9,6 +9,10 @@
 #include "Chunk.generated.h"
 
 class UCell;
+struct ConstructorHelpers;
+class FObjectFinder;
+class UDataTable;
+
 UCLASS()
 class ADVENTUREDWARFS_API AChunk : public AActor
 {
@@ -31,12 +35,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-private:
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
-	FString ChunkData;
-	
+	virtual ConstructorHelpers::FObjectFinder<UDataTable> GetGridConstructJsonPath();
+private:	
 	void OnCellStepped(UCell* Cell);
+	void ConstructCell(int CellIndex, FVector Translation, FRotator Rotation);
 
 public:	
 	// Called every frame

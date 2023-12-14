@@ -44,7 +44,7 @@ public:
 	UStaticMeshComponent* CellMesh;
 
 private:	
-	float TraceDistance = 100;
+	float TraceDistance = 1000;
 	bool RaycastAdjecentCells(int posX, int posY, FHitResult& HitResult);
 
 protected:
