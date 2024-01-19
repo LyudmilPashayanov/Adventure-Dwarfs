@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
+#include "Components/TimelineComponent.h"
 #include "Cell.generated.h"
 
 
@@ -11,6 +12,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FCellEvent, UCell*);
 
 enum class AdjecentDirections;
 class GridPosition;
+class UCurveFloat;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ADVENTUREDWARFS_API UCell : public USceneComponent
@@ -42,11 +44,12 @@ public:
 	UCell* Adjecent_BR = nullptr; // bottom right adjecent cell
 
 	UStaticMeshComponent* CellMesh;
-
+	FVector originalLocation;
 private:	
-	float TraceDistance = 1000;
+	float TraceDistance = 2000;
 	bool RaycastAdjecentCells(int posX, int posY, FHitResult& HitResult);
-
+	FTimeline MyTimeline;
+	bool finished=false;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -62,8 +65,15 @@ public:
 	void PrintLocation();
 	UCell* GetAdjecentCell(AdjecentDirections directionToGet);
 	void SetAdjecentCells();
-	void ShowAdjecentCells(int depth);
-	void ShowCell();
+	void ShowAdjecentCells(int depth, UCurveFloat* curveFloat);
+	
+	void ShowCell(UCurveFloat* floatCurve);
+
+	UFUNCTION()
+	void TimelineCallback(float Value);
+	UFUNCTION()
+	void TimelineFinishedCallback();
+
 	void HideCell();
 	GridPosition GetAdjecentPosition(AdjecentDirections directionToGet);
 };

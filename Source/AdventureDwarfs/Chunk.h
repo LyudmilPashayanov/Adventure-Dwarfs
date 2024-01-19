@@ -28,6 +28,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UCell*> Cells;
 
+	UPROPERTY(EditAnywhere)
+	class UCurveFloat* FloatCurve;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UBoxComponent*> BoxColliders;
@@ -45,5 +47,4 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void InitializeCells();
 	void Hide();
-	void LoadJsonData(const FString& JsonString);
 };

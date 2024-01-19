@@ -28,7 +28,7 @@ void AGridManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// GRID ARE 945 units apart from one another.
+// GRID ARE 1000 units apart from one another.
 void AGridManager::GenerateGrid(int rows, int columns)
 {
 	SpawnChunk(0, 0,false);

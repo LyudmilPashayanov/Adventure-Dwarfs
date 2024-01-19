@@ -5,6 +5,10 @@
 #include "AdjecentDirections.h"
 #include "GridPosition.h"
 #include "Raycaster.h"
+
+// Spawning Animation needed CurveFloat and Timeline
+#include "Curves/CurveFloat.h"
+
 #include "AdventureDwarfsCharacter.h"
 #include <Components/BoxComponent.h>
 
@@ -20,14 +24,14 @@ UCell::UCell()
 void UCell::BeginPlay()
 {
 	Super::BeginPlay();
-    //ShouldRaycast = true;
+    originalLocation = CellMesh->GetRelativeLocation();
 }
-
 
 // Called every frame
 void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+    MyTimeline.TickTimeline(DeltaTime);
 }
 
 void UCell::PrintLocation()
@@ -92,7 +96,7 @@ void UCell::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 bool UCell::RaycastAdjecentCells(int posX, int posY, FHitResult& result)
 {
-    FVector StartRaycastLocation = FVector(posX, posY, 100);
+    FVector StartRaycastLocation = FVector(posX, posY, 1000);
     FVector DownwardVector = GetOwner()->GetActorUpVector() * -1;
     FVector EndLocation = StartRaycastLocation + DownwardVector * TraceDistance;
 
@@ -103,11 +107,11 @@ bool UCell::RaycastAdjecentCells(int posX, int posY, FHitResult& result)
     if (bHit)
     {
         result = HitResult;
-        DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Green, false, 3, 0, 1);
+        //DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Green, false, 3, 0, 1);
     }
     else
     {
-        DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Red, false, 3, 0, 1);
+        //DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Red, false, 3, 0, 1);
     }
     return bHit;
 }
@@ -176,29 +180,72 @@ GridPosition UCell::GetAdjecentPosition(AdjecentDirections directionToGet)
     return GridPosition(0, 0);
 }
 
-void UCell::ShowAdjecentCells(int depth)
+void UCell::ShowAdjecentCells(int depth, UCurveFloat* floatCurve)
 {
     depth--;
     for (int i = 0; i < static_cast<int>(AdjecentDirections::Count); ++i)
     {
         AdjecentDirections currentEnumValue = static_cast<AdjecentDirections>(i);
         UCell* CellToCheck = GetAdjecentCell(currentEnumValue);
-        UE_LOG(LogTemp, Log, TEXT("trying to show adjecent cells"));
+        //UE_LOG(LogTemp, Log, TEXT("trying to show adjecent cells"));
         if (CellToCheck) 
         {
-            UE_LOG(LogTemp, Log, TEXT("showing adjecent cells"));
-            CellToCheck->ShowCell();
+            //UE_LOG(LogTemp, Log, TEXT("showing adjecent cells"));
+            CellToCheck->ShowCell(floatCurve);
             if (depth > 0)
             {
-                CellToCheck->ShowAdjecentCells(depth);
+                CellToCheck->ShowAdjecentCells(depth, floatCurve);
             }
         }
     }
 }
 
-void UCell::ShowCell()
+void UCell::ShowCell(UCurveFloat* floatCurve)
 {
-    CellMesh->SetVisibility(true);
+    if (CellMesh->IsVisible() == false) {
+        UE_LOG(LogTemp, Log, TEXT("SHOW CELL %s"),*GetOwner()->GetName());
+        CellMesh->SetVisibility(true);
+
+        // Update callback event:
+        FOnTimelineFloat TimelineCallback;
+        TimelineCallback.BindUFunction(this, FName("TimelineCallback"));
+                
+        // Finish callback event:
+        FOnTimelineEventStatic TimelineFinishedCallback;
+        TimelineFinishedCallback.BindUFunction(this, FName("TimelineFinishedCallback"));
+        MyTimeline.SetTimelineFinishedFunc(TimelineFinishedCallback);
+
+        // Subscribe the events:
+        MyTimeline.AddInterpFloat(floatCurve, TimelineCallback);
+        // Set the timeline's properties (e.g., length, loop, etc.)
+        MyTimeline.SetTimelineLengthMode(ETimelineLengthMode::TL_TimelineLength);
+        MyTimeline.SetTimelineLength(1.0f); // 1 second
+        MyTimeline.SetLooping(false);
+        // Play the timeline
+        MyTimeline.PlayFromStart();
+
+    }
+}
+
+void UCell::TimelineCallback(float Value)
+{
+    if (finished == false)
+    {
+        // Interpolate the value using the FloatCurve
+        UE_LOG(LogTemp, Log, TEXT("is it working? %s with value: %f"), *GetName(),Value);
+        //UE_LOG(LogTemp, Log, TEXT("originalLocation : %s"),*originalLocation.ToString());
+        float NewZ = originalLocation.Z + Value;
+        // Set the new location
+        FVector NewLocation = CellMesh->GetRelativeLocation();
+        NewLocation.Z = NewZ;
+        CellMesh->SetRelativeLocation(NewLocation);
+    }
+}
+
+void UCell::TimelineFinishedCallback()
+{
+    //finished = true;
+    UE_LOG(LogTemp, Log, TEXT("FINISHED"));
 }
 
 void UCell::HideCell()

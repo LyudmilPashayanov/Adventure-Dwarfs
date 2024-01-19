@@ -8,6 +8,11 @@
 #include "Misc/Paths.h"
 #include "Templates/SharedPointer.h"
 #include "JsonUtilities/Public/JsonObjectConverter.h"
+
+// Spawning Animation needed CurveFloat and Timeline
+#include "Curves/CurveFloat.h"
+#include "Components/TimelineComponent.h"
+
 #include "Engine/DataTable.h"
 #include "ChunkDataField.h"
 
@@ -18,6 +23,7 @@ AChunk::AChunk()
 	PrimaryActorTick.bCanEverTick = true; 
 
 	USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("ROOT"));
+
 	RootComponent = Root;
 
 	ConstructorHelpers::FObjectFinder<UDataTable> toUse = GetGridConstructJsonPath();
@@ -83,6 +89,9 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	FName BoxCollidorName(BoxColliderBaseName);
 	UBoxComponent* BoxOverlapComponent = CreateDefaultSubobject<UBoxComponent>(BoxCollidorName);
 	BoxOverlapComponent->SetupAttachment(Cell);
+	//BoxOverlapComponent->SetBoxExtent(FVector(32.0f, 32.0f, 150.0f)); // TODO: Not working for the flat chunk (only for hill chunk), try a way to fix it OR just change the scale of the object.
+	//BoxOverlapComponent->UpdateBodySetup();
+	BoxOverlapComponent->SetWorldLocation(FVector(0, 0, 150));
 	BoxOverlapComponent->OnComponentBeginOverlap.AddDynamic(Cell, &UCell::OnBeginOverlap);
 	BoxColliders.Add(BoxOverlapComponent);
 }
@@ -133,7 +142,7 @@ ConstructorHelpers::FObjectFinder<UDataTable> AChunk::GetGridConstructJsonPath()
 void AChunk::OnCellStepped(UCell* SteppedCell)
 {
 	// Handle the event
-	SteppedCell->ShowAdjecentCells(3);
+	SteppedCell->ShowAdjecentCells(4, FloatCurve);
 }
 
 // Called every frame
