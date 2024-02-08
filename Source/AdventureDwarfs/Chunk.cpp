@@ -66,7 +66,7 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	// Set the mesh 
 	CellMeshComponent->SetStaticMesh(CellMeshAsset.Object);
 	CellMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
-
+//	/* TODO: Remove this in the future, when you are using normal cell */ CellMeshComponent->SetWorldScale3D(FVector(0.1f, 0.1f, 0.1f));
 	// Reposition
 	StaticMeshComponents.Add(CellMeshComponent);
 	
@@ -93,6 +93,7 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	//BoxOverlapComponent->UpdateBodySetup();
 	BoxOverlapComponent->SetWorldLocation(FVector(0, 0, 150));
 	BoxOverlapComponent->OnComponentBeginOverlap.AddDynamic(Cell, &UCell::OnBeginOverlap);
+//	/* TODO: Remove this in the future, when you are using normal cell */ BoxOverlapComponent->SetWorldScale3D(FVector(10, 10, 10));
 	BoxColliders.Add(BoxOverlapComponent);
 }
 
