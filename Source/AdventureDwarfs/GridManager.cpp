@@ -3,7 +3,7 @@
 
 #include "GridManager.h"
 #include "Chunk.h"
-#include "AdjecentDirections.h"
+#include "AdjecantDirections.h"
 #include "GridPosition.h"
 
 // Sets default values
@@ -46,7 +46,8 @@ void AGridManager::GenerateGrid(int rows, int columns)
 
 AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
 {
-	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunkFlat_Prefab, FVector(posX, posY, 0), FRotator().ZeroRotator);
+	float randomChunkIndex = FMath::RandRange(0, ChunksLandforms.Num() - 1);
+	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[randomChunkIndex], FVector(posX, posY, 0), FRotator().ZeroRotator);
 	spawnedChunk->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 	if (hidden)
 	{

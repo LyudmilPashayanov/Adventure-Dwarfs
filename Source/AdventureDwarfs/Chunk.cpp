@@ -2,7 +2,7 @@
 
 
 #include "Chunk.h"
-#include "AdjecentDirections.h"
+#include "AdjecantDirections.h"
 #include "Cell.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
@@ -29,7 +29,7 @@ AChunk::AChunk()
 	ConstructorHelpers::FObjectFinder<UDataTable> toUse = GetGridConstructJsonPath();
 	if (toUse.Succeeded())
 	{
-		UE_LOG(LogTemp, Log, TEXT("FILE EXISTS: %s"), *toUse.Object->GetName());
+		//UE_LOG(LogTemp, Log, TEXT("FILE EXISTS: %s"), *toUse.Object->GetName());
 	
 		TArray<FChunkDataField*> CellsData;
 		toUse.Object->GetAllRows<FChunkDataField>("", CellsData);
@@ -50,7 +50,8 @@ AChunk::AChunk()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("FAILED FAILED FAILED "));
+	//
+	// 	UE_LOG(LogTemp, Log, TEXT("FAILED FAILED FAILED "));
 	}
 }
 
@@ -66,7 +67,7 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	// Set the mesh 
 	CellMeshComponent->SetStaticMesh(CellMeshAsset.Object);
 	CellMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
-//	/* TODO: Remove this in the future, when you are using normal cell */ CellMeshComponent->SetWorldScale3D(FVector(0.1f, 0.1f, 0.1f));
+	///* TODO: Remove this in the future, when you are using normal cell */ CellMeshComponent->SetWorldScale3D(FVector(0.1f, 0.1f, 0.1f));
 	// Reposition
 	StaticMeshComponents.Add(CellMeshComponent);
 	
@@ -93,7 +94,7 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	//BoxOverlapComponent->UpdateBodySetup();
 	BoxOverlapComponent->SetWorldLocation(FVector(0, 0, 150));
 	BoxOverlapComponent->OnComponentBeginOverlap.AddDynamic(Cell, &UCell::OnBeginOverlap);
-//	/* TODO: Remove this in the future, when you are using normal cell */ BoxOverlapComponent->SetWorldScale3D(FVector(10, 10, 10));
+	///* TODO: Remove this in the future, when you are using normal cell */ BoxOverlapComponent->SetWorldScale3D(FVector(10, 10, 10));
 	BoxColliders.Add(BoxOverlapComponent);
 }
 
@@ -101,7 +102,7 @@ void AChunk::Hide()
 {
 	for (UStaticMeshComponent* meshComp : StaticMeshComponents)
 	{
-		meshComp->SetVisibility(false); // You could also target the Cell and call the HideCell function
+		meshComp->SetVisibility(false); // TODO: -> BETTER --- You could also target the Cell and call the HideCell function
 	}
 }
 

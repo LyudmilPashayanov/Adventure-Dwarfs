@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <Components/BoxComponent.h>
-
+#include "Engine/DataTable.h"
 #include "Chunk.generated.h"
 
 class UCell;
@@ -23,13 +23,16 @@ public:
 	AChunk();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	TArray<UStaticMeshComponent*> StaticMeshComponents;
+	TArray<UStaticMeshComponent*> StaticMeshComponents; // TODO: Remove this and use the UCell static mesh if u need it.
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UCell*> Cells;
 
 	UPROPERTY(EditAnywhere)
 	class UCurveFloat* FloatCurve;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	TSoftObjectPtr<UDataTable> ChunkJsonData;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UBoxComponent*> BoxColliders;

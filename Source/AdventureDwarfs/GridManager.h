@@ -30,7 +30,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(EditAnywhere, Category = "Cell Manager")
-	TSubclassOf<class AChunk> ChunkFlat_Prefab;
+	TArray<TSubclassOf<class AChunk>> ChunksLandforms;
 	void GenerateGrid(int rows, int columns);
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
 	TArray<AChunk*> SpawnedChunks;
