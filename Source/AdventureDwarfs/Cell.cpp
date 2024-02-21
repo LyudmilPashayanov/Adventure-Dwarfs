@@ -3,8 +3,6 @@
 #include "Cell.h"
 #include "DrawDebugHelpers.h"
 #include "AdjecantDirections.h"
-#include "GridPosition.h"
-#include "Raycaster.h"
 
 // Spawning Animation needed CurveFloat and Timeline
 #include "Curves/CurveFloat.h"
@@ -26,7 +24,7 @@ void UCell::BeginPlay()
 {
 	Super::BeginPlay();
     originalLocation = CellMesh->GetRelativeLocation();
-    Adjecants = new AdjecantManager<UCell>();
+    Adjecants = new AdjecantManager<UCell>(this);
 }
 
 // Called every frame
@@ -52,70 +50,6 @@ void UCell::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
     {
         CellSteppedEvent.Broadcast(this); // TODO: Invokation is twice, because 2 colliders are registered for the Player. Make it one <<<
     }
-}
-
-UCell* UCell::GetAdjecentCell(AdjecantDirections directionToGet)
-{
-    switch (directionToGet)
-    {
-    case AdjecantDirections::TopLeft:
-        return Adjecants->Adjecent_TL;
-        break;
-    case AdjecantDirections::TopCenter:
-        return Adjecants->Adjecent_TC;
-        break;
-    case AdjecantDirections::TopRight:
-        return Adjecants->Adjecent_TR;
-        break;
-    case AdjecantDirections::Left:
-        return Adjecants->Adjecent_L;
-        break;
-    case AdjecantDirections::Right:
-        return Adjecants->Adjecent_R;
-        break;
-    case AdjecantDirections::BottomLeft:
-        return Adjecants->Adjecent_BL;
-        break;
-    case AdjecantDirections::BottomCenter:
-        return Adjecants->Adjecent_BC;
-        break;
-    case AdjecantDirections::BottomRight:
-        return Adjecants->Adjecent_BR;
-        break;
-    }
-    return nullptr;
-}
-
-GridPosition UCell::GetAdjecentPosition(AdjecantDirections directionToGet)
-{
-    switch (directionToGet)
-    {
-    case AdjecantDirections::TopLeft:
-        return GridPosition(GetComponentLocation().X + 105, GetComponentLocation().Y - 105);
-        break;
-    case AdjecantDirections::TopCenter:
-        return GridPosition(GetComponentLocation().X + 105, GetComponentLocation().Y);
-        break;
-    case AdjecantDirections::TopRight:
-        return GridPosition(GetComponentLocation().X + 105, GetComponentLocation().Y + 105);
-        break;
-    case AdjecantDirections::Left:
-        return GridPosition(GetComponentLocation().X, GetComponentLocation().Y - 105);
-        break;
-    case AdjecantDirections::Right:
-        return GridPosition(GetComponentLocation().X, GetComponentLocation().Y + 105);
-        break;
-    case AdjecantDirections::BottomLeft:
-        return GridPosition(GetComponentLocation().X - 105, GetComponentLocation().Y - 105);
-        break;
-    case AdjecantDirections::BottomCenter:
-        return GridPosition(GetComponentLocation().X - 105, GetComponentLocation().Y);
-        break;
-    case AdjecantDirections::BottomRight:
-        return GridPosition(GetComponentLocation().X - 105, GetComponentLocation().Y + 105);
-        break;
-    }
-    return GridPosition(0, 0);
 }
 
 void UCell::ShowAdjecentCells(int depth, UCurveFloat* floatCurve)
@@ -159,22 +93,19 @@ void UCell::ShowCell(UCurveFloat* floatCurve)
         MyTimeline.SetLooping(false);
         // Play the timeline
         MyTimeline.PlayFromStart();
-
     }
 }
 
 void UCell::TimelineCallback(float Value)
 {
-   
-        // Interpolate the value using the FloatCurve
-        //UE_LOG(LogTemp, Log, TEXT("is it working? %s with value: %f"), *GetName(),Value);
-        //UE_LOG(LogTemp, Log, TEXT("originalLocation : %s"),*originalLocation.ToString());
-        float NewZ = originalLocation.Z + Value;
-        // Set the new location
-        FVector NewLocation = CellMesh->GetRelativeLocation();
-        NewLocation.Z = NewZ;
-        CellMesh->SetRelativeLocation(NewLocation);
-    
+    // Interpolate the value using the FloatCurve
+    //UE_LOG(LogTemp, Log, TEXT("is it working? %s with value: %f"), *GetName(),Value);
+    //UE_LOG(LogTemp, Log, TEXT("originalLocation : %s"),*originalLocation.ToString());
+    float NewZ = originalLocation.Z + Value;
+    // Set the new location
+    FVector NewLocation = CellMesh->GetRelativeLocation();
+    NewLocation.Z = NewZ;
+    CellMesh->SetRelativeLocation(NewLocation);
 }
 
 void UCell::TimelineFinishedCallback()

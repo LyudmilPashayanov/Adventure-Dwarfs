@@ -35,7 +35,6 @@ public:
 	UStaticMeshComponent* CellMesh;
 	FVector originalLocation;
 private:	
-	float TraceDistance = 2000;
 	bool RaycastAdjecentObjects(int posX, int posY, FHitResult& HitResult);
 	FTimeline MyTimeline;
 protected:
