@@ -12,6 +12,8 @@ class UCell;
 struct ConstructorHelpers;
 class FObjectFinder;
 class UDataTable;
+template<class T>
+class AdjecantManager;
 
 UCLASS()
 class ADVENTUREDWARFS_API AChunk : public AActor
@@ -19,8 +21,12 @@ class ADVENTUREDWARFS_API AChunk : public AActor
 	GENERATED_BODY()
 	
 public:	
+	//AdjecantManager<AChunk>* Adjecants;
+	
 	// Sets default values for this actor's properties
 	AChunk();
+
+	
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UStaticMeshComponent*> StaticMeshComponents; // TODO: Remove this and use the UCell static mesh if u need it.

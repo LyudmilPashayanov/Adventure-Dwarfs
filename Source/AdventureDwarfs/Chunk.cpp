@@ -12,6 +12,7 @@
 // Spawning Animation needed CurveFloat and Timeline
 #include "Curves/CurveFloat.h"
 #include "Components/TimelineComponent.h"
+#include "AdjecantManager.h"
 
 #include "Engine/DataTable.h"
 #include "ChunkDataField.h"
@@ -21,18 +22,19 @@ AChunk::AChunk()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true; 
+	
+	//Adjecants = new AdjecantManager<AChunk>();
 
 	USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("ROOT"));
-
 	RootComponent = Root;
 
-	ConstructorHelpers::FObjectFinder<UDataTable> toUse = GetGridConstructJsonPath();
-	if (toUse.Succeeded())
+	ConstructorHelpers::FObjectFinder<UDataTable> JsonConstructData = GetGridConstructJsonPath();
+	if (JsonConstructData.Succeeded())
 	{
 		//UE_LOG(LogTemp, Log, TEXT("FILE EXISTS: %s"), *toUse.Object->GetName());
 	
 		TArray<FChunkDataField*> CellsData;
-		toUse.Object->GetAllRows<FChunkDataField>("", CellsData);
+		JsonConstructData.Object->GetAllRows<FChunkDataField>("", CellsData);
 		for (FChunkDataField* Cell : CellsData)
 		{
 			// Access data from Row as needed
@@ -50,8 +52,7 @@ AChunk::AChunk()
 	}
 	else
 	{
-	//
-	// 	UE_LOG(LogTemp, Log, TEXT("FAILED FAILED FAILED "));
+	 	UE_LOG(LogTemp, Log, TEXT("Failed to fetch JSON data table needed for constructing the chunk."));
 	}
 }
 

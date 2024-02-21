@@ -15,14 +15,6 @@ template<class T>
 class ADVENTUREDWARFS_API AdjecantManager
 {
 public:
-    
-    UPROPERTY()
-    USceneComponent* Parent;
-
-    inline AdjecantManager(USceneComponent* ParentObject)
-    {
-        Parent = ParentObject;
-    }
 	UPROPERTY()
 	T* Adjecent_TL = nullptr; // top left adjecent
 	UPROPERTY()
@@ -40,14 +32,14 @@ public:
 	UPROPERTY()
 	T* Adjecent_BR = nullptr; // bottom right adjecent 
 
-	void SetAdjecantObjects() 
+	void SetAdjecantObjects(FVector componentUpVector, UWorld* componentWorld, FVector componentLocation)
 	{
         FHitResult hit;
         for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
         {
             AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-            GridPosition positionToCheck = GetAdjecentPosition(currentEnumValue);
-            if (RaycastAdjecentObjects(positionToCheck.X, positionToCheck.Y, hit))
+            GridPosition positionToCheck = GetAdjecentPosition(currentEnumValue, componentLocation);
+            if (RaycastAdjecentObjects(positionToCheck.X, positionToCheck.Y, hit, componentUpVector, componentWorld))
             {
                 USceneComponent* ObjectSceneComponent = hit.GetComponent()->GetChildComponent(0);
                 if (ObjectSceneComponent->IsA(T::StaticClass())) // maybe not very flexible :P 
@@ -86,67 +78,67 @@ public:
         }
 	}
 
+    T* GetAdjecantObject(AdjecantDirections directionToGet)
+    {
+        switch (directionToGet)
+        {
+        case AdjecantDirections::TopLeft:
+            return Adjecent_TL;
+            break;
+        case AdjecantDirections::TopCenter:
+            return Adjecent_TC;
+            break;
+        case AdjecantDirections::TopRight:
+            return Adjecent_TR;
+            break;
+        case AdjecantDirections::Left:
+            return Adjecent_L;
+            break;
+        case AdjecantDirections::Right:
+            return Adjecent_R;
+            break;
+        case AdjecantDirections::BottomLeft:
+            return Adjecent_BL;
+            break;
+        case AdjecantDirections::BottomCenter:
+            return Adjecent_BC;
+            break;
+        case AdjecantDirections::BottomRight:
+            return Adjecent_BR;
+            break;
+        }
+        return nullptr;
+    }
 private:
     float TraceDistance = 2000;
     
-    bool RaycastAdjecentObjects(int posX, int posY, FHitResult& result)  
+    bool RaycastAdjecentObjects(int posX, int posY, FHitResult& result, FVector componentUpVector, UWorld* componentWorld)
     {
         FVector StartRaycastLocation = FVector(posX, posY, 1000);
-        FVector DownwardVector = Parent->GetOwner()->GetActorUpVector() * -1;
+        FVector DownwardVector = componentUpVector * -1;
         FVector EndLocation = StartRaycastLocation + DownwardVector * TraceDistance;
        
         FHitResult HitResult;
        
-        bool bHit = Parent->GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, ECC_GameTraceChannel1);
+        bool bHit = componentWorld->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, ECC_GameTraceChannel1);
        
         if (bHit)
         {
             result = HitResult;
-            //DrawDebugLine(Parent->GetWorld(), StartRaycastLocation, EndLocation, FColor::Green, false, 3, 0, 1);
+            //DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Green, false, 3, 0, 1);
         }
         else
         {
-            //DrawDebugLine(Parent->GetWorld(), StartRaycastLocation, EndLocation, FColor::Red, false, 3, 0, 1);
+            //DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Red, false, 3, 0, 1);
         }
         return bHit;
     }
-   
-     T* GetAdjecantObject(AdjecantDirections directionToGet) 
-     {
-         switch (directionToGet)
-         {
-         case AdjecantDirections::TopLeft:
-             return Adjecent_TL;
-             break;
-         case AdjecantDirections::TopCenter:
-             return Adjecent_TC;
-             break;
-         case AdjecantDirections::TopRight:
-             return Adjecent_TR;
-             break;
-         case AdjecantDirections::Left:
-             return Adjecent_L;
-             break;
-         case AdjecantDirections::Right:
-             return Adjecent_R;
-             break;
-         case AdjecantDirections::BottomLeft:
-             return Adjecent_BL;
-             break;
-         case AdjecantDirections::BottomCenter:
-             return Adjecent_BC;
-             break;
-         case AdjecantDirections::BottomRight:
-             return Adjecent_BR;
-             break;
-         }
-         return nullptr;
-     }
+  
 
-    GridPosition GetAdjecentPosition(AdjecantDirections directionToGet)
+    GridPosition GetAdjecentPosition(AdjecantDirections directionToGet, FVector componentLocation)
     {
-        int ParentLocationX = Parent->GetComponentLocation().X;
-        int ParentLocationY = Parent->GetComponentLocation().Y;
+        int ParentLocationX = componentLocation.X;
+        int ParentLocationY = componentLocation.Y;
         switch (directionToGet)
         {
         case AdjecantDirections::TopLeft:

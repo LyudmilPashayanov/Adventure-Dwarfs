@@ -28,11 +28,10 @@ void AGridManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// GRID ARE 1000 units apart from one another.
 void AGridManager::GenerateGrid(int rows, int columns)
 {
 	SpawnChunk(0, 0,false);
-	SpawnChunk(1000, 0,true);
+	SpawnChunk(1000, 0,true); // Chunks are 1000 units apart from one another.
 	SpawnChunk(-1000, 0,true);
 	SpawnChunk(0, 1000, true);
 	SpawnChunk(0, -1000, true);
@@ -64,19 +63,4 @@ void AGridManager::InitializeCells()
 		chunk->InitializeCells();
 	}
 }
-
-//void AGridManager::OnCellEventReceived(ACell* SteppedCell)
-//{
-//	// Handle the event
-//	//UE_LOG(LogTemp, Warning, TEXT("CellEvent received from Cell x= %d AND y= %d"), SteppedCell->posX, SteppedCell->posY);
-//	/*for (int i = 0; i < static_cast<int>(AdjecentDirections::Count); ++i) {
-//		AdjecentDirections currentEnumValue = static_cast<AdjecentDirections>(i);
-//
-//		if (!SteppedCell->CheckAdjecentCell(currentEnumValue))
-//		{
-//			GridPosition pos = SteppedCell->GetAdjecentPosition(currentEnumValue);
-//			SpawnCell(pos.X, pos.Y);
-//		}
-//	}*/
-//}
 

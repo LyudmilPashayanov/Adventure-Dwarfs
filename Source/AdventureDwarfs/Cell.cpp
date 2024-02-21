@@ -24,7 +24,7 @@ void UCell::BeginPlay()
 {
 	Super::BeginPlay();
     originalLocation = CellMesh->GetRelativeLocation();
-    Adjecants = new AdjecantManager<UCell>(this);
+    Adjecants = new AdjecantManager<UCell>();
 }
 
 // Called every frame
@@ -41,7 +41,8 @@ void UCell::PrintLocation()
 
 void UCell::SetAdjecentCells()
 {
-    Adjecants->SetAdjecantObjects();
+    FVector upVector = GetOwner()->GetActorUpVector();
+    Adjecants->SetAdjecantObjects(upVector, GetWorld(), GetComponentLocation());
 }
 
 void UCell::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -58,7 +59,7 @@ void UCell::ShowAdjecentCells(int depth, UCurveFloat* floatCurve)
     for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
     {
         AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-        UCell* CellToCheck = GetAdjecentCell(currentEnumValue);
+        UCell* CellToCheck = Adjecants->GetAdjecantObject(currentEnumValue);
         if (CellToCheck) 
         {
             CellToCheck->ShowCell(floatCurve);
