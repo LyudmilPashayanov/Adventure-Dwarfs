@@ -28,7 +28,8 @@ public:
 
 	AdjecantManager<UCell>* Adjecants;
 	
-	
+	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel1; // Custom trace channel
+
 	FCellEvent CellSteppedEvent;
 	bool ShouldRaycast;
 	

@@ -23,8 +23,7 @@ AChunk::AChunk()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true; 
 	
-	//Adjecants = new AdjecantManager<AChunk>();
-
+	Adjecants = new AdjecantManager<AChunk>();
 	USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("ROOT"));
 	RootComponent = Root;
 
@@ -111,6 +110,7 @@ void AChunk::Hide()
 void AChunk::BeginPlay()
 {
 	Super::BeginPlay();
+	Adjecants->SetAdjecantObjects(GetActorUpVector(), GetWorld(), GetActorLocation());
 }
 
 ConstructorHelpers::FObjectFinder<UDataTable> AChunk::GetGridConstructJsonPath()

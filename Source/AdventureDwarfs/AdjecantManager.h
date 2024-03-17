@@ -118,10 +118,13 @@ private:
         FVector DownwardVector = componentUpVector * -1;
         FVector EndLocation = StartRaycastLocation + DownwardVector * TraceDistance;
        
+        //ECollisionChannel TraceChannel = UEngineTypes::ConvertToCollisionChannel(T::TraceChannelValue);
+
+
         FHitResult HitResult;
        
         bool bHit = componentWorld->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, ECC_GameTraceChannel1);
-       
+        
         if (bHit)
         {
             result = HitResult;
@@ -133,7 +136,7 @@ private:
         }
         return bHit;
     }
-  
+    
 
     GridPosition GetAdjecentPosition(AdjecantDirections directionToGet, FVector componentLocation)
     {
