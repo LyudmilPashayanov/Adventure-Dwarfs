@@ -36,13 +36,15 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 
 void UCell::PrintLocation()
 {
-	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), GetComponentLocation().X, GetComponentLocation().Y, GetComponentLocation().Z);
+	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), CellMesh->GetComponentLocation().X, CellMesh->GetComponentLocation().Y, CellMesh->GetComponentLocation().Z);
+	UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), CellMesh->Bounds.BoxExtent.X*2, CellMesh->Bounds.BoxExtent.Y*2, CellMesh->Bounds.BoxExtent.Z*2);
 }
 
 void UCell::SetAdjecentCells()
 {
     FVector upVector = GetOwner()->GetActorUpVector();
-    Adjecants->SetAdjecantObjects(upVector, GetWorld(), GetComponentLocation());
+    PrintLocation();
+    Adjecants->SetAdjecantObjects(upVector, GetWorld(), CellMesh->GetComponentLocation(), CellMesh->Bounds.BoxExtent.X*2);
 }
 
 void UCell::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

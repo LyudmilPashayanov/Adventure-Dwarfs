@@ -25,7 +25,7 @@ class ADVENTUREDWARFS_API UCell : public USceneComponent
 public:	
 	// Sets default values for this component's properties
 	UCell();
-
+	
 	AdjecantManager<UCell>* Adjecants;
 	
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel1; // Custom trace channel

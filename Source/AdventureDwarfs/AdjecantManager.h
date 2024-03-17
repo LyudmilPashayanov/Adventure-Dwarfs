@@ -32,46 +32,92 @@ public:
 	UPROPERTY()
 	T* Adjecent_BR = nullptr; // bottom right adjecent 
 
-	void SetAdjecantObjects(FVector componentUpVector, UWorld* componentWorld, FVector componentLocation)
+	void SetAdjecantObjects(FVector componentUpVector, UWorld* componentWorld, FVector componentLocation, float componentWidth)
 	{
         FHitResult hit;
         for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
         {
             AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-            GridPosition positionToCheck = GetAdjecentPosition(currentEnumValue, componentLocation);
+            GridPosition positionToCheck = GetAdjecentPosition(currentEnumValue, componentLocation, componentWidth); // get the size of the component
             if (RaycastAdjecentObjects(positionToCheck.X, positionToCheck.Y, hit, componentUpVector, componentWorld))
             {
-                USceneComponent* ObjectSceneComponent = hit.GetComponent()->GetChildComponent(0);
-                if (ObjectSceneComponent->IsA(T::StaticClass())) // maybe not very flexible :P 
+                TArray<USceneComponent*> parents;
+                hit.GetComponent()->GetParentComponents(parents);
+                bool parentFound = false;
+                for (USceneComponent* parent : parents)
                 {
-                    // UE_LOG(LogTemp, Log, TEXT("hit CHILD INDEX 0 name: %s"), *CellSceneComponent->GetName());
-                    T* objectAtPos = Cast<T>(ObjectSceneComponent);
-                    switch (currentEnumValue)
+                    if (parent->IsA(T::StaticClass()))
                     {
-                    case AdjecantDirections::TopLeft:
-                        Adjecent_TL = objectAtPos;
+                        UE_LOG(LogTemp, Log, TEXT("success 11111111111111111111111"));
+                        T* objectAtPos = Cast<T>(parent);
+                        switch (currentEnumValue)
+                        {
+                        case AdjecantDirections::TopLeft:
+                            Adjecent_TL = objectAtPos;
+                            break;
+                        case AdjecantDirections::TopCenter:
+                            Adjecent_TC = objectAtPos;
+                            break;
+                        case AdjecantDirections::TopRight:
+                            Adjecent_TR = objectAtPos;
+                            break;
+                        case AdjecantDirections::Left:
+                            Adjecent_L = objectAtPos;
+                            break;
+                        case AdjecantDirections::Right:
+                            Adjecent_R = objectAtPos;
+                            break;
+                        case AdjecantDirections::BottomLeft:
+                            Adjecent_BL = objectAtPos;
+                            break;
+                        case AdjecantDirections::BottomCenter:
+                            Adjecent_BC = objectAtPos;
+                            break;
+                        case AdjecantDirections::BottomRight:
+                            Adjecent_BR = objectAtPos;
+                            break;
+                        }
+                        parentFound=true;
                         break;
-                    case AdjecantDirections::TopCenter:
-                        Adjecent_TC = objectAtPos;
-                        break;
-                    case AdjecantDirections::TopRight:
-                        Adjecent_TR = objectAtPos;
-                        break;
-                    case AdjecantDirections::Left:
-                        Adjecent_L = objectAtPos;
-                        break;
-                    case AdjecantDirections::Right:
-                        Adjecent_R = objectAtPos;
-                        break;
-                    case AdjecantDirections::BottomLeft:
-                        Adjecent_BL = objectAtPos;
-                        break;
-                    case AdjecantDirections::BottomCenter:
-                        Adjecent_BC = objectAtPos;
-                        break;
-                    case AdjecantDirections::BottomRight:
-                        Adjecent_BR = objectAtPos;
-                        break;
+                    }
+                }
+                if(parentFound == false)
+                {
+                    if(hit.GetComponent()->GetOwner()->IsA(T::StaticClass()))
+                    {
+                        T* objectAtPos = Cast<T>(hit.GetComponent()->GetOwner());
+                        UE_LOG(LogTemp, Log, TEXT("success 2222222222222222222"));
+                        switch (currentEnumValue)
+                        {
+                        case AdjecantDirections::TopLeft:
+                            Adjecent_TL = objectAtPos;
+                            break;
+                        case AdjecantDirections::TopCenter:
+                            Adjecent_TC = objectAtPos;
+                            break;
+                        case AdjecantDirections::TopRight:
+                            Adjecent_TR = objectAtPos;
+                            break;
+                        case AdjecantDirections::Left:
+                            Adjecent_L = objectAtPos;
+                            break;
+                        case AdjecantDirections::Right:
+                            Adjecent_R = objectAtPos;
+                            break;
+                        case AdjecantDirections::BottomLeft:
+                            Adjecent_BL = objectAtPos;
+                            break;
+                        case AdjecantDirections::BottomCenter:
+                            Adjecent_BC = objectAtPos;
+                            break;
+                        case AdjecantDirections::BottomRight:
+                            Adjecent_BR = objectAtPos;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        UE_LOG(LogTemp, Log, TEXT("failed to find anything"));
                     }
                 }
             }
@@ -118,55 +164,57 @@ private:
         FVector DownwardVector = componentUpVector * -1;
         FVector EndLocation = StartRaycastLocation + DownwardVector * TraceDistance;
        
-        //ECollisionChannel TraceChannel = UEngineTypes::ConvertToCollisionChannel(T::TraceChannelValue);
-
+        UE_LOG(LogTemp, Log, TEXT("raycasting :) "));
 
         FHitResult HitResult;
        
-        bool bHit = componentWorld->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, ECC_GameTraceChannel1);
+        bool bHit = componentWorld->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, T::TraceChannelValue);
         
         if (bHit)
         {
             result = HitResult;
-            //DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Green, false, 3, 0, 1);
+            if(T::TraceChannelValue == ECC_GameTraceChannel1)
+                DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Green, false, 3, 0, 1);
         }
         else
         {
-            //DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Red, false, 3, 0, 1);
+            if(T::TraceChannelValue == ECC_GameTraceChannel1)
+                DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Red, false, 3, 0, 1);
         }
         return bHit;
     }
     
 
-    GridPosition GetAdjecentPosition(AdjecantDirections directionToGet, FVector componentLocation)
+    GridPosition GetAdjecentPosition(AdjecantDirections directionToGet, FVector componentLocation, float componentWidth)
     {
         int ParentLocationX = componentLocation.X;
         int ParentLocationY = componentLocation.Y;
+        int halfSize = componentWidth;
         switch (directionToGet)
         {
         case AdjecantDirections::TopLeft:
-            return GridPosition(ParentLocationX + 105, ParentLocationY - 105);
+            return GridPosition(ParentLocationX + halfSize, ParentLocationY - halfSize);
             break;
         case AdjecantDirections::TopCenter:
-            return GridPosition(ParentLocationX + 105, ParentLocationY);
+            return GridPosition(ParentLocationX + halfSize, ParentLocationY);
             break;
         case AdjecantDirections::TopRight:
-            return GridPosition(ParentLocationX + 105, ParentLocationY + 105);
+            return GridPosition(ParentLocationX + halfSize, ParentLocationY + halfSize);
             break;
         case AdjecantDirections::Left:
-            return GridPosition(ParentLocationX, ParentLocationY - 105);
+            return GridPosition(ParentLocationX, ParentLocationY - halfSize);
             break;
         case AdjecantDirections::Right:
-            return GridPosition(ParentLocationX, ParentLocationY + 105);
+            return GridPosition(ParentLocationX, ParentLocationY + halfSize);
             break;
         case AdjecantDirections::BottomLeft:
-            return GridPosition(ParentLocationX - 105, ParentLocationY - 105);
+            return GridPosition(ParentLocationX - halfSize, ParentLocationY - halfSize);
             break;
         case AdjecantDirections::BottomCenter:
-            return GridPosition(ParentLocationX - 105, ParentLocationY);
+            return GridPosition(ParentLocationX - halfSize, ParentLocationY);
             break;
         case AdjecantDirections::BottomRight:
-            return GridPosition(ParentLocationX - 105, ParentLocationY + 105);
+            return GridPosition(ParentLocationX - halfSize, ParentLocationY + halfSize);
             break;
         }
         return GridPosition(0, 0);

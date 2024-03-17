@@ -22,7 +22,10 @@ class ADVENTUREDWARFS_API AChunk : public AActor
 	
 public:	
 	AdjecantManager<AChunk>* Adjecants;
-	
+	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel3; // Custom trace channel
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	UBoxComponent* ChunkOverlapComponent;
 	// Sets default values for this actor's properties
 	AChunk();
 

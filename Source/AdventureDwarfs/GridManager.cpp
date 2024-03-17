@@ -31,15 +31,15 @@ void AGridManager::Tick(float DeltaTime)
 void AGridManager::GenerateGrid(int rows, int columns)
 {
 	SpawnChunk(0, 0,false);
-	SpawnChunk(1000, 0,true); // Chunks are 1000 units apart from one another.
-	SpawnChunk(-1000, 0,true);
+	SpawnChunk(1000, 0,false); // Chunks are 1000 units apart from one another.
+	/*SpawnChunk(-1000, 0,true);
 	SpawnChunk(0, 1000, true);
 	SpawnChunk(0, -1000, true);
 	
 	SpawnChunk(1000, -1000, true);
 	SpawnChunk(-1000, -1000, true);
 	SpawnChunk(1000, 1000, true);
-	SpawnChunk(-1000, 1000, true);
+	SpawnChunk(-1000, 1000, true);*/
 	InitializeCells();
 }
 

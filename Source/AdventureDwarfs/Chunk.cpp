@@ -24,8 +24,15 @@ AChunk::AChunk()
 	PrimaryActorTick.bCanEverTick = true; 
 	
 	Adjecants = new AdjecantManager<AChunk>();
+
 	USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("ROOT"));
 	RootComponent = Root;
+	
+	ChunkOverlapComponent = CreateDefaultSubobject<UBoxComponent>("ChunkColliderRoot");
+	ChunkOverlapComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Block);
+	ChunkOverlapComponent->SetWorldLocation(FVector(0, 0, 150));
+	ChunkOverlapComponent->SetBoxExtent(FVector(500, 500,100 ));
+	ChunkOverlapComponent->SetupAttachment(RootComponent);
 
 	ConstructorHelpers::FObjectFinder<UDataTable> JsonConstructData = GetGridConstructJsonPath();
 	if (JsonConstructData.Succeeded())
@@ -59,43 +66,43 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 {
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CellMeshAsset(TEXT("StaticMesh'/Game/LyudmilContent/Chunks/default_cell.default_cell'")); // Get the building mesh - cell
 
-	FString baseName = "MeshCell_";
-	baseName.AppendInt(CellIndex);
-	FName name(baseName);
-	UStaticMeshComponent* CellMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(name);
-	CellMeshComponent->SetupAttachment(RootComponent);
-	// Set the mesh 
-	CellMeshComponent->SetStaticMesh(CellMeshAsset.Object);
-	CellMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
-	///* TODO: Remove this in the future, when you are using normal cell */ CellMeshComponent->SetWorldScale3D(FVector(0.1f, 0.1f, 0.1f));
-	// Reposition
-	StaticMeshComponents.Add(CellMeshComponent);
 	
-	CellMeshComponent->SetRelativeLocation(Translation);
-	CellMeshComponent->SetRelativeRotation(Rotation);
-
+	//BoxOverlapComponent->OnComponentBeginOverlap.AddDynamic(Cell, &UCell::OnBeginOverlap);
 	// Creating Cell class instances:
 	FString cellInstanceBaseName = "InstanceCell_";
 	cellInstanceBaseName.AppendInt(CellIndex);
 	FName CellInstanceName(cellInstanceBaseName);
 	UCell* Cell = CreateDefaultSubobject<UCell>(CellInstanceName);
-	Cell->SetupAttachment(CellMeshComponent);
+	Cell->SetupAttachment(RootComponent);
 	Cell->CellSteppedEvent.AddUObject(this, &AChunk::OnCellStepped);
-	Cell->CellMesh = CellMeshComponent;
 	Cells.Add(Cell);
+	
+	FString baseName = "MeshCell_";
+	baseName.AppendInt(CellIndex);
+	FName name(baseName);
+	UStaticMeshComponent* CellMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(name);
+	CellMeshComponent->SetupAttachment(Cell);
+	CellMeshComponent->SetStaticMesh(CellMeshAsset.Object);
+	CellMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+	CellMeshComponent->SetRelativeLocation(Translation);
+	CellMeshComponent->SetRelativeRotation(Rotation);
+	StaticMeshComponents.Add(CellMeshComponent);
+	Cell->CellMesh = CellMeshComponent;
+
 
 	// Creating Box Collidor Components:
 	FString BoxColliderBaseName = "CollideDetector_";
 	BoxColliderBaseName.AppendInt(CellIndex);
 	FName BoxCollidorName(BoxColliderBaseName);
 	UBoxComponent* BoxOverlapComponent = CreateDefaultSubobject<UBoxComponent>(BoxCollidorName);
-	BoxOverlapComponent->SetupAttachment(Cell);
 	//BoxOverlapComponent->SetBoxExtent(FVector(32.0f, 32.0f, 150.0f)); // TODO: Not working for the flat chunk (only for hill chunk), try a way to fix it OR just change the scale of the object.
 	//BoxOverlapComponent->UpdateBodySetup();
 	BoxOverlapComponent->SetWorldLocation(FVector(0, 0, 150));
 	BoxOverlapComponent->OnComponentBeginOverlap.AddDynamic(Cell, &UCell::OnBeginOverlap);
 	///* TODO: Remove this in the future, when you are using normal cell */ BoxOverlapComponent->SetWorldScale3D(FVector(10, 10, 10));
 	BoxColliders.Add(BoxOverlapComponent);
+	BoxOverlapComponent->SetupAttachment(CellMeshComponent);
+
 }
 
 void AChunk::Hide()
@@ -109,8 +116,16 @@ void AChunk::Hide()
 // Called when the game starts or when spawned
 void AChunk::BeginPlay()
 {
+	
 	Super::BeginPlay();
-	Adjecants->SetAdjecantObjects(GetActorUpVector(), GetWorld(), GetActorLocation());
+	FVector Origin;
+	FVector BoxExtent;
+	
+	GetActorBounds(false, Origin, BoxExtent);
+	Adjecants->SetAdjecantObjects(GetActorUpVector(), GetWorld(), Origin, BoxExtent.X*2);
+
+	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), Origin.X, Origin.Y,Origin.Z);
+	UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), BoxExtent.X,BoxExtent.Y,BoxExtent.Z);
 }
 
 ConstructorHelpers::FObjectFinder<UDataTable> AChunk::GetGridConstructJsonPath()
