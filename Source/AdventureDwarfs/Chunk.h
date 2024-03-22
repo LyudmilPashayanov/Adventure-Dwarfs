@@ -24,7 +24,7 @@ class ADVENTUREDWARFS_API AChunk : public AActor
 	
 public:
 
-	AdjecantManager<AChunk>* Adjecants;
+	AdjecantManager<AChunk>* AdjecantsManager;
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel3; // Custom trace channel
 	FOnChunkStepped OnChunkStepped;
 
@@ -54,12 +54,12 @@ protected:
 	virtual ConstructorHelpers::FObjectFinder<UDataTable> GetGridConstructJsonPath();
 private:	
 	void OnCellStepped(UCell* Cell);
-	void SpawnChunks(int depth);
 	void ConstructCell(int CellIndex, FVector Translation, FRotator Rotation);
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void InitializeCells();
+	void SetAdjacents();
 	void Hide();
 };

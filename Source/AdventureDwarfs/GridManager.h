@@ -28,6 +28,7 @@ private:
 	AChunk* grid;
 
 	void ChunkStepped_Handler(AChunk* SteppedChunk);
+	void SpawnChunksRecursive(AChunk* startChunk, int depth);
 
 public:	
 	// Called every frame

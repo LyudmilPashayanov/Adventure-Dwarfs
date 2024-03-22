@@ -36,7 +36,6 @@ public:
 	UStaticMeshComponent* CellMesh;
 	FVector originalLocation;
 private:	
-	bool RaycastAdjecentObjects(int posX, int posY, FHitResult& HitResult);
 	FTimeline MyTimeline;
 protected:
 	// Called when the game starts
@@ -52,8 +51,8 @@ public:
 
 	void PrintLocation();
 	UCell* GetAdjecentCell(AdjecantDirections directionToGet);
-	void SetAdjecentCells();
-	void ShowAdjecentCells(int depth, UCurveFloat* curveFloat);
+	void SetAdjacentCells();
+	void ShowAdjacentCells(int depth, UCurveFloat* curveFloat);
 	
 	void ShowCell(UCurveFloat* floatCurve);
 

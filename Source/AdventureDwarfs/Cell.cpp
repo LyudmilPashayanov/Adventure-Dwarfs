@@ -24,7 +24,7 @@ void UCell::BeginPlay()
 {
 	Super::BeginPlay();
     originalLocation = CellMesh->GetRelativeLocation();
-    Adjecants = new AdjecantManager<UCell>();
+    Adjecants = new AdjecantManager<UCell>(CellMesh->Bounds.BoxExtent.X*2, CellMesh->GetComponentLocation());
 }
 
 // Called every frame
@@ -40,11 +40,11 @@ void UCell::PrintLocation()
 	UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), CellMesh->Bounds.BoxExtent.X*2, CellMesh->Bounds.BoxExtent.Y*2, CellMesh->Bounds.BoxExtent.Z*2);
 }
 
-void UCell::SetAdjecentCells()
+void UCell::SetAdjacentCells()
 {
     FVector upVector = GetOwner()->GetActorUpVector();
     PrintLocation();
-    Adjecants->SetAdjecantObjects(upVector, GetWorld(), CellMesh->GetComponentLocation(), CellMesh->Bounds.BoxExtent.X*2);
+    Adjecants->SetAdjacentObjects(upVector, GetWorld());
 }
 
 void UCell::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -55,19 +55,19 @@ void UCell::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
     }
 }
 
-void UCell::ShowAdjecentCells(int depth, UCurveFloat* floatCurve)
+void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
 {
     depth--;
     for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
     {
         AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-        UCell* CellToCheck = Adjecants->GetAdjecantObject(currentEnumValue);
+        UCell* CellToCheck = Adjecants->GetAdjacentObject(currentEnumValue);
         if (CellToCheck) 
         {
             CellToCheck->ShowCell(floatCurve);
             if (depth > 0)
             {
-                CellToCheck->ShowAdjecentCells(depth, floatCurve);
+                CellToCheck->ShowAdjacentCells(depth, floatCurve);
             }
         }
     }

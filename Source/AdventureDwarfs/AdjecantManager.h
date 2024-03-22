@@ -15,31 +15,37 @@ template<class T>
 class ADVENTUREDWARFS_API AdjecantManager
 {
 public:
+    AdjecantManager(float ComponentWidth, FVector ComponentLocation)
+    {
+        componentWidth = ComponentWidth;
+        componentLocation = ComponentLocation;
+    }
+    
 	UPROPERTY()
-	T* Adjecent_TL = nullptr; // top left adjecent
+	T* Adjacent_TL = nullptr; // top left adjecent
 	UPROPERTY()
-	T* Adjecent_TC = nullptr; // top center adjecent
+	T* Adjacent_TC = nullptr; // top center adjecent
 	UPROPERTY()
-	T* Adjecent_TR = nullptr; // top right adjecent 
+	T* Adjacent_TR = nullptr; // top right adjecent 
 	UPROPERTY()
-	T* Adjecent_L = nullptr;  // left adjecent
+	T* Adjacent_L = nullptr;  // left adjecent
 	UPROPERTY()
-	T* Adjecent_R = nullptr;  // right adjecent 
+	T* Adjacent_R = nullptr;  // right adjecent 
 	UPROPERTY()
-	T* Adjecent_BL = nullptr; // bottom left adjecent
+	T* Adjacent_BL = nullptr; // bottom left adjecent
 	UPROPERTY()
-	T* Adjecent_BC = nullptr; // bottom center adjecent
+	T* Adjacent_BC = nullptr; // bottom center adjecent
 	UPROPERTY()
-	T* Adjecent_BR = nullptr; // bottom right adjecent 
-
-	void SetAdjecantObjects(FVector componentUpVector, UWorld* componentWorld, FVector componentLocation, float componentWidth)
+	T* Adjacent_BR = nullptr; // bottom right adjecent 
+	
+	void SetAdjacentObjects(FVector componentUpVector, UWorld* componentWorld)
 	{
         FHitResult hit;
         for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
         {
             AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-            GridPosition positionToCheck = GetAdjecentPosition(currentEnumValue, componentLocation, componentWidth); // get the size of the component
-            if (RaycastAdjecentObjects(positionToCheck.X, positionToCheck.Y, hit, componentUpVector, componentWorld))
+            GridPosition positionToCheck = GetAdjacentPosition(currentEnumValue);
+            if (RaycastAdjacentObjects(positionToCheck.X, positionToCheck.Y, hit, componentUpVector, componentWorld))
             {
                 TArray<USceneComponent*> parents;
                 hit.GetComponent()->GetParentComponents(parents);
@@ -48,35 +54,8 @@ public:
                 {
                     if (parent->IsA(T::StaticClass()))
                     {
-                        UE_LOG(LogTemp, Log, TEXT("success 11111111111111111111111"));
                         T* objectAtPos = Cast<T>(parent);
-                        switch (currentEnumValue)
-                        {
-                        case AdjecantDirections::TopLeft:
-                            Adjecent_TL = objectAtPos;
-                            break;
-                        case AdjecantDirections::TopCenter:
-                            Adjecent_TC = objectAtPos;
-                            break;
-                        case AdjecantDirections::TopRight:
-                            Adjecent_TR = objectAtPos;
-                            break;
-                        case AdjecantDirections::Left:
-                            Adjecent_L = objectAtPos;
-                            break;
-                        case AdjecantDirections::Right:
-                            Adjecent_R = objectAtPos;
-                            break;
-                        case AdjecantDirections::BottomLeft:
-                            Adjecent_BL = objectAtPos;
-                            break;
-                        case AdjecantDirections::BottomCenter:
-                            Adjecent_BC = objectAtPos;
-                            break;
-                        case AdjecantDirections::BottomRight:
-                            Adjecent_BR = objectAtPos;
-                            break;
-                        }
+                    	SetAdjacent(currentEnumValue, objectAtPos);
                         parentFound=true;
                         break;
                     }
@@ -86,34 +65,7 @@ public:
                     if(hit.GetComponent()->GetOwner()->IsA(T::StaticClass()))
                     {
                         T* objectAtPos = Cast<T>(hit.GetComponent()->GetOwner());
-                        UE_LOG(LogTemp, Log, TEXT("success 2222222222222222222"));
-                        switch (currentEnumValue)
-                        {
-                        case AdjecantDirections::TopLeft:
-                            Adjecent_TL = objectAtPos;
-                            break;
-                        case AdjecantDirections::TopCenter:
-                            Adjecent_TC = objectAtPos;
-                            break;
-                        case AdjecantDirections::TopRight:
-                            Adjecent_TR = objectAtPos;
-                            break;
-                        case AdjecantDirections::Left:
-                            Adjecent_L = objectAtPos;
-                            break;
-                        case AdjecantDirections::Right:
-                            Adjecent_R = objectAtPos;
-                            break;
-                        case AdjecantDirections::BottomLeft:
-                            Adjecent_BL = objectAtPos;
-                            break;
-                        case AdjecantDirections::BottomCenter:
-                            Adjecent_BC = objectAtPos;
-                            break;
-                        case AdjecantDirections::BottomRight:
-                            Adjecent_BR = objectAtPos;
-                            break;
-                        }
+                    	SetAdjacent(currentEnumValue, objectAtPos);
                     }
                     else
                     {
@@ -123,48 +75,118 @@ public:
             }
         }
 	}
-
-    T* GetAdjecantObject(AdjecantDirections directionToGet)
+	
+	void SetAdjacent(AdjecantDirections directionToSet, T* ObjectToSet)
+	{
+		switch (directionToSet)
+		{
+		case AdjecantDirections::TopLeft:
+			Adjacent_TL = ObjectToSet;
+			break;
+		case AdjecantDirections::TopCenter:
+			Adjacent_TC = ObjectToSet;
+			break;
+		case AdjecantDirections::TopRight:
+			Adjacent_TR = ObjectToSet;
+			break;
+		case AdjecantDirections::Left:
+			Adjacent_L = ObjectToSet;
+			break;
+		case AdjecantDirections::Right:
+			Adjacent_R = ObjectToSet;
+			break;
+		case AdjecantDirections::BottomLeft:
+			Adjacent_BL = ObjectToSet;
+			break;
+		case AdjecantDirections::BottomCenter:
+			Adjacent_BC = ObjectToSet;
+			break;
+		case AdjecantDirections::BottomRight:
+			Adjacent_BR = ObjectToSet;
+			break;
+		}
+	}
+	
+    T* GetAdjacentObject(AdjecantDirections directionToGet)
     {
         switch (directionToGet)
         {
         case AdjecantDirections::TopLeft:
-            return Adjecent_TL;
+            return Adjacent_TL;
             break;
         case AdjecantDirections::TopCenter:
-            return Adjecent_TC;
+            return Adjacent_TC;
             break;
         case AdjecantDirections::TopRight:
-            return Adjecent_TR;
+            return Adjacent_TR;
             break;
         case AdjecantDirections::Left:
-            return Adjecent_L;
+            return Adjacent_L;
             break;
         case AdjecantDirections::Right:
-            return Adjecent_R;
+            return Adjacent_R;
             break;
         case AdjecantDirections::BottomLeft:
-            return Adjecent_BL;
+            return Adjacent_BL;
             break;
         case AdjecantDirections::BottomCenter:
-            return Adjecent_BC;
+            return Adjacent_BC;
             break;
         case AdjecantDirections::BottomRight:
-            return Adjecent_BR;
+            return Adjacent_BR;
             break;
         }
         return nullptr;
     }
+	
+    GridPosition GetAdjacentPosition(AdjecantDirections directionToGet)
+	{
+	    const int ParentLocationX = componentLocation.X;
+	    const int ParentLocationY = componentLocation.Y;
+	    const int halfSize = componentWidth;
+	    switch (directionToGet)
+	    {
+	    case AdjecantDirections::TopLeft:
+	        return GridPosition(ParentLocationX + halfSize, ParentLocationY - halfSize);
+	        break;
+	    case AdjecantDirections::TopCenter:
+	        return GridPosition(ParentLocationX + halfSize, ParentLocationY);
+	        break;
+	    case AdjecantDirections::TopRight:
+	        return GridPosition(ParentLocationX + halfSize, ParentLocationY + halfSize);
+	        break;
+	    case AdjecantDirections::Left:
+	        return GridPosition(ParentLocationX, ParentLocationY - halfSize);
+	        break;
+	    case AdjecantDirections::Right:
+	        return GridPosition(ParentLocationX, ParentLocationY + halfSize);
+	        break;
+	    case AdjecantDirections::BottomLeft:
+	        return GridPosition(ParentLocationX - halfSize, ParentLocationY - halfSize);
+	        break;
+	    case AdjecantDirections::BottomCenter:
+	        return GridPosition(ParentLocationX - halfSize, ParentLocationY);
+	        break;
+	    case AdjecantDirections::BottomRight:
+	        return GridPosition(ParentLocationX - halfSize, ParentLocationY + halfSize);
+	        break;
+	    }
+	    return GridPosition(0, 0);
+	}
+	
 private:
-    float TraceDistance = 2000;
     
-    bool RaycastAdjecentObjects(int posX, int posY, FHitResult& result, FVector componentUpVector, UWorld* componentWorld)
+    float TraceDistance = 2000;
+    float componentWidth;
+    FVector componentLocation;
+    
+    bool RaycastAdjacentObjects(int posX, int posY, FHitResult& result, FVector componentUpVector, UWorld* componentWorld)
     {
         FVector StartRaycastLocation = FVector(posX, posY, 1000);
         FVector DownwardVector = componentUpVector * -1;
         FVector EndLocation = StartRaycastLocation + DownwardVector * TraceDistance;
        
-        UE_LOG(LogTemp, Log, TEXT("raycasting :) "));
+        //UE_LOG(LogTemp, Log, TEXT("raycasting :) "));
 
         FHitResult HitResult;
        
@@ -182,41 +204,5 @@ private:
                 DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Red, false, 3, 0, 1);
         }
         return bHit;
-    }
-    
-
-    GridPosition GetAdjecentPosition(AdjecantDirections directionToGet, FVector componentLocation, float componentWidth)
-    {
-        int ParentLocationX = componentLocation.X;
-        int ParentLocationY = componentLocation.Y;
-        int halfSize = componentWidth;
-        switch (directionToGet)
-        {
-        case AdjecantDirections::TopLeft:
-            return GridPosition(ParentLocationX + halfSize, ParentLocationY - halfSize);
-            break;
-        case AdjecantDirections::TopCenter:
-            return GridPosition(ParentLocationX + halfSize, ParentLocationY);
-            break;
-        case AdjecantDirections::TopRight:
-            return GridPosition(ParentLocationX + halfSize, ParentLocationY + halfSize);
-            break;
-        case AdjecantDirections::Left:
-            return GridPosition(ParentLocationX, ParentLocationY - halfSize);
-            break;
-        case AdjecantDirections::Right:
-            return GridPosition(ParentLocationX, ParentLocationY + halfSize);
-            break;
-        case AdjecantDirections::BottomLeft:
-            return GridPosition(ParentLocationX - halfSize, ParentLocationY - halfSize);
-            break;
-        case AdjecantDirections::BottomCenter:
-            return GridPosition(ParentLocationX - halfSize, ParentLocationY);
-            break;
-        case AdjecantDirections::BottomRight:
-            return GridPosition(ParentLocationX - halfSize, ParentLocationY + halfSize);
-            break;
-        }
-        return GridPosition(0, 0);
     }
 };

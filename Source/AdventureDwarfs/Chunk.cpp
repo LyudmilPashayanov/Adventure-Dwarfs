@@ -4,6 +4,7 @@
 #include "Chunk.h"
 #include "AdjecantDirections.h"
 #include "Cell.h"
+
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "Templates/SharedPointer.h"
@@ -23,7 +24,6 @@ AChunk::AChunk()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true; 
 	
-	Adjecants = new AdjecantManager<AChunk>();
 
 	USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("ROOT"));
 	RootComponent = Root;
@@ -76,7 +76,8 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	Cell->SetupAttachment(RootComponent);
 	Cell->CellSteppedEvent.AddUObject(this, &AChunk::OnCellStepped);
 	Cells.Add(Cell);
-	
+
+
 	FString baseName = "MeshCell_";
 	baseName.AppendInt(CellIndex);
 	FName name(baseName);
@@ -88,7 +89,7 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	CellMeshComponent->SetRelativeRotation(Rotation);
 	StaticMeshComponents.Add(CellMeshComponent);
 	Cell->CellMesh = CellMeshComponent;
-
+	
 
 	// Creating Box Collidor Components:
 	FString BoxColliderBaseName = "CollideDetector_";
@@ -102,7 +103,7 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	///* TODO: Remove this in the future, when you are using normal cell */ BoxOverlapComponent->SetWorldScale3D(FVector(10, 10, 10));
 	BoxColliders.Add(BoxOverlapComponent);
 	BoxOverlapComponent->SetupAttachment(CellMeshComponent);
-
+	
 }
 
 void AChunk::Hide()
@@ -122,10 +123,11 @@ void AChunk::BeginPlay()
 	FVector BoxExtent;
 	
 	GetActorBounds(false, Origin, BoxExtent);
-	Adjecants->SetAdjecantObjects(GetActorUpVector(), GetWorld(), Origin, BoxExtent.X*2);
+	AdjecantsManager = new AdjecantManager<AChunk>( BoxExtent.X*2, Origin);
 
-	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), Origin.X, Origin.Y,Origin.Z);
-	UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), BoxExtent.X,BoxExtent.Y,BoxExtent.Z);
+	//UE_LOG(LogTemp, Log, TEXT("BeginPlay of NEW CHUNK! "));
+	//UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), Origin.X, Origin.Y,Origin.Z);
+	//UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), BoxExtent.X,BoxExtent.Y,BoxExtent.Z);
 }
 
 ConstructorHelpers::FObjectFinder<UDataTable> AChunk::GetGridConstructJsonPath()
@@ -160,7 +162,7 @@ ConstructorHelpers::FObjectFinder<UDataTable> AChunk::GetGridConstructJsonPath()
 void AChunk::OnCellStepped(UCell* SteppedCell)
 {
 	// Handle the event
-	SteppedCell->ShowAdjecentCells(4, FloatCurve);
+	SteppedCell->ShowAdjacentCells(4, FloatCurve);
 	OnChunkStepped.Broadcast(this);
 }
 
@@ -174,7 +176,13 @@ void AChunk::InitializeCells()
 {
 	for (UCell* cell : Cells)
 	{
-		cell->SetAdjecentCells();
+		cell->SetAdjacentCells();
 	}
+}
+
+void AChunk::SetAdjacents()
+{
+	AdjecantsManager->SetAdjacentObjects(GetActorUpVector(), GetWorld());
+
 }
 
