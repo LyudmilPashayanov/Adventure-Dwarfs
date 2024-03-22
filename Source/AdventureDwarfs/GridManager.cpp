@@ -47,6 +47,7 @@ AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
 {
 	float randomChunkIndex = FMath::RandRange(0, ChunksLandforms.Num() - 1);
 	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[randomChunkIndex], FVector(posX, posY, 0), FRotator().ZeroRotator);
+	spawnedChunk->OnChunkStepped.AddUObject(this, &AGridManager::ChunkStepped_Handler);
 	spawnedChunk->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 	if (hidden)
 	{
@@ -54,6 +55,26 @@ AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
 	}
 	SpawnedChunks.Add(spawnedChunk);
 	return spawnedChunk;
+}
+
+void AGridManager::ChunkStepped_Handler(AChunk* SteppedChunk) // TODO: Being called on every cell stepped. Maybe optimize this?
+{
+	UE_LOG(LogTemp, Log, TEXT("ChunkStepped_Handler: %s "),*SteppedChunk->GetName())
+	
+	/*depth--;
+	for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
+	{
+		AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
+		AChunk* ChunkToCheck = Adjecants->GetAdjecantObject(currentEnumValue);
+		if (ChunkToCheck == nullptr) 
+		{
+			ChunkToCheck = GridManager ShowCell(floatCurve);
+			if (depth > 0)
+			{
+				ChunkToCheck->SpawnChunks(depth);
+			}
+		}
+	}		*/
 }
 
 void AGridManager::InitializeCells()

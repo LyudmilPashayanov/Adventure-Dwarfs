@@ -161,6 +161,7 @@ void AChunk::OnCellStepped(UCell* SteppedCell)
 {
 	// Handle the event
 	SteppedCell->ShowAdjecentCells(4, FloatCurve);
+	OnChunkStepped.Broadcast(this);
 }
 
 // Called every frame

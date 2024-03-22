@@ -26,6 +26,9 @@ protected:
 private:
 	//void OnCellEventReceived(ACell* Cell);
 	AChunk* grid;
+
+	void ChunkStepped_Handler(AChunk* SteppedChunk);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -15,14 +15,18 @@ class UDataTable;
 template<class T>
 class AdjecantManager;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnChunkStepped, AChunk*);
 UCLASS()
+
 class ADVENTUREDWARFS_API AChunk : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
+
 	AdjecantManager<AChunk>* Adjecants;
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel3; // Custom trace channel
+	FOnChunkStepped OnChunkStepped;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	UBoxComponent* ChunkOverlapComponent;
@@ -50,6 +54,7 @@ protected:
 	virtual ConstructorHelpers::FObjectFinder<UDataTable> GetGridConstructJsonPath();
 private:	
 	void OnCellStepped(UCell* Cell);
+	void SpawnChunks(int depth);
 	void ConstructCell(int CellIndex, FVector Translation, FRotator Rotation);
 
 public:	
