@@ -85,6 +85,11 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	CellMeshComponent->SetupAttachment(Cell);
 	CellMeshComponent->SetStaticMesh(CellMeshAsset.Object);
 	CellMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+
+	CellMeshComponent->OnComponentBeginOverlap.AddDynamic(Cell, &UCell::OnBeginOverlap);
+
+	//CellMeshComponent->OnComponentHit.AddDynamic(Cell, &UCell::OnBeginOverlap);
+	
 	CellMeshComponent->SetRelativeLocation(Translation);
 	CellMeshComponent->SetRelativeRotation(Rotation);
 	StaticMeshComponents.Add(CellMeshComponent);
@@ -92,7 +97,7 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	
 
 	// Creating Box Collidor Components:
-	FString BoxColliderBaseName = "CollideDetector_";
+	/*FString BoxColliderBaseName = "CollideDetector_";
 	BoxColliderBaseName.AppendInt(CellIndex);
 	FName BoxCollidorName(BoxColliderBaseName);
 	UBoxComponent* BoxOverlapComponent = CreateDefaultSubobject<UBoxComponent>(BoxCollidorName);
@@ -100,9 +105,9 @@ void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation
 	//BoxOverlapComponent->UpdateBodySetup();
 	BoxOverlapComponent->SetWorldLocation(FVector(0, 0, 150));
 	BoxOverlapComponent->OnComponentBeginOverlap.AddDynamic(Cell, &UCell::OnBeginOverlap);
-	///* TODO: Remove this in the future, when you are using normal cell */ BoxOverlapComponent->SetWorldScale3D(FVector(10, 10, 10));
+	///* TODO: Remove this in the future, when you are using normal cell #1# BoxOverlapComponent->SetWorldScale3D(FVector(10, 10, 10));
 	BoxColliders.Add(BoxOverlapComponent);
-	BoxOverlapComponent->SetupAttachment(CellMeshComponent);
+	BoxOverlapComponent->SetupAttachment(CellMeshComponent);*/
 	
 }
 

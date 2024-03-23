@@ -78,15 +78,15 @@ void AGridManager::SpawnChunksRecursive(AChunk* startChunk, int depth)
 		{
 			GridPosition posToSpawn = startChunk->AdjecantsManager->GetAdjacentPosition(currentEnumValue);
 			//UE_LOG(LogTemp, Log, TEXT("Spawn Chunk at: X = %d  Y = %d"),posToSpawn.X, posToSpawn.Y)
-			AChunk* newChunk = SpawnChunk(posToSpawn.X, posToSpawn.Y, false);
+			AChunk* newChunk = SpawnChunk(posToSpawn.X, posToSpawn.Y, true);
 			startChunk->AdjecantsManager->SetAdjacent(currentEnumValue, newChunk);
-			//startChunk->InitializeCells();  // TODO: StartChunk, should have its side cells register their adjacent new chunk cells
+			startChunk->InitializeCells();  // TODO: StartChunk, should have its side cells register their adjacent new chunk cells
 			newChunks.Add(newChunk);
 		}
 	}
 	for (AChunk* chunk : newChunks)
 	{
-		//chunk->InitializeCells();
+		chunk->InitializeCells();
 	}
 }
 
