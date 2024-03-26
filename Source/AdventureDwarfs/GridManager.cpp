@@ -50,9 +50,9 @@ AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
 	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[randomChunkIndex], FVector(posX, posY, 0), FRotator().ZeroRotator);
 	spawnedChunk->OnChunkStepped.AddUObject(this, &AGridManager::ChunkStepped_Handler);
 	spawnedChunk->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-	if (hidden)
+	if (hidden == false)
 	{
-		spawnedChunk->Hide();
+		spawnedChunk->Show();
 	}
 	SpawnedChunks.Add(spawnedChunk);
 	return spawnedChunk;
@@ -78,9 +78,9 @@ void AGridManager::SpawnChunksRecursive(AChunk* startChunk, int depth)
 		{
 			GridPosition posToSpawn = startChunk->AdjecantsManager->GetAdjacentPosition(currentEnumValue);
 			//UE_LOG(LogTemp, Log, TEXT("Spawn Chunk at: X = %d  Y = %d"),posToSpawn.X, posToSpawn.Y)
-			AChunk* newChunk = SpawnChunk(posToSpawn.X, posToSpawn.Y, true);
+			AChunk* newChunk = SpawnChunk(posToSpawn.X, posToSpawn.Y, false);
 			startChunk->AdjecantsManager->SetAdjacent(currentEnumValue, newChunk);
-			startChunk->InitializeCells();  // TODO: StartChunk, should have its side cells register their adjacent new chunk cells
+			startChunk->InitializeCells();  // TODO: StartChunk, should have ONLY its side cells UPDATE their adjacent new chunk cells
 			newChunks.Add(newChunk);
 		}
 	}
@@ -94,7 +94,7 @@ void AGridManager::InitializeCells()
 {
 	for (AChunk* chunk : SpawnedChunks)
 	{
-		chunk->InitializeCells();
+		//chunk->InitializeCells();
 	}
 }
 

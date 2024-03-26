@@ -9,14 +9,13 @@
 #include "Misc/Paths.h"
 #include "Templates/SharedPointer.h"
 #include "JsonUtilities/Public/JsonObjectConverter.h"
-
-// Spawning Animation needed CurveFloat and Timeline
-#include "Curves/CurveFloat.h"
+#include "Curves/CurveFloat.h" // Spawning Animation needed CurveFloat and Timeline
 #include "Components/TimelineComponent.h"
 #include "AdjecantManager.h"
 
 #include "Engine/DataTable.h"
 #include "ChunkDataField.h"
+#include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
 // Sets default values
 AChunk::AChunk()
@@ -37,12 +36,28 @@ AChunk::AChunk()
 	ConstructorHelpers::FObjectFinder<UDataTable> JsonConstructData = GetGridConstructJsonPath();
 	if (JsonConstructData.Succeeded())
 	{
-		//UE_LOG(LogTemp, Log, TEXT("FILE EXISTS: %s"), *toUse.Object->GetName());
-	
 		TArray<FChunkDataField*> CellsData;
 		JsonConstructData.Object->GetAllRows<FChunkDataField>("", CellsData);
+
+		static ConstructorHelpers::FObjectFinder<UStaticMesh>CellMeshAsset(TEXT("StaticMesh'/Game/LyudmilContent/Chunks/default_cell.default_cell'")); // Get the building mesh - cell
+
+		UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent = CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(" BASE CELL INSTANCE");
+		InstancedMeshComponent->SetupAttachment(ChunkOverlapComponent);
+		InstancedMeshComponent->SetStaticMesh(CellMeshAsset.Object);
+		InstancedMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+		InstancedMeshComponent->InstancingRandomSeed = FMath::Rand();
+
+		int row = 0;
+		int column = 1;
 		for (FChunkDataField* Cell : CellsData)
 		{
+			row++;
+			if(row == 11)
+			{
+				row=1;
+				column++;
+			}
+			
 			// Access data from Row as needed
 			FVector Translation;
 			Translation.X = Cell->translation[0] - 450;
@@ -53,7 +68,11 @@ AChunk::AChunk()
 			Rotation.Roll = Cell->rotation[0];
 			Rotation.Pitch = Cell->rotation[1];
 			Rotation.Yaw = Cell->rotation[2];
-			ConstructCell(Cell->cell_index, Translation, Rotation);
+			
+		
+			// Set up overlap events for the component
+
+			ConstructCell(Cell->cell_index, Translation, Rotation, InstancedMeshComponent, row, column);
 		}
 	}
 	else
@@ -62,60 +81,29 @@ AChunk::AChunk()
 	}
 }
 
-void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation)
+void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation, UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent, int row, int column)
 {
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>CellMeshAsset(TEXT("StaticMesh'/Game/LyudmilContent/Chunks/default_cell.default_cell'")); // Get the building mesh - cell
-
-	
-	//BoxOverlapComponent->OnComponentBeginOverlap.AddDynamic(Cell, &UCell::OnBeginOverlap);
 	// Creating Cell class instances:
 	FString cellInstanceBaseName = "InstanceCell_";
 	cellInstanceBaseName.AppendInt(CellIndex);
-	FName CellInstanceName(cellInstanceBaseName);
-	UCell* Cell = CreateDefaultSubobject<UCell>(CellInstanceName);
+	const FName CellInstanceName(cellInstanceBaseName);
+	UCell* Cell = CreateDefaultSubobject<UCell>(CellInstanceName); // TODO: Maybe make this also instanced clas OR a ordinary C++ class and not a unreal class UCell
 	Cell->SetupAttachment(RootComponent);
+	
+	Cell->CellMesh = InstancedMeshComponent;	
+	Cell->OriginalLocation = Translation;	
+	Cell->OriginalRotation = Rotation;
 	Cell->CellSteppedEvent.AddUObject(this, &AChunk::OnCellStepped);
+	
 	Cells.Add(Cell);
-
-
-	FString baseName = "MeshCell_";
-	baseName.AppendInt(CellIndex);
-	FName name(baseName);
-	UStaticMeshComponent* CellMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(name);
-	CellMeshComponent->SetupAttachment(Cell);
-	CellMeshComponent->SetStaticMesh(CellMeshAsset.Object);
-	CellMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
-
-	CellMeshComponent->OnComponentBeginOverlap.AddDynamic(Cell, &UCell::OnBeginOverlap);
-
-	//CellMeshComponent->OnComponentHit.AddDynamic(Cell, &UCell::OnBeginOverlap);
-	
-	CellMeshComponent->SetRelativeLocation(Translation);
-	CellMeshComponent->SetRelativeRotation(Rotation);
-	StaticMeshComponents.Add(CellMeshComponent);
-	Cell->CellMesh = CellMeshComponent;
-	
-
-	// Creating Box Collidor Components:
-	/*FString BoxColliderBaseName = "CollideDetector_";
-	BoxColliderBaseName.AppendInt(CellIndex);
-	FName BoxCollidorName(BoxColliderBaseName);
-	UBoxComponent* BoxOverlapComponent = CreateDefaultSubobject<UBoxComponent>(BoxCollidorName);
-	//BoxOverlapComponent->SetBoxExtent(FVector(32.0f, 32.0f, 150.0f)); // TODO: Not working for the flat chunk (only for hill chunk), try a way to fix it OR just change the scale of the object.
-	//BoxOverlapComponent->UpdateBodySetup();
-	BoxOverlapComponent->SetWorldLocation(FVector(0, 0, 150));
-	BoxOverlapComponent->OnComponentBeginOverlap.AddDynamic(Cell, &UCell::OnBeginOverlap);
-	///* TODO: Remove this in the future, when you are using normal cell #1# BoxOverlapComponent->SetWorldScale3D(FVector(10, 10, 10));
-	BoxColliders.Add(BoxOverlapComponent);
-	BoxOverlapComponent->SetupAttachment(CellMeshComponent);*/
-	
+	LocationCellPairs.Add(FString::Format(TEXT("{0}-{1}"), { row, column }), Cell);	// Merging the column and row so that I can create entry to find the Cell easily in the Chunk.
 }
 
-void AChunk::Hide()
+void AChunk::Show()
 {
-	for (UStaticMeshComponent* meshComp : StaticMeshComponents)
+	for (UCell* cell : Cells)
 	{
-		meshComp->SetVisibility(false); // TODO: -> BETTER --- You could also target the Cell and call the HideCell function
+		cell->ShowCell(FloatCurve);
 	}
 }
 
@@ -133,6 +121,33 @@ void AChunk::BeginPlay()
 	//UE_LOG(LogTemp, Log, TEXT("BeginPlay of NEW CHUNK! "));
 	//UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), Origin.X, Origin.Y,Origin.Z);
 	//UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), BoxExtent.X,BoxExtent.Y,BoxExtent.Z);
+}
+
+void AChunk::OnCellStepped(UCell* SteppedCell)
+{
+	// Handle the event
+	//SteppedCell->ShowAdjacentCells(4, FloatCurve);
+	OnChunkStepped.Broadcast(this);
+}
+
+// Called every frame
+void AChunk::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void AChunk::InitializeCells()
+{
+	for (UCell* cell : Cells)
+	{
+		//cell->SetAdjacentCells();
+	}
+}
+
+void AChunk::SetAdjacents()
+{
+	AdjecantsManager->SetAdjacentObjects(GetActorUpVector(), GetWorld());
+
 }
 
 ConstructorHelpers::FObjectFinder<UDataTable> AChunk::GetGridConstructJsonPath()
@@ -162,32 +177,5 @@ ConstructorHelpers::FObjectFinder<UDataTable> AChunk::GetGridConstructJsonPath()
 	}
 	
 	return DataTableFinderFlat;
-}
-
-void AChunk::OnCellStepped(UCell* SteppedCell)
-{
-	// Handle the event
-	SteppedCell->ShowAdjacentCells(4, FloatCurve);
-	OnChunkStepped.Broadcast(this);
-}
-
-// Called every frame
-void AChunk::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-void AChunk::InitializeCells()
-{
-	for (UCell* cell : Cells)
-	{
-		cell->SetAdjacentCells();
-	}
-}
-
-void AChunk::SetAdjacents()
-{
-	AdjecantsManager->SetAdjacentObjects(GetActorUpVector(), GetWorld());
-
 }
 

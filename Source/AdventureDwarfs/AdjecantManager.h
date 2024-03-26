@@ -69,7 +69,7 @@ public:
                     }
                     else
                     {
-                        UE_LOG(LogTemp, Log, TEXT("failed to find anything"));
+                        UE_LOG(LogTemp, Log, TEXT("failed to find any adjanent object "));
                     }
                 }
             }

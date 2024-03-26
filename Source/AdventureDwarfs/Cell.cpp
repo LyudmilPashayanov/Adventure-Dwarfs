@@ -3,13 +3,10 @@
 #include "Cell.h"
 #include "DrawDebugHelpers.h"
 #include "AdjecantDirections.h"
-
-// Spawning Animation needed CurveFloat and Timeline
-#include "Curves/CurveFloat.h"
+#include "Curves/CurveFloat.h" // Spawning Animation needed CurveFloat and Timeline
 #include "AdjecantManager.h"
 #include "AdventureDwarfsCharacter.h"
-
-#include <Components/BoxComponent.h>
+#include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
 // Sets default values for this component's properties
 UCell::UCell()
@@ -23,21 +20,23 @@ UCell::UCell()
 void UCell::BeginPlay()
 {
 	Super::BeginPlay();
-    originalLocation = CellMesh->GetRelativeLocation();
-    Adjecants = new AdjecantManager<UCell>(CellMesh->Bounds.BoxExtent.X*2, CellMesh->GetComponentLocation());
+    UE_LOG(LogTemp, Log, TEXT("CellMesh->Bounds.BoxExtent.X*2 %f"), CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X*2);
+
+    Adjecants = new AdjecantManager<UCell>(CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X*2, CellMesh->GetComponentLocation());
 }
 
 // Called every frame
 void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    MyTimeline.TickTimeline(DeltaTime);
+    MyTimeline.TickTimeline(DeltaTime); // TODO: Check if this ticks even after the animation has finished ...
 }
 
 void UCell::PrintLocation()
 {
-	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), CellMesh->GetComponentLocation().X, CellMesh->GetComponentLocation().Y, CellMesh->GetComponentLocation().Z);
-	UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), CellMesh->Bounds.BoxExtent.X*2, CellMesh->Bounds.BoxExtent.Y*2, CellMesh->Bounds.BoxExtent.Z*2);
+    FTransform transform;    
+    CellMesh->GetInstanceTransform(CellMeshIndex,transform);
+	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), transform.GetLocation().X, transform.GetLocation().Y, transform.GetLocation().Z);
 }
 
 void UCell::SetAdjacentCells()
@@ -51,14 +50,18 @@ void UCell::SetAdjacentCells()
 void UCell::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
     PrintLocation();
-    if (OtherActor && OtherActor->IsA(AAdventureDwarfsCharacter::StaticClass()))
-    {
-        CellSteppedEvent.Broadcast(this); // TODO: Invokation is twice, because 2 colliders are registered for the Player. Make it one <<<
-    }
+   if (OtherActor && OtherActor->IsA(AAdventureDwarfsCharacter::StaticClass()))
+   {
+       CellSteppedEvent.Broadcast(this); // TODO: Invokation is twice, because 2 colliders are registered for the Player. Make it one <<<
+   }
 }
 
 void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
 {
+    CellMeshIndex = CellMesh->AddInstance(FTransform(OriginalRotation, OriginalLocation));
+    // Set up overlap events for the instance
+    CellMesh->OnComponentBeginOverlap.AddDynamic(this, &UCell::OnBeginOverlap);
+
     depth--;
     for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
     {
@@ -77,10 +80,12 @@ void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
 
 void UCell::ShowCell(UCurveFloat* floatCurve)
 {
-    if (CellMesh->IsVisible() == false) {
-        // UE_LOG(LogTemp, Log, TEXT("SHOW CELL %s"),*GetOwner()->GetName());
-        CellMesh->SetVisibility(true);
-
+    if(IsCellVisible == false)
+    {
+        IsCellVisible=true;
+        CellMeshIndex = CellMesh->AddInstance(FTransform(OriginalRotation,OriginalLocation));
+        // Set up overlap events for the instance
+        CellMesh->OnComponentBeginOverlap.AddDynamic(this, &UCell::OnBeginOverlap);
         // Update callback event:
         FOnTimelineFloat TimelineCallback;
         TimelineCallback.BindUFunction(this, FName("TimelineCallback"));
@@ -106,11 +111,11 @@ void UCell::TimelineCallback(float Value)
     // Interpolate the value using the FloatCurve
     //UE_LOG(LogTemp, Log, TEXT("is it working? %s with value: %f"), *GetName(),Value);
     //UE_LOG(LogTemp, Log, TEXT("originalLocation : %s"),*originalLocation.ToString());
-    float NewZ = originalLocation.Z + Value;
-    // Set the new location
-    FVector NewLocation = CellMesh->GetRelativeLocation();
-    NewLocation.Z = NewZ;
-    CellMesh->SetRelativeLocation(NewLocation);
+    float NewZ = OriginalLocation.Z + Value;
+    FTransform NewLocation;
+    CellMesh->GetInstanceTransform(CellMeshIndex,NewLocation);
+    NewLocation.GetLocation().Set(NewLocation.GetLocation().X, NewLocation.GetLocation().Y, NewZ);
+    CellMesh->UpdateInstanceTransform(CellMeshIndex, NewLocation, false); // TODO: If it doesn't work try set it to FALSE
 }
 
 void UCell::TimelineFinishedCallback()
@@ -120,49 +125,5 @@ void UCell::TimelineFinishedCallback()
 
 void UCell::HideCell()
 {
-    CellMesh->SetVisibility(false);
+    CellMesh->RemoveInstance(CellMeshIndex); // Deletes the instance.
 }
-
-
-
-
-
-
-
-
-
-
-
-//void UCell::RaycastForPlayer()
-//{
-    //FVector StartRaycastLocation = GetComponentLocation(); 
-    //FVector EndLocation = StartRaycastLocation + GetRightVector() * -1 * TraceDistance; // Using the "right" vector, because the Cells are turned 90 degrees in the scene.
-    //if (ShouldRaycast)
-    //{
-    //    FHitResult HitResult;
-    //    // Single line raycasted:
-    //    //bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, ECC_GameTraceChannel2);
-    //    
-    //    // Capsule Shape raycasted:
-    //    FCollisionShape CapsuleShape = FCollisionShape::MakeCapsule(20, /* Half Height */ 1);
-    //    FCollisionQueryParams CollisionParams;
-    //    CollisionParams.AddIgnoredActor(GetOwner()); // Ignore the actor initiating the trace
-    //    bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation, FQuat::Identity, ECC_GameTraceChannel2, CapsuleShape, CollisionParams);
-    //    if (bHit)
-    //    {
-    //        //DrawDebugCapsule(GetWorld(), (StartRaycastLocation + EndLocation) * 0.5f,0.5f, 20, FQuat::Identity, FColor::Green, false, 0.1f, 0, 1.0f);
-    //        DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Green, false, 0.1f, 0, 20);
-    //        if (HitResult.GetActor() && HitResult.GetActor()->IsA(AAdventureDwarfsCharacter::StaticClass()))
-    //        {
-    //            CellSteppedEvent.Broadcast(this);
-    //            //UE_LOG(LogTemp, Log, TEXT("PLAYER IS ON ME !!!!!!!!!!!!!!!!!!! "));
-    //        }
-    //    }
-    //    else
-    //    {
-    //        //DrawDebugCapsule(GetWorld(), (StartRaycastLocation + EndLocation) * 0.5f, 0.5f, 20, FQuat::Identity, FColor::Yellow, false, 2.0f, 0, 1.0f);
-    //        DrawDebugLine(GetWorld(), StartRaycastLocation, EndLocation, FColor::Yellow, false, 0.1f, 0, 1);
-    //    }
-    //}
-//}
-

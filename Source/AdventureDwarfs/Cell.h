@@ -32,9 +32,11 @@ public:
 
 	FCellEvent CellSteppedEvent;
 	bool ShouldRaycast;
-	
-	UStaticMeshComponent* CellMesh;
-	FVector originalLocation;
+	bool IsCellVisible;
+	UHierarchicalInstancedStaticMeshComponent* CellMesh;
+	int CellMeshIndex;
+	FVector OriginalLocation;
+	FRotator OriginalRotation;
 private:	
 	FTimeline MyTimeline;
 protected:
