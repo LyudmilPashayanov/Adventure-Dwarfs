@@ -61,8 +61,8 @@ AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
 void AGridManager::ChunkStepped_Handler(AChunk* SteppedChunk) // TODO: Being called on every cell stepped. Maybe optimize this by making separate trigger for chunks?
 {
 	//UE_LOG(LogTemp, Log, TEXT("ChunkStepped_Handler: %s "),*SteppedChunk->GetName())
-	SteppedChunk->SetAdjacents();
-	SpawnChunksRecursive(SteppedChunk, 1);
+	//SteppedChunk->SetAdjacents();
+	//SpawnChunksRecursive(SteppedChunk, 1);
 	
 }
 

@@ -29,8 +29,10 @@ AChunk::AChunk()
 	
 	ChunkOverlapComponent = CreateDefaultSubobject<UBoxComponent>("ChunkColliderRoot");
 	ChunkOverlapComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Block);
-	ChunkOverlapComponent->SetWorldLocation(FVector(0, 0, 150));
-	ChunkOverlapComponent->SetBoxExtent(FVector(500, 500,100 ));
+	ChunkOverlapComponent->SetRelativeLocation(FVector(0, 0, 150));
+	ChunkOverlapComponent->SetBoxExtent(FVector(500, 500,500 ));
+	ChunkOverlapComponent->OnComponentBeginOverlap.AddDynamic(this, &AChunk::ChunkStepped);
+	ChunkOverlapComponent->OnComponentEndOverlap.AddDynamic(this, &AChunk::ChunkLeft);
 	ChunkOverlapComponent->SetupAttachment(RootComponent);
 
 	ConstructorHelpers::FObjectFinder<UDataTable> JsonConstructData = GetGridConstructJsonPath();
@@ -81,20 +83,20 @@ AChunk::AChunk()
 	}
 }
 
-void AChunk::ConstructCell(int CellIndex, FVector Translation, FRotator Rotation, UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent, int row, int column)
+void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent, int row, int column)
 {
 	// Creating Cell class instances:
 	FString cellInstanceBaseName = "InstanceCell_";
 	cellInstanceBaseName.AppendInt(CellIndex);
 	const FName CellInstanceName(cellInstanceBaseName);
-	UCell* Cell = CreateDefaultSubobject<UCell>(CellInstanceName); // TODO: Maybe make this also instanced clas OR a ordinary C++ class and not a unreal class UCell
+	UCell* Cell = CreateDefaultSubobject<UCell>(CellInstanceName); // TODO: Maybe make this also instanced class OR a ordinary C++ class and not a unreal class UCell
 	Cell->SetupAttachment(RootComponent);
 	
 	Cell->CellMesh = InstancedMeshComponent;	
 	Cell->OriginalLocation = Translation;	
 	Cell->OriginalRotation = Rotation;
-	Cell->CellSteppedEvent.AddUObject(this, &AChunk::OnCellStepped);
-	
+	OnChunkStepped.AddUObject(Cell, &UCell::Raycast);
+	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
 	Cells.Add(Cell);
 	LocationCellPairs.Add(FString::Format(TEXT("{0}-{1}"), { row, column }), Cell);	// Merging the column and row so that I can create entry to find the Cell easily in the Chunk.
 }
@@ -123,11 +125,17 @@ void AChunk::BeginPlay()
 	//UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), BoxExtent.X,BoxExtent.Y,BoxExtent.Z);
 }
 
-void AChunk::OnCellStepped(UCell* SteppedCell)
+void AChunk::ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// Handle the event
 	//SteppedCell->ShowAdjacentCells(4, FloatCurve);
+	// start raycasting each cell;
 	OnChunkStepped.Broadcast(this);
+}
+
+void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	OnChunkLeft.Broadcast(this);
 }
 
 // Called every frame

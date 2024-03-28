@@ -22,21 +22,21 @@ public:
     }
     
 	UPROPERTY()
-	T* Adjacent_TL = nullptr; // top left adjecent
+	T* Adjacent_TL = nullptr; // top left adjacent
 	UPROPERTY()
-	T* Adjacent_TC = nullptr; // top center adjecent
+	T* Adjacent_TC = nullptr; // top center adjacent
 	UPROPERTY()
-	T* Adjacent_TR = nullptr; // top right adjecent 
+	T* Adjacent_TR = nullptr; // top right adjacent 
 	UPROPERTY()
-	T* Adjacent_L = nullptr;  // left adjecent
+	T* Adjacent_L = nullptr;  // left adjacent
 	UPROPERTY()
-	T* Adjacent_R = nullptr;  // right adjecent 
+	T* Adjacent_R = nullptr;  // right adjacent 
 	UPROPERTY()
-	T* Adjacent_BL = nullptr; // bottom left adjecent
+	T* Adjacent_BL = nullptr; // bottom left adjacent
 	UPROPERTY()
-	T* Adjacent_BC = nullptr; // bottom center adjecent
+	T* Adjacent_BC = nullptr; // bottom center adjacent
 	UPROPERTY()
-	T* Adjacent_BR = nullptr; // bottom right adjecent 
+	T* Adjacent_BR = nullptr; // bottom right adjacent 
 	
 	void SetAdjacentObjects(FVector componentUpVector, UWorld* componentWorld)
 	{

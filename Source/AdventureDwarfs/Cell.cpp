@@ -5,7 +5,6 @@
 #include "AdjecantDirections.h"
 #include "Curves/CurveFloat.h" // Spawning Animation needed CurveFloat and Timeline
 #include "AdjecantManager.h"
-#include "AdventureDwarfsCharacter.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
 // Sets default values for this component's properties
@@ -20,7 +19,7 @@ UCell::UCell()
 void UCell::BeginPlay()
 {
 	Super::BeginPlay();
-    UE_LOG(LogTemp, Log, TEXT("CellMesh->Bounds.BoxExtent.X*2 %f"), CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X*2);
+    //UE_LOG(LogTemp, Log, TEXT("CellMesh->Bounds.BoxExtent.X*2 %f"), CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X*2);
 
     Adjecants = new AdjecantManager<UCell>(CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X*2, CellMesh->GetComponentLocation());
 }
@@ -30,6 +29,28 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     MyTimeline.TickTimeline(DeltaTime); // TODO: Check if this ticks even after the animation has finished ...
+    if(activateRaycasting)
+    {
+        // TODO: Make the raycast to be every 10th frame and not every frame for example. More efficient <<<
+        FVector StartRaycastLocation = FVector(OriginalLocation.X, OriginalLocation.Y, OriginalLocation.Z);
+        FVector EndLocation = StartRaycastLocation + GetOwner()->GetActorUpVector() * 300;       
+        FHitResult HitResult;
+
+        bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation,
+            FQuat::Identity,
+            ECC_GameTraceChannel2,
+            FCollisionShape::MakeSphere(40));
+        
+        if(bHit)
+        {
+            CellSteppedEvent.Broadcast(this);
+            DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Green);
+        }
+        else
+        {
+            DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Red);
+        }
+    }
 }
 
 void UCell::PrintLocation()
@@ -46,21 +67,9 @@ void UCell::SetAdjacentCells()
     Adjecants->SetAdjacentObjects(upVector, GetWorld());
 }
 
-//void UCell::OnBeginOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
-void UCell::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-    PrintLocation();
-   if (OtherActor && OtherActor->IsA(AAdventureDwarfsCharacter::StaticClass()))
-   {
-       CellSteppedEvent.Broadcast(this); // TODO: Invokation is twice, because 2 colliders are registered for the Player. Make it one <<<
-   }
-}
-
 void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
 {
     CellMeshIndex = CellMesh->AddInstance(FTransform(OriginalRotation, OriginalLocation));
-    // Set up overlap events for the instance
-    CellMesh->OnComponentBeginOverlap.AddDynamic(this, &UCell::OnBeginOverlap);
 
     depth--;
     for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
@@ -84,8 +93,7 @@ void UCell::ShowCell(UCurveFloat* floatCurve)
     {
         IsCellVisible=true;
         CellMeshIndex = CellMesh->AddInstance(FTransform(OriginalRotation,OriginalLocation));
-        // Set up overlap events for the instance
-        CellMesh->OnComponentBeginOverlap.AddDynamic(this, &UCell::OnBeginOverlap);
+
         // Update callback event:
         FOnTimelineFloat TimelineCallback;
         TimelineCallback.BindUFunction(this, FName("TimelineCallback"));
@@ -126,4 +134,15 @@ void UCell::TimelineFinishedCallback()
 void UCell::HideCell()
 {
     CellMesh->RemoveInstance(CellMeshIndex); // Deletes the instance.
+}
+
+void UCell::Raycast(AChunk* Chunk)
+{
+    UE_LOG(LogTemp, Log, TEXT(" Raycast Raycast Raycast Raycast Raycast"));
+    activateRaycasting=true;
+}
+
+void UCell::StopRaycast(AChunk* Chunk)
+{
+    activateRaycasting=false;
 }

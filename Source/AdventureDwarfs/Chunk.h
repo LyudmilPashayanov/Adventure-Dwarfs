@@ -18,6 +18,7 @@ template<class T>
 class AdjecantManager;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnChunkStepped, AChunk*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnChunkLeft, AChunk*);
 UCLASS()
 
 class ADVENTUREDWARFS_API AChunk : public AActor
@@ -25,38 +26,38 @@ class ADVENTUREDWARFS_API AChunk : public AActor
 	GENERATED_BODY()
 	
 public:
-
+	AChunk();
+	
 	AdjecantManager<AChunk>* AdjecantsManager;
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel3; // Custom trace channel
 	FOnChunkStepped OnChunkStepped;
+	FOnChunkLeft OnChunkLeft;
 
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	UBoxComponent* ChunkOverlapComponent;
-	// Sets default values for this actor's properties
-	AChunk();
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UCell*> Cells;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TMap<FString, UCell*> LocationCellPairs;
-	
 	UPROPERTY(EditAnywhere)
-	class UCurveFloat* FloatCurve;
-	
+	UCurveFloat* FloatCurve;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	TSoftObjectPtr<UDataTable> ChunkJsonData;
 
-
+	UFUNCTION()
+	void ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual ConstructorHelpers::FObjectFinder<UDataTable> GetGridConstructJsonPath();
-private:	
+private:
+	void ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, UHierarchicalInstancedStaticMeshComponent* StaticMeshInstance, int row, int column);
 	void OnCellStepped(UCell* Cell);
-	void ConstructCell(int CellIndex, FVector Translation, FRotator Rotation, UHierarchicalInstancedStaticMeshComponent* StaticMeshInstance, int row, int column);
-	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
