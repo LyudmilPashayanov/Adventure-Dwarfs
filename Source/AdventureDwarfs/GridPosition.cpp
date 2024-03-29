@@ -14,3 +14,9 @@ GridPosition::GridPosition(int PosX, int PosY) : X{ PosX }, Y{ PosY }
 GridPosition::~GridPosition()
 {
 }
+
+void GridPosition::SetGridPos(const int row, const int column)
+{
+	Row = row;
+	Column = column;
+}

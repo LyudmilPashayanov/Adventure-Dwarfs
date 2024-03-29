@@ -9,7 +9,10 @@ class ADVENTUREDWARFS_API GridPosition
 public:
 	int X;
 	int Y;
+	int Row;
+	int Column;
 	GridPosition();
 	GridPosition(int PosX, int PosY);
 	~GridPosition();
+	void SetGridPos(int Row,int Column);
 };

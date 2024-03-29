@@ -1,10 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Cell.h"
+
+#include "AdjacentCellsManager.h"
 #include "DrawDebugHelpers.h"
 #include "AdjecantDirections.h"
 #include "Curves/CurveFloat.h" // Spawning Animation needed CurveFloat and Timeline
-#include "AdjecantManager.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
 // Sets default values for this component's properties
@@ -21,7 +22,7 @@ void UCell::BeginPlay()
 	Super::BeginPlay();
     //UE_LOG(LogTemp, Log, TEXT("CellMesh->Bounds.BoxExtent.X*2 %f"), CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X*2);
 
-    Adjecants = new AdjecantManager<UCell>(CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X*2, CellMesh->GetComponentLocation());
+    AdjacentManager = new AdjacentCellsManager(this);
 }
 
 // Called every frame
@@ -29,21 +30,18 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     MyTimeline.TickTimeline(DeltaTime); // TODO: Check if this ticks even after the animation has finished ...
+    
     if(activateRaycasting)
     {
         // TODO: Make the raycast to be every 10th frame and not every frame for example. More efficient <<<
-        FVector StartRaycastLocation = FVector(OriginalLocation.X, OriginalLocation.Y, OriginalLocation.Z);
-        FVector EndLocation = StartRaycastLocation + GetOwner()->GetActorUpVector() * 300;       
+        const FVector StartRaycastLocation = FVector(OriginalLocation.X, OriginalLocation.Y, OriginalLocation.Z);
+        const FVector EndLocation = StartRaycastLocation + GetOwner()->GetActorUpVector() * 300;       
         FHitResult HitResult;
-
-        bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation,
-            FQuat::Identity,
-            ECC_GameTraceChannel2,
-            FCollisionShape::MakeSphere(40));
-        
+        bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeSphere(40));
         if(bHit)
         {
             CellSteppedEvent.Broadcast(this);
+            SetAdjacentCells();
             DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Green);
         }
         else
@@ -64,7 +62,7 @@ void UCell::SetAdjacentCells()
 {
     FVector upVector = GetOwner()->GetActorUpVector();
     PrintLocation();
-    Adjecants->SetAdjacentObjects(upVector, GetWorld());
+    AdjacentManager->SetAdjacentObjects(upVector, GetWorld());
 }
 
 void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
@@ -74,16 +72,16 @@ void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
     depth--;
     for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
     {
-        AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-        UCell* CellToCheck = Adjecants->GetAdjacentObject(currentEnumValue);
-        if (CellToCheck) 
-        {
-            CellToCheck->ShowCell(floatCurve);
-            if (depth > 0)
-            {
-                CellToCheck->ShowAdjacentCells(depth, floatCurve);
-            }
-        }
+       // AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
+       // UCell* CellToCheck = AdjacentManager->GetAdjacentObject(currentEnumValue);
+       // if (CellToCheck) 
+       // {
+       //   CellToCheck->ShowCell(floatCurve);
+       //     if (depth > 0)
+       //     {
+       //         CellToCheck->ShowAdjacentCells(depth, floatCurve);
+       //     }
+       // }
     }
 }
 

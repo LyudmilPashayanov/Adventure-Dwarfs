@@ -34,5 +34,11 @@ public:
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "scale", MakeStructureDefaultValue = "(0,0,0)"))
 	TArray<int32> scale;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "row", MakeStructureDefaultValue = "-1"))
+	int32 row;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "column", MakeStructureDefaultValue = "-1"))
+	int32 column;
 };
 

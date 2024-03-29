@@ -37,8 +37,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	UBoxComponent* ChunkOverlapComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	TArray<UCell*> Cells;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TMap<FString, UCell*> LocationCellPairs;
 	UPROPERTY(EditAnywhere)
 	UCurveFloat* FloatCurve;

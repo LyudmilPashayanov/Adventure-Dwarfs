@@ -49,21 +49,26 @@ AChunk::AChunk()
 		InstancedMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 		InstancedMeshComponent->InstancingRandomSeed = FMath::Rand();
 
+		/*
 		int row = 0;
 		int column = 1;
+		*/
+		int counter=0;
 		for (FChunkDataField* Cell : CellsData)
 		{
+			/*
 			row++;
 			if(row == 11)
 			{
 				row=1;
 				column++;
 			}
-			
+			*/
+			counter++;
 			// Access data from Row as needed
 			FVector Translation;
-			Translation.X = Cell->translation[0] - 450;
-			Translation.Y = Cell->translation[1] + 440;
+			Translation.X = Cell->translation[0]; //- 450;
+			Translation.Y = Cell->translation[1]; //+ 440;
 			Translation.Z = Cell->translation[2];
 
 			FRotator Rotation;
@@ -74,7 +79,7 @@ AChunk::AChunk()
 		
 			// Set up overlap events for the component
 
-			ConstructCell(Cell->cell_index, Translation, Rotation, InstancedMeshComponent, row, column);
+			ConstructCell(counter, Translation, Rotation, InstancedMeshComponent, Cell->row, Cell->column);
 		}
 	}
 	else
@@ -95,17 +100,18 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	Cell->CellMesh = InstancedMeshComponent;	
 	Cell->OriginalLocation = Translation;	
 	Cell->OriginalRotation = Rotation;
+	Cell->Row = row;
+	Cell->Column = column;
 	OnChunkStepped.AddUObject(Cell, &UCell::Raycast);
 	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
-	Cells.Add(Cell);
 	LocationCellPairs.Add(FString::Format(TEXT("{0}-{1}"), { row, column }), Cell);	// Merging the column and row so that I can create entry to find the Cell easily in the Chunk.
 }
 
 void AChunk::Show()
 {
-	for (UCell* cell : Cells)
+	for (auto Element : LocationCellPairs)
 	{
-		cell->ShowCell(FloatCurve);
+		Element.Value->ShowCell(FloatCurve);
 	}
 }
 
@@ -146,9 +152,9 @@ void AChunk::Tick(float DeltaTime)
 
 void AChunk::InitializeCells()
 {
-	for (UCell* cell : Cells)
+	for (auto Element : LocationCellPairs)
 	{
-		//cell->SetAdjacentCells();
+		//Element.Value->SetAdjacentCells();
 	}
 }
 

@@ -9,6 +9,7 @@
 #include "Cell.generated.h"
 
 
+class AdjacentCellsManager;
 DECLARE_MULTICAST_DELEGATE_OneParam(FCellEvent, UCell*);
 
 enum class AdjecantDirections;
@@ -27,31 +28,33 @@ public:
 	// Sets default values for this component's properties
 	UCell();
 	
-	AdjecantManager<UCell>* Adjecants;
+	AdjacentCellsManager* AdjacentManager;
 	
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel1; // Custom trace channel
 
 	FCellEvent CellSteppedEvent;
 	bool ShouldRaycast;
-	bool IsCellVisible;
-	UHierarchicalInstancedStaticMeshComponent* CellMesh;
+	bool IsCellVisible = false;
+	UHierarchicalInstancedStaticMeshComponent* CellMesh; //TODO: Clear out pointer afterwards destroying of object
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	int CellMeshIndex;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FVector OriginalLocation;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	int32 Row;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	int32 Column;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FRotator OriginalRotation;
-private:	
-	FTimeline MyTimeline;
-	bool activateRaycasting;
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	void PrintLocation();
-	UCell* GetAdjecentCell(AdjecantDirections directionToGet);
 	void SetAdjacentCells();
 	void ShowAdjacentCells(int depth, UCurveFloat* curveFloat);
 	
@@ -63,7 +66,13 @@ public:
 	void TimelineFinishedCallback();
 
 	void HideCell();
-	GridPosition GetAdjecentPosition(AdjecantDirections directionToGet);
 	void Raycast(AChunk* Chunk);
 	void StopRaycast(AChunk* Chunk);
+private:	
+	FTimeline MyTimeline;
+	bool activateRaycasting;
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
 };
