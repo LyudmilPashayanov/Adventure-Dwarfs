@@ -67,21 +67,22 @@ void UCell::SetAdjacentCells()
 
 void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
 {
-    CellMeshIndex = CellMesh->AddInstance(FTransform(OriginalRotation, OriginalLocation));
+   // CellMeshIndex = CellMesh->AddInstance(FTransform(OriginalRotation, OriginalLocation));
 
     depth--;
     for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
     {
-       // AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-       // UCell* CellToCheck = AdjacentManager->GetAdjacentObject(currentEnumValue);
-       // if (CellToCheck) 
-       // {
-       //   CellToCheck->ShowCell(floatCurve);
-       //     if (depth > 0)
-       //     {
-       //         CellToCheck->ShowAdjacentCells(depth, floatCurve);
-       //     }
-       // }
+       AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
+       UCell* CellToCheck = AdjacentManager->GetAdjacentCell(currentEnumValue);
+       if (CellToCheck) 
+       {
+         CellToCheck->ShowCell(floatCurve);
+           if (depth > 0)
+           {
+               // prob wouldnt work it needs to set adjacent first.
+               CellToCheck->ShowAdjacentCells(depth, floatCurve);
+           }
+       }
     }
 }
 
@@ -136,7 +137,7 @@ void UCell::HideCell()
 
 void UCell::Raycast(AChunk* Chunk)
 {
-    UE_LOG(LogTemp, Log, TEXT(" Raycast Raycast Raycast Raycast Raycast"));
+    //(LogTemp, Log, TEXT(" Raycast Raycast Raycast Raycast Raycast"));
     activateRaycasting=true;
 }
 

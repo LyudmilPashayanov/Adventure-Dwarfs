@@ -29,6 +29,7 @@ public:
 	UCell();
 	
 	AdjacentCellsManager* AdjacentManager;
+	AChunk* ChunkParent;
 	
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel1; // Custom trace channel
 

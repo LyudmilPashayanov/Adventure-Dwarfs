@@ -47,6 +47,7 @@ void AGridManager::GenerateGrid(int rows, int columns)
 AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
 {
 	float randomChunkIndex = FMath::RandRange(0, ChunksLandforms.Num() - 1);
+	UE_LOG(LogTemp, Log, TEXT("SpawnActor posX: %d and posY: %d "),posX,posY)
 	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[randomChunkIndex], FVector(posX, posY, 0), FRotator().ZeroRotator);
 	spawnedChunk->OnChunkStepped.AddUObject(this, &AGridManager::ChunkStepped_Handler);
 	spawnedChunk->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
@@ -58,30 +59,32 @@ AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
 	return spawnedChunk;
 }
 
-void AGridManager::ChunkStepped_Handler(AChunk* SteppedChunk) // TODO: Being called on every cell stepped. Maybe optimize this by making separate trigger for chunks?
+void AGridManager::ChunkStepped_Handler(AChunk* SteppedChunk)
 {
-	//UE_LOG(LogTemp, Log, TEXT("ChunkStepped_Handler: %s "),*SteppedChunk->GetName())
-	//SteppedChunk->SetAdjacents();
-	//SpawnChunksRecursive(SteppedChunk, 1);
+	UE_LOG(LogTemp, Log, TEXT("ChunkStepped_Handler: %s "),*SteppedChunk->GetName())
+	//UE_LOG(LogTemp, Log, TEXT("ChunkStepped_Handler"));
+	SteppedChunk->SetAdjacents();
+	SpawnChunksRecursive(SteppedChunk, 1);
 	
 }
 
-void AGridManager::SpawnChunksRecursive(AChunk* startChunk, int depth)
+void AGridManager::SpawnChunksRecursive(AChunk* SteppedChunk, int depth)
 {
 	depth--;
 	TArray<AChunk*> newChunks;
 	for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
 	{
 		AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-		AChunk* ChunkToCheck = startChunk->AdjecantsManager->GetAdjacentObject(currentEnumValue);
+		AChunk* ChunkToCheck = SteppedChunk->AdjecantsManager->GetAdjacentObject(currentEnumValue);
 		if (ChunkToCheck == nullptr) 
 		{
-			GridPosition posToSpawn = startChunk->AdjecantsManager->GetAdjacentPosition(currentEnumValue);
+			GridPosition posToSpawn = SteppedChunk->AdjecantsManager->GetAdjacentPosition(currentEnumValue);
 			//UE_LOG(LogTemp, Log, TEXT("Spawn Chunk at: X = %d  Y = %d"),posToSpawn.X, posToSpawn.Y)
-			AChunk* newChunk = SpawnChunk(posToSpawn.X, posToSpawn.Y, false);
-			startChunk->AdjecantsManager->SetAdjacent(currentEnumValue, newChunk);
-			startChunk->InitializeCells();  // TODO: StartChunk, should have ONLY its side cells UPDATE their adjacent new chunk cells
+			AChunk* newChunk = SpawnChunk(posToSpawn.X, posToSpawn.Y, true);
+			SteppedChunk->AdjecantsManager->SetAdjacent(currentEnumValue, newChunk);
+			SteppedChunk->InitializeCells();  // TODO: StartChunk, should have ONLY its side cells UPDATE their adjacent new chunk cells
 			newChunks.Add(newChunk);
+			UE_LOG(LogTemp, Log, TEXT("SpawnChunksRecursive"));
 		}
 	}
 	for (AChunk* chunk : newChunks)
@@ -94,7 +97,7 @@ void AGridManager::InitializeCells()
 {
 	for (AChunk* chunk : SpawnedChunks)
 	{
-		//chunk->InitializeCells();
+		chunk->InitializeCells();
 	}
 }
 

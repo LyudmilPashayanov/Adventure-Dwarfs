@@ -190,18 +190,16 @@ private:
 
         FHitResult HitResult;
        
-        bool bHit = componentWorld->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, T::TraceChannelValue);
+        bool bHit = componentWorld->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, ECC_GameTraceChannel3);
         
         if (bHit)
         {
             result = HitResult;
-            //if(T::TraceChannelValue == ECC_GameTraceChannel1)
-            //    DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Green, false, 3, 0, 1);
+                //DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Green, false, 3, 0, 1);
         }
         else
         {
-            //if(T::TraceChannelValue == ECC_GameTraceChannel1)
-            //    DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Red, false, 3, 0, 1);
+                //DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Red, false, 3, 0, 1);
         }
         return bHit;
     }

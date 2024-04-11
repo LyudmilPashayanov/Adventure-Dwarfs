@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <Components/BoxComponent.h>
+
+#include "GridPosition.h"
 #include "Engine/DataTable.h"
 #include "Containers/Map.h"
 
@@ -29,7 +31,6 @@ public:
 	AChunk();
 	
 	AdjecantManager<AChunk>* AdjecantsManager;
-	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel3; // Custom trace channel
 	FOnChunkStepped OnChunkStepped;
 	FOnChunkLeft OnChunkLeft;
 
@@ -47,8 +48,8 @@ public:
 	void ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void ShowCell(const GridPosition& GridPosition);
 
-	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

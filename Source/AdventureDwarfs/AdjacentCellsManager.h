@@ -32,11 +32,12 @@ public:
 
 	void SetAdjacentObjects(FVector componentUpVector, UWorld* componentWorld);
 	GridPosition GetAdjacentCellLocation(AdjecantDirections DirectionToGet) const;
+	UCell* GetAdjacentCell(AdjecantDirections DirectionToGet) const;
 	void GetAdjacentGridPos(GridPosition& GridPosition, AdjecantDirections DirectionToGet);
-	bool RaycastAdjacentObjects(int posX, int posY, FHitResult& result, FVector componentUpVector, UWorld* componentWorld);
+	bool RaycastAdjacentObjects(int posX, int posY, FHitResult& result, FVector componentUpVector, UWorld* componentWorld,AdjecantDirections DirectionToGet);
 	void SetAdjacent(AdjecantDirections directionToSet, UCell* ObjectToSet);
 
 private:
-	const UCell* parentCell; 
+	const UCell* CellParent; 
 
 };
