@@ -52,14 +52,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FRotator LocalRotation;
-
+	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	void PrintLocation();
-	void SetAdjacentCells();
-	void ShowAdjacentCells(int depth, UCurveFloat* curveFloat);
-	
-	void ShowCell(UCurveFloat* floatCurve);
+	void ShowAdjacentCells(int depth);
+	void ShowCell();
 
 	UFUNCTION()
 	void TimelineCallback(float Value);
@@ -69,11 +67,11 @@ public:
 	void HideCell();
 	void Raycast(AChunk* Chunk);
 	void StopRaycast(AChunk* Chunk);
-	void SetupWorldLocation();
+
 private:	
 	FTimeline MyTimeline;
 	bool activateRaycasting;
-
+	bool CellProcessed;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

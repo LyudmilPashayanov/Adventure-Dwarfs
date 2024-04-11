@@ -99,7 +99,6 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	
 	Cell->CellMesh = InstancedMeshComponent;	
 	Cell->SetWorldLocation(Translation);
-	Cell->SetupWorldLocation();
 	Cell->LocalLocation = Translation;	
 	Cell->LocalRotation = Rotation;
 	Cell->Row = row;
@@ -114,7 +113,7 @@ void AChunk::Show()
 {
 	for (auto Element : LocationCellPairs)
 	{
-		Element.Value->ShowCell(FloatCurve);
+		Element.Value->ShowCell();
 	}
 }
 
@@ -139,7 +138,7 @@ void AChunk::ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 	// Handle the event
 	//SteppedCell->ShowAdjacentCells(4, FloatCurve);
 	// start raycasting each cell;
-	UE_LOG(LogTemp, Log, TEXT("ChunkStepped- other actor = %s"),*OtherActor->GetName());
+	//UE_LOG(LogTemp, Log, TEXT("ChunkStepped- other actor = %s"),*OtherActor->GetName());
 	OnChunkStepped.Broadcast(this);
 }
 
@@ -149,10 +148,10 @@ void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	OnChunkLeft.Broadcast(this);
 }
 
-void AChunk::ShowCell(const GridPosition& GridPosition)
+UCell* AChunk::GetCell(const GridPosition& GridPosition)
 {
 	FString key = FString::Format(TEXT("{0}-{1}"),{ GridPosition.Row, GridPosition.Column });
-	LocationCellPairs[key]->ShowCell(FloatCurve);
+	return LocationCellPairs[key];
 }
 
 // Called every frame

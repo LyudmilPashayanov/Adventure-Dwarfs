@@ -13,7 +13,7 @@ class ADVENTUREDWARFS_API AdjacentCellsManager
 {
 public:
 	AdjacentCellsManager(const UCell* ParentCell);
-	UPROPERTY()
+	/*UPROPERTY()
 	UCell* Adjacent_TL = nullptr; // top left adjacent
 	UPROPERTY()
 	UCell* Adjacent_TC = nullptr; // top center adjacent
@@ -28,14 +28,14 @@ public:
 	UPROPERTY()
 	UCell* Adjacent_BC = nullptr; // bottom center adjacent
 	UPROPERTY()
-	UCell* Adjacent_BR = nullptr; // bottom right adjacent 
+	UCell* Adjacent_BR = nullptr; // bottom right adjacent */
 
-	void SetAdjacentObjects(FVector componentUpVector, UWorld* componentWorld);
+	void ShowAdjacentCells(int depth, FVector componentUpVector, UWorld* componentWorld);
 	GridPosition GetAdjacentCellLocation(AdjecantDirections DirectionToGet) const;
-	UCell* GetAdjacentCell(AdjecantDirections DirectionToGet) const;
+	//UCell* GetAdjacentCell(AdjecantDirections DirectionToGet) const;
 	void GetAdjacentGridPos(GridPosition& GridPosition, AdjecantDirections DirectionToGet);
 	bool RaycastAdjacentObjects(int posX, int posY, FHitResult& result, FVector componentUpVector, UWorld* componentWorld,AdjecantDirections DirectionToGet);
-	void SetAdjacent(AdjecantDirections directionToSet, UCell* ObjectToSet);
+	//void SetAdjacent(AdjecantDirections directionToSet, UCell* ObjectToSet);
 
 private:
 	const UCell* CellParent; 

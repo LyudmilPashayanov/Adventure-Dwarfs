@@ -4,7 +4,6 @@
 
 #include "AdjacentCellsManager.h"
 #include "DrawDebugHelpers.h"
-#include "AdjecantDirections.h"
 #include "Curves/CurveFloat.h" // Spawning Animation needed CurveFloat and Timeline
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
@@ -20,8 +19,6 @@ UCell::UCell()
 void UCell::BeginPlay()
 {
 	Super::BeginPlay();
-    //UE_LOG(LogTemp, Log, TEXT("CellMesh->Bounds.BoxExtent.X*2 %f"), CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X*2);
-
     AdjacentManager = new AdjacentCellsManager(this);
 }
 
@@ -31,7 +28,7 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     MyTimeline.TickTimeline(DeltaTime); // TODO: Check if this ticks even after the animation has finished ...
     
-    if(activateRaycasting)
+    if(activateRaycasting && !CellProcessed)
     {
         // TODO: Make the raycast to be every 10th frame and not every frame for example. More efficient <<<
         const FVector StartRaycastLocation = FVector(GetComponentLocation().X, GetComponentLocation().Y, GetComponentLocation().Z);
@@ -41,7 +38,8 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
         if(bHit)
         {
             CellSteppedEvent.Broadcast(this);
-            SetAdjacentCells();
+            ShowAdjacentCells(4);
+            CellProcessed=true;
             //DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Green,false,1);
         }
         else
@@ -58,22 +56,19 @@ void UCell::PrintLocation()
 	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), transform.GetLocation().X, transform.GetLocation().Y, transform.GetLocation().Z);
 }
 
-void UCell::SetAdjacentCells()
+void UCell::ShowAdjacentCells(int depth)
 {
     FVector upVector = GetOwner()->GetActorUpVector();
-    //PrintLocation();
-    AdjacentManager->SetAdjacentObjects(upVector, GetWorld());
+    AdjacentManager->ShowAdjacentCells(depth, upVector, GetWorld());
 }
 
-void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
+/*void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
 {
-   // CellMeshIndex = CellMesh->AddInstance(FTransform(OriginalRotation, OriginalLocation));
-
     depth--;
     for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
     {
        AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-       UCell* CellToCheck = AdjacentManager->GetAdjacentCell(currentEnumValue);
+       UCell* CellToCheck = AdjacentManager->ShowAdjacentCells();
        if (CellToCheck) 
        {
          CellToCheck->ShowCell(floatCurve);
@@ -84,9 +79,9 @@ void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
            }
        }
     }
-}
+}*/
 
-void UCell::ShowCell(UCurveFloat* floatCurve)
+void UCell::ShowCell()
 {
     if(IsCellVisible == false)
     {
@@ -103,7 +98,7 @@ void UCell::ShowCell(UCurveFloat* floatCurve)
         MyTimeline.SetTimelineFinishedFunc(TimelineFinishedCallback);
 
         // Subscribe the events:
-        MyTimeline.AddInterpFloat(floatCurve, TimelineCallback);
+        MyTimeline.AddInterpFloat(ChunkParent->FloatCurve, TimelineCallback);
         // Set the timeline's properties (e.g., length, loop, etc.)
         MyTimeline.SetTimelineLengthMode(ETimelineLengthMode::TL_TimelineLength);
         MyTimeline.SetTimelineLength(1.0f); // 1 second
@@ -138,16 +133,10 @@ void UCell::HideCell()
 
 void UCell::Raycast(AChunk* Chunk)
 {
-    UE_LOG(LogTemp, Log, TEXT(" Raycast Raycast Raycast Raycast  for parent %s"),*ChunkParent->GetName());
     activateRaycasting=true;
 }
 
 void UCell::StopRaycast(AChunk* Chunk)
 {
-    //UE_LOG(LogTemp, Log, TEXT(" StopRaycast StopRaycast StopRaycast StopRaycast"));
     activateRaycasting=false;
-}
-
-void UCell::SetupWorldLocation()
-{
 }

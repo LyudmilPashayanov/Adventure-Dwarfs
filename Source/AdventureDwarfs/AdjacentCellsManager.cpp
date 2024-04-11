@@ -9,8 +9,9 @@ AdjacentCellsManager::AdjacentCellsManager(const UCell* ParentCell)
 	CellParent = ParentCell;
 }
 
-void AdjacentCellsManager::SetAdjacentObjects(FVector componentUpVector, UWorld* componentWorld)
+void AdjacentCellsManager::ShowAdjacentCells(int depth, FVector componentUpVector, UWorld* componentWorld)
 {
+	depth--;
 	FHitResult Hit;
 	for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
 	{
@@ -19,17 +20,12 @@ void AdjacentCellsManager::SetAdjacentObjects(FVector componentUpVector, UWorld*
 		if (RaycastAdjacentObjects(positionToCheck.X, positionToCheck.Y, Hit, componentUpVector, componentWorld,currentEnumValue))
 		{
 			GetAdjacentGridPos(positionToCheck, currentEnumValue);
-
-			Cast<AChunk>(Hit.GetActor())->ShowCell((positionToCheck));
-			
-			/*if(CellParent->ChunkParent == Hit.GetActor())
+			UCell* cell = Cast<AChunk>(Hit.GetActor())->GetCell((positionToCheck));
+			cell->ShowCell();
+			if (depth > 0)
 			{
-				CellParent->ChunkParent->ShowCell(positionToCheck);
+				cell->ShowAdjacentCells(depth);
 			}
-			else
-			{
-				Cast<AChunk>(Hit.GetActor())->ShowCell((positionToCheck));	
-			}*/
 		}
 	}
 }
@@ -69,7 +65,7 @@ GridPosition AdjacentCellsManager::GetAdjacentCellLocation(AdjecantDirections Di
 	return GridPosition(0, 0);
 }
 
-UCell* AdjacentCellsManager::GetAdjacentCell(AdjecantDirections DirectionToGet) const
+/*UCell* AdjacentCellsManager::GetAdjacentCell(AdjecantDirections DirectionToGet) const
 {
 	switch (DirectionToGet)
 	{
@@ -99,7 +95,7 @@ UCell* AdjacentCellsManager::GetAdjacentCell(AdjecantDirections DirectionToGet) 
 		break;
 	}
 	return nullptr;
-}
+}*/
 
 void AdjacentCellsManager::GetAdjacentGridPos(GridPosition& GridPosition, AdjecantDirections DirectionToGet)
 {
@@ -199,6 +195,7 @@ bool AdjacentCellsManager::RaycastAdjacentObjects(int posX, int posY, FHitResult
 	return bHit;
 }
 
+/*
 void AdjacentCellsManager::SetAdjacent(AdjecantDirections directionToSet, UCell* ObjectToSet)
 {
 	switch (directionToSet)
@@ -229,3 +226,4 @@ void AdjacentCellsManager::SetAdjacent(AdjecantDirections directionToSet, UCell*
 		break;
 	}
 }
+*/
