@@ -36,8 +36,8 @@ void AdjacentCellsManager::SetAdjacentObjects(FVector componentUpVector, UWorld*
 
 GridPosition AdjacentCellsManager::GetAdjacentCellLocation(AdjecantDirections DirectionToGet) const
 {
-	const int ParentLocationX = CellParent->OriginalLocation.X;
-	const int ParentLocationY = CellParent->OriginalLocation.Y;
+	const int ParentLocationX = CellParent->GetComponentLocation().X;
+	const int ParentLocationY = CellParent->GetComponentLocation().Y;
 	const int halfSize = CellParent->CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X * 2;
 	switch (DirectionToGet)
 	{
@@ -161,9 +161,8 @@ void AdjacentCellsManager::GetAdjacentGridPos(GridPosition& GridPosition, Adjeca
 		columnResult = GRID_COLUMNS;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("%d : this column: %d AND this row: %d"), DirectionToGet, CellParent->Column,
-	       CellParent->Row);
-	UE_LOG(LogTemp, Log, TEXT("columnResult: %d AND rowResult: %d"), columnResult, rowResult);
+	//UE_LOG(LogTemp, Log, TEXT("%d : this column: %d AND this row: %d"), DirectionToGet, CellParent->Column, CellParent->Row);
+	//UE_LOG(LogTemp, Log, TEXT("columnResult: %d AND rowResult: %d"), columnResult, rowResult);
 	GridPosition.SetGridPos(rowResult, columnResult); // First Row (X) then Column (Y)
 }
 
@@ -186,16 +185,16 @@ bool AdjacentCellsManager::RaycastAdjacentObjects(int posX, int posY, FHitResult
 		result = HitResult;
 		if(DirectionToGet == AdjecantDirections::TopCenter)
 		{
-			DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Yellow);
+			//DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Yellow);
 		}
 		else
 		{
-			DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Green);
+			//DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Green);
 		}
 	}
 	else
 	{
-		DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Red);
+		//DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Red);
 	}
 	return bHit;
 }

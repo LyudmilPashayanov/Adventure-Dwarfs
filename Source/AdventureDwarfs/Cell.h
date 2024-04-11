@@ -42,7 +42,7 @@ public:
 	int CellMeshIndex;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	FVector OriginalLocation;
+	FVector LocalLocation;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	int32 Row;
@@ -51,7 +51,7 @@ public:
 	int32 Column;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	FRotator OriginalRotation;
+	FRotator LocalRotation;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
@@ -69,6 +69,7 @@ public:
 	void HideCell();
 	void Raycast(AChunk* Chunk);
 	void StopRaycast(AChunk* Chunk);
+	void SetupWorldLocation();
 private:	
 	FTimeline MyTimeline;
 	bool activateRaycasting;

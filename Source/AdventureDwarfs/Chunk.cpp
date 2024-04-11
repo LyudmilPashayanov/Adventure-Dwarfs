@@ -32,7 +32,7 @@ AChunk::AChunk()
 	ChunkOverlapComponent->SetRelativeLocation(FVector(0, 0, 150));
 	ChunkOverlapComponent->SetBoxExtent(FVector(490, 490,490 ));
 	ChunkOverlapComponent->OnComponentBeginOverlap.AddDynamic(this, &AChunk::ChunkStepped);
-	//ChunkOverlapComponent->OnComponentEndOverlap.AddDynamic(this, &AChunk::ChunkLeft);
+	ChunkOverlapComponent->OnComponentEndOverlap.AddDynamic(this, &AChunk::ChunkLeft);
 	ChunkOverlapComponent->SetupAttachment(RootComponent);
 
 	ConstructorHelpers::FObjectFinder<UDataTable> JsonConstructData = GetGridConstructJsonPath();
@@ -99,8 +99,9 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	
 	Cell->CellMesh = InstancedMeshComponent;	
 	Cell->SetWorldLocation(Translation);
-	Cell->OriginalLocation = Translation;	
-	Cell->OriginalRotation = Rotation;
+	Cell->SetupWorldLocation();
+	Cell->LocalLocation = Translation;	
+	Cell->LocalRotation = Rotation;
 	Cell->Row = row;
 	Cell->Column = column;
 	Cell->ChunkParent = this;
@@ -138,12 +139,13 @@ void AChunk::ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 	// Handle the event
 	//SteppedCell->ShowAdjacentCells(4, FloatCurve);
 	// start raycasting each cell;
-	UE_LOG(LogTemp, Log, TEXT("ChunkStepped- other actor = %s"),*OtherComp->GetName());
+	UE_LOG(LogTemp, Log, TEXT("ChunkStepped- other actor = %s"),*OtherActor->GetName());
 	OnChunkStepped.Broadcast(this);
 }
 
 void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	UE_LOG(LogTemp, Log, TEXT("CHUNK LEFT- other actor = %s"),*OtherActor->GetName());
 	OnChunkLeft.Broadcast(this);
 }
 

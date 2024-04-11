@@ -34,7 +34,7 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
     if(activateRaycasting)
     {
         // TODO: Make the raycast to be every 10th frame and not every frame for example. More efficient <<<
-        const FVector StartRaycastLocation = FVector(OriginalLocation.X, OriginalLocation.Y, OriginalLocation.Z);
+        const FVector StartRaycastLocation = FVector(GetComponentLocation().X, GetComponentLocation().Y, GetComponentLocation().Z);
         const FVector EndLocation = StartRaycastLocation + GetOwner()->GetActorUpVector() * 300;       
         FHitResult HitResult;
         bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeSphere(40));
@@ -42,11 +42,11 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
         {
             CellSteppedEvent.Broadcast(this);
             SetAdjacentCells();
-            DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Green);
+            //DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Green,false,1);
         }
         else
         {
-            DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Red);
+            //DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Red,false,1);
         }
     }
 }
@@ -61,7 +61,7 @@ void UCell::PrintLocation()
 void UCell::SetAdjacentCells()
 {
     FVector upVector = GetOwner()->GetActorUpVector();
-    PrintLocation();
+    //PrintLocation();
     AdjacentManager->SetAdjacentObjects(upVector, GetWorld());
 }
 
@@ -91,7 +91,7 @@ void UCell::ShowCell(UCurveFloat* floatCurve)
     if(IsCellVisible == false)
     {
         IsCellVisible=true;
-        CellMeshIndex = CellMesh->AddInstance(FTransform(OriginalRotation,OriginalLocation));
+        CellMeshIndex = CellMesh->AddInstance(FTransform(LocalRotation,LocalLocation));
 
         // Update callback event:
         FOnTimelineFloat TimelineCallback;
@@ -116,13 +116,14 @@ void UCell::ShowCell(UCurveFloat* floatCurve)
 void UCell::TimelineCallback(float Value)
 {
     // Interpolate the value using the FloatCurve
-    //UE_LOG(LogTemp, Log, TEXT("is it working? %s with value: %f"), *GetName(),Value);
     //UE_LOG(LogTemp, Log, TEXT("originalLocation : %s"),*originalLocation.ToString());
-    float NewZ = OriginalLocation.Z + Value;
+    float NewZ = LocalLocation.Z + Value;
     FTransform NewLocation;
-    CellMesh->GetInstanceTransform(CellMeshIndex,NewLocation);
-    NewLocation.GetLocation().Set(NewLocation.GetLocation().X, NewLocation.GetLocation().Y, NewZ);
-    CellMesh->UpdateInstanceTransform(CellMeshIndex, NewLocation, false); // TODO: If it doesn't work try set it to FALSE
+    CellMesh->GetInstanceTransform(CellMeshIndex, NewLocation, false);
+    /*UE_LOG(LogTemp, Log, TEXT("NewLocation with value: %f , %f , %f"), NewLocation.GetLocation().X,NewLocation.GetLocation().Y, NewLocation.GetLocation().Z);
+    UE_LOG(LogTemp, Log, TEXT("New Z : %f"), NewZ);*/
+    NewLocation.SetLocation(FVector(NewLocation.GetLocation().X, NewLocation.GetLocation().Y, NewZ));
+    CellMesh->UpdateInstanceTransform(CellMeshIndex, NewLocation, false);
 }
 
 void UCell::TimelineFinishedCallback()
@@ -137,11 +138,16 @@ void UCell::HideCell()
 
 void UCell::Raycast(AChunk* Chunk)
 {
-    //(LogTemp, Log, TEXT(" Raycast Raycast Raycast Raycast Raycast"));
+    UE_LOG(LogTemp, Log, TEXT(" Raycast Raycast Raycast Raycast  for parent %s"),*ChunkParent->GetName());
     activateRaycasting=true;
 }
 
 void UCell::StopRaycast(AChunk* Chunk)
 {
+    //UE_LOG(LogTemp, Log, TEXT(" StopRaycast StopRaycast StopRaycast StopRaycast"));
     activateRaycasting=false;
+}
+
+void UCell::SetupWorldLocation()
+{
 }
