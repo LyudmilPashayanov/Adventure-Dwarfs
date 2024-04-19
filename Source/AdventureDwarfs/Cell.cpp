@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Cell.h"
-
 #include "AdjacentCellsManager.h"
 #include "DrawDebugHelpers.h"
 #include "Curves/CurveFloat.h" // Spawning Animation needed CurveFloat and Timeline
@@ -38,7 +37,7 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
         if(bHit)
         {
             CellSteppedEvent.Broadcast(this);
-            ShowAdjacentCells(4);
+            ShowAdjacentCells(5, this);
             CellProcessed=true;
             //DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Green,false,1);
         }
@@ -56,30 +55,10 @@ void UCell::PrintLocation()
 	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), transform.GetLocation().X, transform.GetLocation().Y, transform.GetLocation().Z);
 }
 
-void UCell::ShowAdjacentCells(int depth)
+void UCell::ShowAdjacentCells(int depth, UCell* initiatorCell)
 {
-    FVector upVector = GetOwner()->GetActorUpVector();
-    AdjacentManager->ShowAdjacentCells(depth, upVector, GetWorld());
+    AdjacentManager->ShowAdjacentCells(depth, GetOwner()->GetActorUpVector(), GetWorld(), initiatorCell);
 }
-
-/*void UCell::ShowAdjacentCells(int depth, UCurveFloat* floatCurve)
-{
-    depth--;
-    for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
-    {
-       AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-       UCell* CellToCheck = AdjacentManager->ShowAdjacentCells();
-       if (CellToCheck) 
-       {
-         CellToCheck->ShowCell(floatCurve);
-           if (depth > 0)
-           {
-               // prob wouldnt work it needs to set adjacent first.
-               CellToCheck->ShowAdjacentCells(depth, floatCurve);
-           }
-       }
-    }
-}*/
 
 void UCell::ShowCell()
 {
@@ -88,6 +67,7 @@ void UCell::ShowCell()
         IsCellVisible=true;
         CellMeshIndex = CellMesh->AddInstance(FTransform(LocalRotation,LocalLocation));
 
+        
         // Update callback event:
         FOnTimelineFloat TimelineCallback;
         TimelineCallback.BindUFunction(this, FName("TimelineCallback"));
@@ -104,7 +84,7 @@ void UCell::ShowCell()
         MyTimeline.SetTimelineLength(1.0f); // 1 second
         MyTimeline.SetLooping(false);
         // Play the timeline
-        MyTimeline.PlayFromStart();
+        MyTimeline.PlayFromStart();        
     }
 }
 
@@ -133,10 +113,10 @@ void UCell::HideCell()
 
 void UCell::Raycast(AChunk* Chunk)
 {
-    activateRaycasting=true;
+    activateRaycasting = true;
 }
 
 void UCell::StopRaycast(AChunk* Chunk)
 {
-    activateRaycasting=false;
+    activateRaycasting = false;
 }

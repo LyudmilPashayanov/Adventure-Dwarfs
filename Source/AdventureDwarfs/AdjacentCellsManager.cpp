@@ -9,10 +9,18 @@ AdjacentCellsManager::AdjacentCellsManager(const UCell* ParentCell)
 	CellParent = ParentCell;
 }
 
-void AdjacentCellsManager::ShowAdjacentCells(int depth, FVector componentUpVector, UWorld* componentWorld)
+void AdjacentCellsManager::ShowAdjacentCells(int depth, FVector componentUpVector, UWorld* componentWorld, UCell* initiatorCell)
 {
+	if(lastInitiatorCell != nullptr && lastInitiatorCell == initiatorCell)
+		return;
+
+	
+	//counter++;
+	//UE_LOG(LogTemp, Log, TEXT("ShowAdjacentCells counter: %d , Cell Row = %d, Cell column= %d, Chunk parent name = %s"),counter, CellParent->Row,CellParent->Column,*CellParent->ChunkParent->GetName());
+
 	depth--;
 	FHitResult Hit;
+	lastInitiatorCell = initiatorCell;
 	for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
 	{
 		const AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
@@ -24,7 +32,7 @@ void AdjacentCellsManager::ShowAdjacentCells(int depth, FVector componentUpVecto
 			cell->ShowCell();
 			if (depth > 0)
 			{
-				cell->ShowAdjacentCells(depth);
+				cell->ShowAdjacentCells(depth, initiatorCell);
 			}
 		}
 	}
@@ -35,67 +43,28 @@ GridPosition AdjacentCellsManager::GetAdjacentCellLocation(AdjecantDirections Di
 	const int ParentLocationX = CellParent->GetComponentLocation().X;
 	const int ParentLocationY = CellParent->GetComponentLocation().Y;
 	const int halfSize = CellParent->CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X * 2;
+
 	switch (DirectionToGet)
 	{
 	case AdjecantDirections::TopLeft:
 		return GridPosition(ParentLocationX + halfSize, ParentLocationY - halfSize);
-		break;
 	case AdjecantDirections::TopCenter:
 		return GridPosition(ParentLocationX + halfSize, ParentLocationY);
-		break;
 	case AdjecantDirections::TopRight:
 		return GridPosition(ParentLocationX + halfSize, ParentLocationY + halfSize);
-		break;
 	case AdjecantDirections::Left:
 		return GridPosition(ParentLocationX, ParentLocationY - halfSize);
-		break;
 	case AdjecantDirections::Right:
 		return GridPosition(ParentLocationX, ParentLocationY + halfSize);
-		break;
 	case AdjecantDirections::BottomLeft:
 		return GridPosition(ParentLocationX - halfSize, ParentLocationY - halfSize);
-		break;
 	case AdjecantDirections::BottomCenter:
 		return GridPosition(ParentLocationX - halfSize, ParentLocationY);
-		break;
 	case AdjecantDirections::BottomRight:
 		return GridPosition(ParentLocationX - halfSize, ParentLocationY + halfSize);
-		break;
 	}
 	return GridPosition(0, 0);
 }
-
-/*UCell* AdjacentCellsManager::GetAdjacentCell(AdjecantDirections DirectionToGet) const
-{
-	switch (DirectionToGet)
-	{
-	case AdjecantDirections::TopLeft:
-		return Adjacent_TL;
-		break;
-	case AdjecantDirections::TopCenter:
-		return Adjacent_TC;
-		break;
-	case AdjecantDirections::TopRight:
-		return Adjacent_TR;
-		break;
-	case AdjecantDirections::Left:
-		return Adjacent_L;
-		break;
-	case AdjecantDirections::Right:
-		return Adjacent_R;
-		break;
-	case AdjecantDirections::BottomLeft:
-		return Adjacent_BL;
-		break;
-	case AdjecantDirections::BottomCenter:
-		return Adjacent_BC;
-		break;
-	case AdjecantDirections::BottomRight:
-		return Adjacent_BR;
-		break;
-	}
-	return nullptr;
-}*/
 
 void AdjacentCellsManager::GetAdjacentGridPos(GridPosition& GridPosition, AdjecantDirections DirectionToGet)
 {
@@ -194,36 +163,3 @@ bool AdjacentCellsManager::RaycastAdjacentObjects(int posX, int posY, FHitResult
 	}
 	return bHit;
 }
-
-/*
-void AdjacentCellsManager::SetAdjacent(AdjecantDirections directionToSet, UCell* ObjectToSet)
-{
-	switch (directionToSet)
-	{
-	case AdjecantDirections::TopLeft:
-		Adjacent_TL = ObjectToSet;
-		break;
-	case AdjecantDirections::TopCenter:
-		Adjacent_TC = ObjectToSet;
-		break;
-	case AdjecantDirections::TopRight:
-		Adjacent_TR = ObjectToSet;
-		break;
-	case AdjecantDirections::Left:
-		Adjacent_L = ObjectToSet;
-		break;
-	case AdjecantDirections::Right:
-		Adjacent_R = ObjectToSet;
-		break;
-	case AdjecantDirections::BottomLeft:
-		Adjacent_BL = ObjectToSet;
-		break;
-	case AdjecantDirections::BottomCenter:
-		Adjacent_BC = ObjectToSet;
-		break;
-	case AdjecantDirections::BottomRight:
-		Adjacent_BR = ObjectToSet;
-		break;
-	}
-}
-*/

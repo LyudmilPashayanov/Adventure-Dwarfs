@@ -56,7 +56,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	void PrintLocation();
-	void ShowAdjacentCells(int depth);
+	void ShowAdjacentCells(int depth, UCell* initiatorCell);
 	void ShowCell();
 
 	UFUNCTION()
@@ -72,6 +72,7 @@ private:
 	FTimeline MyTimeline;
 	bool activateRaycasting;
 	bool CellProcessed;
+	int FrameCounter=0;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -48,22 +48,9 @@ AChunk::AChunk()
 		InstancedMeshComponent->SetStaticMesh(CellMeshAsset.Object);
 		InstancedMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 		InstancedMeshComponent->InstancingRandomSeed = FMath::Rand();
-
-		/*
-		int row = 0;
-		int column = 1;
-		*/
 		int counter=0;
 		for (FChunkDataField* Cell : CellsData)
 		{
-			/*
-			row++;
-			if(row == 11)
-			{
-				row=1;
-				column++;
-			}
-			*/
 			counter++;
 			// Access data from Row as needed
 			FVector Translation;
