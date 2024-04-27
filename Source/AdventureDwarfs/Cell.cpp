@@ -37,7 +37,7 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
         if(bHit)
         {
             CellSteppedEvent.Broadcast(this);
-            ShowAdjacentCells(5, this);
+            ShowAdjacentCells(5);
             CellProcessed=true;
             //DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Green,false,1);
         }
@@ -55,9 +55,9 @@ void UCell::PrintLocation()
 	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), transform.GetLocation().X, transform.GetLocation().Y, transform.GetLocation().Z);
 }
 
-void UCell::ShowAdjacentCells(int depth, UCell* initiatorCell)
+void UCell::ShowAdjacentCells(int depth)
 {
-    AdjacentManager->ShowAdjacentCells(depth, GetOwner()->GetActorUpVector(), GetWorld(), initiatorCell);
+    AdjacentManager->ShowAdjacentCells(depth, GetOwner()->GetActorUpVector(), GetWorld());
 }
 
 void UCell::ShowCell()

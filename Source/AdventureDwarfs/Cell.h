@@ -56,7 +56,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	void PrintLocation();
-	void ShowAdjacentCells(int depth, UCell* initiatorCell);
+	void ShowAdjacentCells(int depth);
 	void ShowCell();
 
 	UFUNCTION()

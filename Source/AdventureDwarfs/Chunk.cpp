@@ -66,7 +66,7 @@ AChunk::AChunk()
 		
 			// Set up overlap events for the component
 
-			ConstructCell(counter, Translation, Rotation, InstancedMeshComponent, Cell->row, Cell->column);
+			ConstructCell(counter, Translation, Rotation, InstancedMeshComponent, Cell->column, Cell->row); // TODO: ROW AND COLUMN IS REVERSED IN THE JSON DATA
 		}
 	}
 	else
@@ -83,7 +83,6 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	const FName CellInstanceName(cellInstanceBaseName);
 	UCell* Cell = CreateDefaultSubobject<UCell>(CellInstanceName); // TODO: Maybe make this also instanced class OR a ordinary C++ class and not a unreal class UCell
 	Cell->SetupAttachment(RootComponent);
-	
 	Cell->CellMesh = InstancedMeshComponent;	
 	Cell->SetWorldLocation(Translation);
 	Cell->LocalLocation = Translation;	
@@ -93,7 +92,7 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	Cell->ChunkParent = this;
 	OnChunkStepped.AddUObject(Cell, &UCell::Raycast); 
 	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
-	LocationCellPairs.Add(FString::Format(TEXT("{0}-{1}"), { row, column }), Cell);	// Merging the column and row so that I can create entry to find the Cell easily in the Chunk.
+	LocationCellPairs.Add(FString::Format(TEXT("{0}-{1}"), { row, column }), Cell);	// TODO: I Have no IDEA why in-game the column and Row are reversed in this TMap.
 }
 
 void AChunk::Show()
@@ -137,7 +136,7 @@ void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 
 UCell* AChunk::GetCell(const GridPosition& GridPosition)
 {
-	FString key = FString::Format(TEXT("{0}-{1}"),{ GridPosition.Row, GridPosition.Column });
+	FString key = FString::Format(TEXT("{0}-{1}"),{ GridPosition.Column, GridPosition.Row }); //TODO: I Have no IDEA why the column and Row are reversed in this TMap.
 	return LocationCellPairs[key];
 }
 

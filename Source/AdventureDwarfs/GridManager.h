@@ -35,7 +35,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(EditAnywhere, Category = "Cell Manager")
 	TArray<TSubclassOf<class AChunk>> ChunksLandforms;
-	void GenerateGrid(int rows, int columns);
+	void GenerateGrid();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
 	TArray<AChunk*> SpawnedChunks;
 
