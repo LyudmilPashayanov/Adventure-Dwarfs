@@ -2,20 +2,19 @@
 
 
 #include "Chunk.h"
-#include "AdjecantDirections.h"
 #include "Cell.h"
 
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "Templates/SharedPointer.h"
-#include "JsonUtilities/Public/JsonObjectConverter.h"
 #include "Curves/CurveFloat.h" // Spawning Animation needed CurveFloat and Timeline
-#include "Components/TimelineComponent.h"
 #include "AdjecantManager.h"
 
 #include "Engine/DataTable.h"
 #include "ChunkDataField.h"
+#include "Collectible.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
+#include "GameFramework/Character.h"
 
 // Sets default values
 AChunk::AChunk()
@@ -92,6 +91,7 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	Cell->ChunkParent = this;
 	OnChunkStepped.AddUObject(Cell, &UCell::Raycast); 
 	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
+	ChunkCells.Add(Cell);
 	LocationCellPairs.Add(FString::Format(TEXT("{0}-{1}"), { row, column }), Cell);	// TODO: I Have no IDEA why in-game the column and Row are reversed in this TMap.
 }
 
@@ -101,6 +101,12 @@ void AChunk::Show()
 	{
 		Element.Value->ShowCell();
 	}
+}
+
+void AChunk::SpawnCollectible(TSubclassOf<ACollectible> CollectibleToSpawn)
+{
+	float randomCellIndex = FMath::RandRange(0, ChunkCells.Num() - 1);
+	ChunkCells[randomCellIndex]->SpawnCollectible(CollectibleToSpawn);
 }
 
 // Called when the game starts or when spawned
@@ -125,13 +131,31 @@ void AChunk::ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 	//SteppedCell->ShowAdjacentCells(4, FloatCurve);
 	// start raycasting each cell;
 	//UE_LOG(LogTemp, Log, TEXT("ChunkStepped- other actor = %s"),*OtherActor->GetName());
-	OnChunkStepped.Broadcast(this);
+	ACharacter* PlayerCharacter = Cast<ACharacter>(OtherActor);
+	if (PlayerCharacter)
+	{
+		OnChunkStepped.Broadcast(this);
+		// This code will only execute if the OtherActor is the player pawn
+		// You can put your functionality here
+	}
+	else
+	{
+		// This code will execute if the OtherActor is not the player pawn
+	}	
 }
 
 void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Log, TEXT("CHUNK LEFT- other actor = %s"),*OtherActor->GetName());
-	OnChunkLeft.Broadcast(this);
+	ACharacter* PlayerCharacter = Cast<ACharacter>(OtherActor);
+	if (PlayerCharacter)
+	{
+		OnChunkLeft.Broadcast(this);
+		UE_LOG(LogTemp, Log, TEXT("CHUNK LEFT BY PLAYER"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("CHUNK LEFT- other actor = %s"),*OtherActor->GetName());
+	}	
 }
 
 UCell* AChunk::GetCell(const GridPosition& GridPosition)
@@ -146,15 +170,7 @@ void AChunk::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AChunk::InitializeCells()
-{
-	/*for (auto Element : LocationCellPairs)
-	{
-		Element.Value->SetAdjacentCells();
-	}*/
-}
-
-void AChunk::SetAdjacents()
+void AChunk::SetAdjacent()
 {
 	AdjecantsManager->SetAdjacentObjects(GetActorUpVector(), GetWorld());
 }

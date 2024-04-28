@@ -12,6 +12,7 @@
 
 #include "Chunk.generated.h"
 
+class ACollectible;
 class UCell;
 struct ConstructorHelpers;
 class FObjectFinder;
@@ -39,16 +40,14 @@ public:
 	UBoxComponent* ChunkOverlapComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TMap<FString, UCell*> LocationCellPairs;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	TArray<UCell*> ChunkCells;
 	UPROPERTY(EditAnywhere)
 	UCurveFloat* FloatCurve;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	TSoftObjectPtr<UDataTable> ChunkJsonData;
 
-	UFUNCTION()
-	void ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-	void ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	UCell* GetCell(const GridPosition& GridPosition);
+	
 
 protected:
 	// Called when the game starts or when spawned
@@ -56,11 +55,17 @@ protected:
 	virtual ConstructorHelpers::FObjectFinder<UDataTable> GetGridConstructJsonPath();
 private:
 	void ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, UHierarchicalInstancedStaticMeshComponent* StaticMeshInstance, int row, int column);
-	void OnCellStepped(UCell* Cell);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void InitializeCells();
-	void SetAdjacents();
+
+	UFUNCTION()
+	void ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	UCell* GetCell(const GridPosition& GridPosition);
+	void SetAdjacent();
 	void Show();
+	void SpawnCollectible(TSubclassOf<ACollectible> CollectibleToSpawn );
 };

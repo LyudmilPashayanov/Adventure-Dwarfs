@@ -5,6 +5,7 @@
 #include "Chunk.h"
 #include "AdjecantDirections.h"
 #include "AdjecantManager.h"
+#include "Collectible.h"
 #include "GridPosition.h"
 
 // Sets default values
@@ -30,7 +31,6 @@ void AGridManager::Tick(float DeltaTime)
 void AGridManager::GenerateGrid()
 {
 	SpawnChunk(0, 0,false);
-	InitializeCells();
 }
 
 AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
@@ -51,15 +51,13 @@ AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
 void AGridManager::ChunkStepped_Handler(AChunk* SteppedChunk)
 {
 	//UE_LOG(LogTemp, Log, TEXT("ChunkStepped_Handler: %s "),*SteppedChunk->GetName())
-	SteppedChunk->SetAdjacents();
-	SpawnChunksRecursive(SteppedChunk, 1);
+	SteppedChunk->SetAdjacent();
+	SpawnAdjacentChunks(SteppedChunk);
 	
 }
 
-void AGridManager::SpawnChunksRecursive(AChunk* SteppedChunk, int depth)
+void AGridManager::SpawnAdjacentChunks(const AChunk* SteppedChunk)
 {
-	depth--;
-	TArray<AChunk*> newChunks;
 	for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
 	{
 		AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
@@ -70,21 +68,13 @@ void AGridManager::SpawnChunksRecursive(AChunk* SteppedChunk, int depth)
 			//UE_LOG(LogTemp, Log, TEXT("Spawn Chunk at: X = %d  Y = %d"),posToSpawn.X, posToSpawn.Y)
 			AChunk* newChunk = SpawnChunk(posToSpawn.X, posToSpawn.Y, true);
 			SteppedChunk->AdjecantsManager->SetAdjacent(currentEnumValue, newChunk);
-			SteppedChunk->InitializeCells();  // TODO: StartChunk, should have ONLY its side cells UPDATE their adjacent new chunk cells
-			newChunks.Add(newChunk);
+			SetupCollectibles(newChunk);
 		}
-	}
-	for (AChunk* chunk : newChunks)
-	{
-		chunk->InitializeCells();
 	}
 }
 
-void AGridManager::InitializeCells()
+void AGridManager::SetupCollectibles(AChunk* ChunkToSetup)
 {
-	for (AChunk* chunk : SpawnedChunks)
-	{
-		chunk->InitializeCells();
-	}
+	ChunkToSetup->SpawnCollectible(Collectibles[0]);
 }
 

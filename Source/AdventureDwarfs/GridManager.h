@@ -28,8 +28,8 @@ private:
 	AChunk* grid;
 
 	void ChunkStepped_Handler(AChunk* SteppedChunk);
-	void SpawnChunksRecursive(AChunk* SteppedChunk, int depth);
-
+	void SpawnAdjacentChunks(const AChunk* SteppedChunk);
+	void SetupCollectibles(AChunk* ChunkToSetup);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -38,7 +38,7 @@ public:
 	void GenerateGrid();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
 	TArray<AChunk*> SpawnedChunks;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collectibles Collection", meta = (AllowPrivateAccess = true))
+	TArray<TSubclassOf<class ACollectible>> Collectibles;
 	AChunk* SpawnChunk(int posX, int posY, bool hidden);
-	void InitializeCells();
 };

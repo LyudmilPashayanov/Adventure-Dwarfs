@@ -2,6 +2,7 @@
 
 #include "Cell.h"
 #include "AdjacentCellsManager.h"
+#include "Collectible.h"
 #include "DrawDebugHelpers.h"
 #include "Curves/CurveFloat.h" // Spawning Animation needed CurveFloat and Timeline
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
@@ -119,4 +120,11 @@ void UCell::Raycast(AChunk* Chunk)
 void UCell::StopRaycast(AChunk* Chunk)
 {
     activateRaycasting = false;
+}
+
+void UCell::SpawnCollectible(TSubclassOf<ACollectible> Collectible)
+{
+    ACollectible* SpawnedCollectible = GetWorld()->SpawnActor<ACollectible>(Collectible);
+    SpawnedCollectible->AttachToActor(ChunkParent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+    SpawnedCollectible->SetActorRelativeLocation(FVector(LocalLocation.X,LocalLocation.Y,LocalLocation.Z + 150));
 }

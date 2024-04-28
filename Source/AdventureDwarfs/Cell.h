@@ -67,6 +67,7 @@ public:
 	void HideCell();
 	void Raycast(AChunk* Chunk);
 	void StopRaycast(AChunk* Chunk);
+	void SpawnCollectible(TSubclassOf<ACollectible> Collectible);
 
 private:	
 	FTimeline MyTimeline;
