@@ -67,8 +67,10 @@ void UCell::ShowCell()
     {
         IsCellVisible=true;
         CellMeshIndex = CellMesh->AddInstance(FTransform(LocalRotation,LocalLocation));
-
-        
+        if(SpawnedCollectible)
+        {
+            SpawnedCollectible->SetActorHiddenInGame(false);
+        }
         // Update callback event:
         FOnTimelineFloat TimelineCallback;
         TimelineCallback.BindUFunction(this, FName("TimelineCallback"));
@@ -95,11 +97,17 @@ void UCell::TimelineCallback(float Value)
     //UE_LOG(LogTemp, Log, TEXT("originalLocation : %s"),*originalLocation.ToString());
     float NewZ = LocalLocation.Z + Value;
     FTransform NewLocation;
+    FTransform SpawnableLocation;
     CellMesh->GetInstanceTransform(CellMeshIndex, NewLocation, false);
     /*UE_LOG(LogTemp, Log, TEXT("NewLocation with value: %f , %f , %f"), NewLocation.GetLocation().X,NewLocation.GetLocation().Y, NewLocation.GetLocation().Z);
     UE_LOG(LogTemp, Log, TEXT("New Z : %f"), NewZ);*/
     NewLocation.SetLocation(FVector(NewLocation.GetLocation().X, NewLocation.GetLocation().Y, NewZ));
+    SpawnableLocation.SetLocation(FVector(NewLocation.GetLocation().X, NewLocation.GetLocation().Y, NewZ+170));
     CellMesh->UpdateInstanceTransform(CellMeshIndex, NewLocation, false);
+    if(SpawnedCollectible)
+    {
+        SpawnedCollectible->SetActorRelativeTransform(SpawnableLocation, false);
+    }
 }
 
 void UCell::TimelineFinishedCallback()
@@ -124,7 +132,12 @@ void UCell::StopRaycast(AChunk* Chunk)
 
 void UCell::SpawnCollectible(TSubclassOf<ACollectible> Collectible)
 {
-    ACollectible* SpawnedCollectible = GetWorld()->SpawnActor<ACollectible>(Collectible);
-    SpawnedCollectible->AttachToActor(ChunkParent, FAttachmentTransformRules::SnapToTargetIncludingScale);
-    SpawnedCollectible->SetActorRelativeLocation(FVector(LocalLocation.X,LocalLocation.Y,LocalLocation.Z + 150));
+    ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(Collectible);
+    spawnedCollectible->AttachToActor(ChunkParent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+    spawnedCollectible->SetActorRelativeLocation(FVector(LocalLocation.X,LocalLocation.Y,LocalLocation.Z + 150));
+    SpawnedCollectible = spawnedCollectible;
+    if(IsCellVisible == false)
+    {
+        SpawnedCollectible->SetActorHiddenInGame(true);
+    }
 }

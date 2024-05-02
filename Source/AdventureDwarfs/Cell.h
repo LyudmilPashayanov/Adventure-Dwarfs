@@ -30,7 +30,7 @@ public:
 	
 	AdjacentCellsManager* AdjacentManager;
 	AChunk* ChunkParent;
-	
+	ACollectible* SpawnedCollectible;
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel1; // Custom trace channel
 
 	FCellEvent CellSteppedEvent;
