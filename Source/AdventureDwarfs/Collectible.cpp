@@ -3,25 +3,27 @@
 
 #include "Collectible.h"
 
+#include "CollectibleDataAsset.h"
+
 // Sets default values
 ACollectible::ACollectible()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
+	RootComponent = StaticMeshComponent;
 }
 
 // Called when the game starts or when spawned
 void ACollectible::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
-void ACollectible::Tick(float DeltaTime)
+void ACollectible::Init(UCollectibleDataAsset* data)
 {
-	Super::Tick(DeltaTime);
-
+	StaticMeshComponent->SetStaticMesh(data->Mesh);
+	Size = data->Size;
+	Orientation = data->Orientation;
+	SetActorScale3D(FVector(0.05f,0.05f,0.05f));
 }
+
 

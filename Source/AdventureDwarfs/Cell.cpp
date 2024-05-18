@@ -97,12 +97,13 @@ void UCell::TimelineCallback(float Value)
     //UE_LOG(LogTemp, Log, TEXT("originalLocation : %s"),*originalLocation.ToString());
     float NewZ = LocalLocation.Z + Value;
     FTransform NewLocation;
-    FTransform SpawnableLocation;
+    FTransform SpawnableLocation = FTransform(FRotator(0,0,180)); // TODO: When we have spawnables which are correct size and rotation remove this
     CellMesh->GetInstanceTransform(CellMeshIndex, NewLocation, false);
     /*UE_LOG(LogTemp, Log, TEXT("NewLocation with value: %f , %f , %f"), NewLocation.GetLocation().X,NewLocation.GetLocation().Y, NewLocation.GetLocation().Z);
     UE_LOG(LogTemp, Log, TEXT("New Z : %f"), NewZ);*/
     NewLocation.SetLocation(FVector(NewLocation.GetLocation().X, NewLocation.GetLocation().Y, NewZ));
     SpawnableLocation.SetLocation(FVector(NewLocation.GetLocation().X, NewLocation.GetLocation().Y, NewZ+170));
+    SpawnableLocation.SetScale3D(FVector(0.05,0.05,0.05)); // TODO: When we have spawnables which are correct size and rotation remove this
     CellMesh->UpdateInstanceTransform(CellMeshIndex, NewLocation, false);
     if(SpawnedCollectible)
     {
@@ -130,12 +131,13 @@ void UCell::StopRaycast(AChunk* Chunk)
     activateRaycasting = false;
 }
 
-void UCell::SpawnCollectible(TSubclassOf<ACollectible> Collectible)
+void UCell::SpawnCollectible(TSubclassOf<ACollectible> Collectible, UCollectibleDataAsset* data)
 {
     ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(Collectible);
     spawnedCollectible->AttachToActor(ChunkParent, FAttachmentTransformRules::SnapToTargetIncludingScale);
     spawnedCollectible->SetActorRelativeLocation(FVector(LocalLocation.X,LocalLocation.Y,LocalLocation.Z + 150));
     SpawnedCollectible = spawnedCollectible;
+    spawnedCollectible->Init(data);
     if(IsCellVisible == false)
     {
         SpawnedCollectible->SetActorHiddenInGame(true);

@@ -103,10 +103,10 @@ void AChunk::Show()
 	}
 }
 
-void AChunk::SpawnCollectible(TSubclassOf<ACollectible> CollectibleToSpawn)
+void AChunk::SpawnCollectible(TSubclassOf<ACollectible> CollectibleToSpawn, UCollectibleDataAsset* data )
 {
 	float randomCellIndex = FMath::RandRange(0, ChunkCells.Num() - 1);
-	ChunkCells[randomCellIndex]->SpawnCollectible(CollectibleToSpawn);
+	ChunkCells[randomCellIndex]->SpawnCollectible(CollectibleToSpawn, data);
 }
 
 // Called when the game starts or when spawned

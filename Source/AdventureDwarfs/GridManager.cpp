@@ -75,6 +75,6 @@ void AGridManager::SpawnAdjacentChunks(const AChunk* SteppedChunk)
 
 void AGridManager::SetupCollectibles(AChunk* ChunkToSetup)
 {
-	ChunkToSetup->SpawnCollectible(Collectibles[0]);
+	ChunkToSetup->SpawnCollectible(BaseCollectible, CollectiblesData[0]);
 }
 

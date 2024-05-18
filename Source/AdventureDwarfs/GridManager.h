@@ -8,6 +8,7 @@
 #include "GridManager.generated.h"
 
 
+class UCollectibleDataAsset;
 class AChunk;
 
 UCLASS()
@@ -38,7 +39,10 @@ public:
 	void GenerateGrid();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
 	TArray<AChunk*> SpawnedChunks;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collectibles Collection", meta = (AllowPrivateAccess = true))
-	TArray<TSubclassOf<class ACollectible>> Collectibles;
+	TSubclassOf<class ACollectible> BaseCollectible;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collectibles Collection", meta = (AllowPrivateAccess = true))
+	TArray<UCollectibleDataAsset*> CollectiblesData;
 	AChunk* SpawnChunk(int posX, int posY, bool hidden);
 };

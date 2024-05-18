@@ -12,6 +12,7 @@
 
 #include "Chunk.generated.h"
 
+class UCollectibleDataAsset;
 class ACollectible;
 class UCell;
 struct ConstructorHelpers;
@@ -67,5 +68,5 @@ public:
 	UCell* GetCell(const GridPosition& GridPosition);
 	void SetAdjacent();
 	void Show();
-	void SpawnCollectible(TSubclassOf<ACollectible> CollectibleToSpawn );
+	void SpawnCollectible(TSubclassOf<ACollectible> CollectibleToSpawn, UCollectibleDataAsset* data );
 };

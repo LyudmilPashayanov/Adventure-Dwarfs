@@ -15,7 +15,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FCellEvent, UCell*);
 enum class AdjecantDirections;
 class GridPosition;
 class UCurveFloat;
-
+class UCollectibleDataAsset;
 template<class T>
 class AdjecantManager;
 
@@ -67,7 +67,7 @@ public:
 	void HideCell();
 	void Raycast(AChunk* Chunk);
 	void StopRaycast(AChunk* Chunk);
-	void SpawnCollectible(TSubclassOf<ACollectible> Collectible);
+	void SpawnCollectible(TSubclassOf<ACollectible> Collectible, UCollectibleDataAsset* data);
 
 private:	
 	FTimeline MyTimeline;
