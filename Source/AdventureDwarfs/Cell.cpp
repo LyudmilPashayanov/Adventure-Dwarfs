@@ -94,7 +94,7 @@ void UCell::ShowCell()
 void UCell::TimelineCallback(float Value)
 {
     // Interpolate the value using the FloatCurve
-    //UE_LOG(LogTemp, Log, TEXT("originalLocation : %s"),*originalLocation.ToString());
+    UE_LOG(LogTemp, Log, TEXT("originalLocation : %s"),*originalLocation.ToString());
     float NewZ = LocalLocation.Z + Value;
     FTransform NewLocation;
     FTransform SpawnableLocation = FTransform(FRotator(0,0,180)); // TODO: When we have spawnables which are correct size and rotation remove this
