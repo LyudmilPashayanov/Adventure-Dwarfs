@@ -12,6 +12,7 @@
 
 #include "Chunk.generated.h"
 
+class UHierarchicalInstancedStaticMeshComponent;
 class UCollectibleDataAsset;
 class ACollectible;
 class UCell;

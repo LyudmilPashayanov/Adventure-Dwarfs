@@ -9,7 +9,9 @@ public class AdventureDwarfsTarget : TargetRules
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
+		//IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
+        		bOverrideBuildEnvironment = true;
+
 		ExtraModuleNames.Add("AdventureDwarfs");
 	}
 }
