@@ -49,16 +49,16 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
     }
 }
 
-void UCell::PrintLocation()
+void UCell::PrintLocation() const
 {
     FTransform transform;    
     CellMesh->GetInstanceTransform(CellMeshIndex,transform);
 	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), transform.GetLocation().X, transform.GetLocation().Y, transform.GetLocation().Z);
 }
 
-void UCell::ShowAdjacentCells(int depth)
+void UCell::ShowAdjacentCells(int depth) const
 {
-    AdjacentManager->ShowAdjacentCells(depth, GetOwner()->GetActorUpVector(), GetWorld());
+    AdjacentManager->ShowAdjacentCells(depth);
 }
 
 void UCell::ShowCell()
@@ -94,20 +94,27 @@ void UCell::ShowCell()
 void UCell::TimelineCallback(float Value)
 {
     // Interpolate the value using the FloatCurve
-    UE_LOG(LogTemp, Log, TEXT("originalLocation : %s"),*originalLocation.ToString());
     float NewZ = LocalLocation.Z + Value;
+    
+    // Animate the Cell going up.
     FTransform NewLocation;
-    FTransform SpawnableLocation = FTransform(FRotator(0,0,180)); // TODO: When we have spawnables which are correct size and rotation remove this
     CellMesh->GetInstanceTransform(CellMeshIndex, NewLocation, false);
-    /*UE_LOG(LogTemp, Log, TEXT("NewLocation with value: %f , %f , %f"), NewLocation.GetLocation().X,NewLocation.GetLocation().Y, NewLocation.GetLocation().Z);
-    UE_LOG(LogTemp, Log, TEXT("New Z : %f"), NewZ);*/
     NewLocation.SetLocation(FVector(NewLocation.GetLocation().X, NewLocation.GetLocation().Y, NewZ));
-    SpawnableLocation.SetLocation(FVector(NewLocation.GetLocation().X, NewLocation.GetLocation().Y, NewZ+170));
-    SpawnableLocation.SetScale3D(FVector(0.05,0.05,0.05)); // TODO: When we have spawnables which are correct size and rotation remove this
     CellMesh->UpdateInstanceTransform(CellMeshIndex, NewLocation, false);
+
+    // Animate the spawned collectible going up with the cell.
     if(SpawnedCollectible)
     {
-        SpawnedCollectible->SetActorRelativeTransform(SpawnableLocation, false);
+        if(IsMainCollectibleParent)
+        {
+            FTransform SpawnableLocation;
+            SpawnableLocation.SetLocation(FVector(NewLocation.GetLocation().X, NewLocation.GetLocation().Y, NewZ+170));
+            SpawnedCollectible->SetActorRelativeTransform(SpawnableLocation, false);
+        }
+        else
+        {
+            SpawnedCollectible->NotifyParentsShow();
+        }
     }
 }
 
@@ -131,13 +138,10 @@ void UCell::StopRaycast(AChunk* Chunk)
     activateRaycasting = false;
 }
 
-void UCell::SpawnCollectible(TSubclassOf<ACollectible> Collectible, UCollectibleDataAsset* data)
+void UCell::SetCollectible(ACollectible* Collectible, bool IsMainParent)
 {
-    ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(Collectible);
-    spawnedCollectible->AttachToActor(ChunkParent, FAttachmentTransformRules::SnapToTargetIncludingScale);
-    spawnedCollectible->SetActorRelativeLocation(FVector(LocalLocation.X,LocalLocation.Y,LocalLocation.Z + 150));
-    SpawnedCollectible = spawnedCollectible;
-    spawnedCollectible->Init(data);
+    SpawnedCollectible = Collectible;
+    IsMainCollectibleParent = IsMainParent;
     if(IsCellVisible == false)
     {
         SpawnedCollectible->SetActorHiddenInGame(true);

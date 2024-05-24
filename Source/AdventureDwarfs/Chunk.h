@@ -69,5 +69,5 @@ public:
 	UCell* GetCell(const GridPosition& GridPosition);
 	void SetAdjacent();
 	void Show();
-	void SpawnCollectible(TSubclassOf<ACollectible> CollectibleToSpawn, UCollectibleDataAsset* data );
+	void SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpawn, UCollectibleDataAsset* data );
 };

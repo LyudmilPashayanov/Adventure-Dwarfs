@@ -2,6 +2,8 @@
 
 
 #include "Chunk.h"
+
+#include "AdjacentCellsManager.h"
 #include "Cell.h"
 
 #include "Misc/FileHelper.h"
@@ -13,6 +15,7 @@
 #include "Engine/DataTable.h"
 #include "ChunkDataField.h"
 #include "Collectible.h"
+#include "CollectibleDataAsset.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "GameFramework/Character.h"
 
@@ -103,10 +106,45 @@ void AChunk::Show()
 	}
 }
 
-void AChunk::SpawnCollectible(TSubclassOf<ACollectible> CollectibleToSpawn, UCollectibleDataAsset* data )
+void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpawn, UCollectibleDataAsset* data)
 {
 	float randomCellIndex = FMath::RandRange(0, ChunkCells.Num() - 1);
-	ChunkCells[randomCellIndex]->SpawnCollectible(CollectibleToSpawn, data);
+	UCell* chosenCell = ChunkCells[randomCellIndex];
+	
+	ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(CollectibleToSpawn);
+	spawnedCollectible->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	spawnedCollectible->SetActorRelativeLocation(FVector(chosenCell->LocalLocation.X,chosenCell->LocalLocation.Y,chosenCell->LocalLocation.Z + 150)); // +150 to have elevation above the cell
+	spawnedCollectible->Init(data);
+	TArray<TPair<int,int>> pairs;
+	
+	if(data->Size.X > 1)
+	{
+		for(int i=0; i < data->Size.X; i++)
+		{
+			int CellRowToPopulate = (i);		// TODO: Adjust depending on orientation default orientation NORTH:
+			for(int k=0; k < data->Size.Y; k++)
+			{
+				int CellColumnToPopulate = (k);		// TODO: Adjust depending on orientation default orientation NORTH:
+				if(CellColumnToPopulate== 0 && CellRowToPopulate==0)
+					continue;
+
+				pairs.Add(TPair<int,int>{CellColumnToPopulate,CellRowToPopulate});
+			}
+		}
+		for (auto Pair : pairs)
+		{
+			//UE_LOG(LogTemp, Log, TEXT("column/row to populate : %d/%d"), Pair.Key,Pair.Value);
+			UCell* adjacentCell = chosenCell->AdjacentManager->GetAdjacentCell(Pair);
+			if(adjacentCell)
+			{
+				adjacentCell->SetCollectible(spawnedCollectible, false);
+				spawnedCollectible->ParentCells.Add(adjacentCell);
+			}
+		}
+	}
+	
+	chosenCell->SetCollectible(spawnedCollectible,true);
+	spawnedCollectible->ParentCells.Add(chosenCell);
 }
 
 // Called when the game starts or when spawned

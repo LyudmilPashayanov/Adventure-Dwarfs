@@ -11,30 +11,50 @@ AdjacentCellsManager::AdjacentCellsManager(const UCell* ParentCell)
 	CellParent = ParentCell;
 }
 
-void AdjacentCellsManager::ShowAdjacentCells(int depth, FVector componentUpVector, UWorld* componentWorld)
+void AdjacentCellsManager::ShowAdjacentCells(int depth)
 {
-	TArray<TPair<int, int>>  combinations;
+	TArray<TPair<int, int>>  combinations; // TODO: This has to be created ones, and can be reused after, if Depth doesn't change.
 	for (int col = -depth; col <= depth; ++col) {
 		for (int row = -depth; row <= depth; ++row) {
 			combinations.Push(TPair<int, int>(col,row));
 		}
 	}
+	
+	//UE_LOG(LogTemp, Log, TEXT("this cell column/row : %d/%d"), CellParent->Column,CellParent->Row);
 
-	FHitResult Hit;
-	counter = 0;
 	for (auto Combination : combinations)
 	{
-		counter++;
-		GridPosition positionToCheck = GetAdjacentCellLocation(Combination);
-		if (RaycastAdjacentObjects(positionToCheck.X, positionToCheck.Y, Hit, componentUpVector, componentWorld/*, currentEnumValue*/))
+		//UE_LOG(LogTemp, Log, TEXT("Combination column/row to GetAdjacentCell : %d/%d"), Combination.Key,Combination.Value);
+
+		GetAdjacentCell(Combination)->ShowCell();
+	}
+}
+
+UCell* AdjacentCellsManager::GetAdjacentCell(TPair<int,int> colRowPair)
+{
+	FHitResult Hit;
+	GridPosition positionToCheck = GetAdjacentCellLocation(colRowPair);
+	if (RaycastAdjacentObjects(positionToCheck.X, positionToCheck.Y, Hit))
+	{
+		UCell* cell = Cast<AChunk>(Hit.GetActor())->GetCell((positionToCheck));
+		return cell;
+	}
+	else
+	{
+		// Spawn a chunk here and get the cell again.
+			
+		/*CellParent->ChunkParent->OnChunkStepped.Broadcast(CellParent->ChunkParent);
+		GridPosition positionToCheck = GetAdjacentCellLocation(colRowPair);
+		if (RaycastAdjacentObjects(positionToCheck.X, positionToCheck.Y, Hit))
 		{
 			UCell* cell = Cast<AChunk>(Hit.GetActor())->GetCell((positionToCheck));
-
-			//Cast<AChunk>(Hit.GetActor())
-			
-			cell->ShowCell();
-		}
+			return cell;
+		}*/
+		UE_LOG(LogTemp, Log, TEXT("ERROR ERROR RETURNING NULLPTR CELL- Check this code path !!!!"));
+		UE_LOG(LogTemp, Log, TEXT("positionToCheck was X:%d and Y:%d:"),positionToCheck.X,positionToCheck.Y);
 	}
+
+	return nullptr;
 }
 
 GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>  RowColumnPair) const
@@ -43,7 +63,6 @@ GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>
 	const int GRID_ROWS = 10;
 
 	const int halfSize = CellParent->CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X * 2;
-
 	const int ParentLocationX = CellParent->GetComponentLocation().X + (halfSize * RowColumnPair.Value); // maybe has to be switched with bottom
 	const int ParentLocationY = CellParent->GetComponentLocation().Y + (halfSize * RowColumnPair.Key); // maybe has to be switched with top
 	
@@ -79,35 +98,26 @@ GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>
 	return resultPosition;
 }
 
-bool AdjacentCellsManager::RaycastAdjacentObjects(int posX, int posY, FHitResult& result, FVector componentUpVector,
-                                                  UWorld* componentWorld)
+bool AdjacentCellsManager::RaycastAdjacentObjects(int posX, int posY, FHitResult& result)
 {
 	FVector StartRaycastLocation = FVector(posX, posY, 1000); // needs to be above the chunk collision 
-	FVector DownwardVector = componentUpVector * -1;
+	FVector DownwardVector = CellParent->GetOwner()->GetActorUpVector() * -1;
 	FVector EndLocation = StartRaycastLocation + DownwardVector * 2000;
 
 	//UE_LOG(LogTemp, Log, TEXT("raycasting :) "));
 
 	FHitResult HitResult;
 
-	bool bHit = componentWorld->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation,
+	bool bHit = CellParent->GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation,
 	                                                     ECC_GameTraceChannel3);
 
 	if (bHit)
 	{
 		result = HitResult;
-		//if(DirectionToGet == AdjecantDirections::TopCenter)
-		{
-			//DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Yellow,false,5);
-		}
-		//else
-		//{
-		//	  DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Green,false,5);
-		//}
 	}
 	else
 	{
-		//DrawDebugLine(componentWorld, StartRaycastLocation, EndLocation, FColor::Red,false,5);
+		DrawDebugLine(CellParent->GetWorld(), StartRaycastLocation, EndLocation, FColor::Red,false,5); 
 	}
 	return bHit;
 }

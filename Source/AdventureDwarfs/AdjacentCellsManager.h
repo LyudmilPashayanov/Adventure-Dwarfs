@@ -13,13 +13,13 @@ class ADVENTUREDWARFS_API AdjacentCellsManager
 public:
 	AdjacentCellsManager(const UCell* ParentCell);
 
-	void ShowAdjacentCells(int depth, FVector componentUpVector, UWorld* componentWorld);
+	void ShowAdjacentCells(int depth);
 	GridPosition GetAdjacentCellLocation(const  TPair<int, int> RowColumnPair) const;
-	bool RaycastAdjacentObjects(int posX, int posY, FHitResult& result, FVector componentUpVector, UWorld* componentWorld);
+	UCell* GetAdjacentCell(TPair<int,int> colRowPair);
+	bool RaycastAdjacentObjects(int posX, int posY, FHitResult& result);
 
 private:
 	int counter=0;
-	UCell* lastInitiatorCell;
 	const UCell* CellParent; 
 
 };

@@ -75,6 +75,7 @@ void AGridManager::SpawnAdjacentChunks(const AChunk* SteppedChunk)
 
 void AGridManager::SetupCollectibles(AChunk* ChunkToSetup)
 {
-	ChunkToSetup->SpawnCollectible(BaseCollectible, CollectiblesData[0]);
+	float randomCollectible = FMath::RandRange(0, CollectiblesData.Num() - 1);
+	ChunkToSetup->SpawnCollectible(BaseCollectible, CollectiblesData[randomCollectible]);
 }
 

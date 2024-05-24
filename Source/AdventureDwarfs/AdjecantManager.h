@@ -37,6 +37,7 @@ public:
 	T* Adjacent_BC = nullptr; // bottom center adjacent
 	UPROPERTY()
 	T* Adjacent_BR = nullptr; // bottom right adjacent 
+
 	
 	void SetAdjacentObjects(FVector componentUpVector, UWorld* componentWorld)
 	{
@@ -47,30 +48,14 @@ public:
             GridPosition positionToCheck = GetAdjacentPosition(currentEnumValue);
             if (RaycastAdjacentObjects(positionToCheck.X, positionToCheck.Y, hit, componentUpVector, componentWorld))
             {
-                TArray<USceneComponent*> parents;
-                hit.GetComponent()->GetParentComponents(parents);
-                bool parentFound = false;
-                for (USceneComponent* parent : parents)
+            	if(hit.GetComponent()->GetOwner()->IsA(T::StaticClass()))
                 {
-                    if (parent->IsA(T::StaticClass()))
-                    {
-                        T* objectAtPos = Cast<T>(parent);
-                    	SetAdjacent(currentEnumValue, objectAtPos);
-                        parentFound=true;
-                        break;
-                    }
+                    T* objectAtPos = Cast<T>(hit.GetComponent()->GetOwner());
+                	SetAdjacent(currentEnumValue, objectAtPos);
                 }
-                if(parentFound == false)
+                else
                 {
-                    if(hit.GetComponent()->GetOwner()->IsA(T::StaticClass()))
-                    {
-                        T* objectAtPos = Cast<T>(hit.GetComponent()->GetOwner());
-                    	SetAdjacent(currentEnumValue, objectAtPos);
-                    }
-                    else
-                    {
-                        UE_LOG(LogTemp, Log, TEXT("failed to find any adjanent object "));
-                    }
+                    UE_LOG(LogTemp, Log, TEXT("failed to find any adjacent object "));
                 }
             }
         }
@@ -113,28 +98,20 @@ public:
         {
         case AdjecantDirections::TopLeft:
             return Adjacent_TL;
-            break;
         case AdjecantDirections::TopCenter:
             return Adjacent_TC;
-            break;
         case AdjecantDirections::TopRight:
             return Adjacent_TR;
-            break;
         case AdjecantDirections::Left:
             return Adjacent_L;
-            break;
         case AdjecantDirections::Right:
             return Adjacent_R;
-            break;
         case AdjecantDirections::BottomLeft:
             return Adjacent_BL;
-            break;
         case AdjecantDirections::BottomCenter:
             return Adjacent_BC;
-            break;
         case AdjecantDirections::BottomRight:
             return Adjacent_BR;
-            break;
         }
         return nullptr;
     }
@@ -148,28 +125,20 @@ public:
 	    {
 	    case AdjecantDirections::TopLeft:
 	        return GridPosition(ParentLocationX + halfSize, ParentLocationY - halfSize);
-	        break;
 	    case AdjecantDirections::TopCenter:
 	        return GridPosition(ParentLocationX + halfSize, ParentLocationY);
-	        break;
 	    case AdjecantDirections::TopRight:
 	        return GridPosition(ParentLocationX + halfSize, ParentLocationY + halfSize);
-	        break;
 	    case AdjecantDirections::Left:
 	        return GridPosition(ParentLocationX, ParentLocationY - halfSize);
-	        break;
 	    case AdjecantDirections::Right:
 	        return GridPosition(ParentLocationX, ParentLocationY + halfSize);
-	        break;
 	    case AdjecantDirections::BottomLeft:
 	        return GridPosition(ParentLocationX - halfSize, ParentLocationY - halfSize);
-	        break;
 	    case AdjecantDirections::BottomCenter:
 	        return GridPosition(ParentLocationX - halfSize, ParentLocationY);
-	        break;
 	    case AdjecantDirections::BottomRight:
 	        return GridPosition(ParentLocationX - halfSize, ParentLocationY + halfSize);
-	        break;
 	    }
 	    return GridPosition(0, 0);
 	}

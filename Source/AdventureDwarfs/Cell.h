@@ -30,6 +30,7 @@ public:
 	
 	AdjacentCellsManager* AdjacentManager;
 	AChunk* ChunkParent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	ACollectible* SpawnedCollectible;
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel1; // Custom trace channel
 
@@ -55,8 +56,8 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	void PrintLocation();
-	void ShowAdjacentCells(int depth);
+	void PrintLocation() const;
+	void ShowAdjacentCells(int depth) const;
 	void ShowCell();
 
 	UFUNCTION()
@@ -67,12 +68,13 @@ public:
 	void HideCell();
 	void Raycast(AChunk* Chunk);
 	void StopRaycast(AChunk* Chunk);
-	void SpawnCollectible(TSubclassOf<ACollectible> Collectible, UCollectibleDataAsset* data);
+	void SetCollectible(ACollectible* Collectible, bool IsMainParent);
 
 private:	
 	FTimeline MyTimeline;
 	bool activateRaycasting;
 	bool CellProcessed;
+	bool IsMainCollectibleParent;
 	int FrameCounter=0;
 protected:
 	// Called when the game starts

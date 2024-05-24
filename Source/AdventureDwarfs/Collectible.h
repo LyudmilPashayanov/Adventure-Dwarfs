@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Collectible.generated.h"
 
+class UCell;
 class UCollectibleDataAsset;
 
 UCLASS()
@@ -24,7 +25,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FVector Size;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	TArray<TSubclassOf<class UCell>> ParentCells;
+	TArray<UCell*> ParentCells;
 	
 
 protected:
@@ -33,4 +34,5 @@ protected:
 
 public:
 	void Init(UCollectibleDataAsset* data);
+	void NotifyParentsShow();
 };

@@ -3,6 +3,7 @@
 
 #include "Collectible.h"
 
+#include "Cell.h"
 #include "CollectibleDataAsset.h"
 
 // Sets default values
@@ -23,7 +24,14 @@ void ACollectible::Init(UCollectibleDataAsset* data)
 	StaticMeshComponent->SetStaticMesh(data->Mesh);
 	Size = data->Size;
 	Orientation = data->Orientation;
-	SetActorScale3D(FVector(0.05f,0.05f,0.05f));
+}
+
+void ACollectible::NotifyParentsShow()
+{
+	for (auto parentCell : ParentCells)
+	{
+		parentCell->ShowCell();
+	}
 }
 
 
