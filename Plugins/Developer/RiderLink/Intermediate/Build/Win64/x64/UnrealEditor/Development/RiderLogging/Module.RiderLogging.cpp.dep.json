@@ -477,7 +477,13 @@
             "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.37.32822\\include\\xlocmes",
             "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.37.32822\\include\\xlocmon",
             "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.37.32822\\include\\xloctime",
-            "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.37.32822\\include\\codecvt",
+            "s:\\personal projects\\unreal engine projects\\adventuredwarfs 5.4\\plugins\\developer\\riderlink\\source\\rd\\thirdparty\\utf-cpp\\include\\ww898\\utf_converters.hpp",
+            "s:\\personal projects\\unreal engine projects\\adventuredwarfs 5.4\\plugins\\developer\\riderlink\\source\\rd\\thirdparty\\utf-cpp\\include\\ww898\\utf_selector.hpp",
+            "s:\\personal projects\\unreal engine projects\\adventuredwarfs 5.4\\plugins\\developer\\riderlink\\source\\rd\\thirdparty\\utf-cpp\\include\\ww898\\cp_utf8.hpp",
+            "s:\\personal projects\\unreal engine projects\\adventuredwarfs 5.4\\plugins\\developer\\riderlink\\source\\rd\\thirdparty\\utf-cpp\\include\\ww898\\cp_utf16.hpp",
+            "s:\\personal projects\\unreal engine projects\\adventuredwarfs 5.4\\plugins\\developer\\riderlink\\source\\rd\\thirdparty\\utf-cpp\\include\\ww898\\cp_utf32.hpp",
+            "s:\\personal projects\\unreal engine projects\\adventuredwarfs 5.4\\plugins\\developer\\riderlink\\source\\rd\\thirdparty\\utf-cpp\\include\\ww898\\cp_utfw.hpp",
+            "s:\\personal projects\\unreal engine projects\\adventuredwarfs 5.4\\plugins\\developer\\riderlink\\source\\rd\\thirdparty\\utf-cpp\\include\\ww898\\utf_config.hpp",
             "s:\\personal projects\\unreal engine projects\\adventuredwarfs 5.4\\plugins\\developer\\riderlink\\source\\rd\\src\\rd_core_cpp\\src\\main\\types\\wrapper.h",
             "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.37.32822\\include\\iostream",
             "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.37.32822\\include\\cassert",
@@ -563,10 +569,7 @@
             "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\misc\\largeworldcoordinatesserializer.h",
             "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\modules\\boilerplate\\moduleboilerplate.h",
             "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\internationalization\\regex.h",
-            "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\misc\\datetime.h",
-            "s:\\personal projects\\unreal engine projects\\adventuredwarfs 5.4\\plugins\\developer\\riderlink\\source\\riderlogging\\private\\rideroutputdevice.cpp",
-            "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\misc\\outputdeviceredirector.h",
-            "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\templates\\pimplptr.h"
+            "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\misc\\datetime.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

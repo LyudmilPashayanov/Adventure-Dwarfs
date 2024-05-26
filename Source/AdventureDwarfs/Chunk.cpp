@@ -51,24 +51,24 @@ AChunk::AChunk()
 		InstancedMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 		InstancedMeshComponent->InstancingRandomSeed = FMath::Rand();
 		int counter=0;
-		for (FChunkDataField* Cell : CellsData)
+		for (FChunkDataField* CellData : CellsData)
 		{
 			counter++;
 			// Access data from Row as needed
 			FVector Translation;
-			Translation.X = Cell->translation[0]; //- 450;
-			Translation.Y = Cell->translation[1]; //+ 440;
-			Translation.Z = Cell->translation[2];
+			Translation.X = CellData->translation[0]; //- 450;
+			Translation.Y = CellData->translation[1]; //+ 440;
+			Translation.Z = CellData->translation[2];
 
 			FRotator Rotation;
-			Rotation.Roll = Cell->rotation[0];
-			Rotation.Pitch = Cell->rotation[1];
-			Rotation.Yaw = Cell->rotation[2];
+			Rotation.Roll = CellData->rotation[0];
+			Rotation.Pitch = CellData->rotation[1];
+			Rotation.Yaw = CellData->rotation[2];
 			
 		
 			// Set up overlap events for the component
 
-			ConstructCell(counter, Translation, Rotation, InstancedMeshComponent, Cell->column, Cell->row); // TODO: ROW AND COLUMN IS REVERSED IN THE JSON DATA
+			ConstructCell(counter, Translation, Rotation, InstancedMeshComponent, CellData->column, CellData->row); // TODO: ROW AND COLUMN IS REVERSED IN THE JSON DATA
 		}
 	}
 	else

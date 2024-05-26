@@ -19,6 +19,7 @@
 /I "S:\Personal projects\Unreal engine projects\AdventureDwarfs 5.4\Plugins\Developer\RiderLink\Source\RD\thirdparty\spdlog\include"
 /I "S:\Personal projects\Unreal engine projects\AdventureDwarfs 5.4\Plugins\Developer\RiderLink\Source\RD\thirdparty\clsocket\src"
 /I "S:\Personal projects\Unreal engine projects\AdventureDwarfs 5.4\Plugins\Developer\RiderLink\Source\RD\thirdparty\CTPL\include"
+/I "S:\Personal projects\Unreal engine projects\AdventureDwarfs 5.4\Plugins\Developer\RiderLink\Source\RD\thirdparty\utf-cpp\include"
 /I "S:\Personal projects\Unreal engine projects\AdventureDwarfs 5.4\Plugins\Developer\RiderLink\Source"
 /I "S:\Personal projects\Unreal engine projects\AdventureDwarfs 5.4\Plugins\Developer\RiderLink\Source\RiderLink\Public\Model\Library"
 /I "S:\Personal projects\Unreal engine projects\AdventureDwarfs 5.4\Plugins\Developer\RiderLink\Source\RiderLink\Public\Model\RdEditorProtocol"
