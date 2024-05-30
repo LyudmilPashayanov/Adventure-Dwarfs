@@ -19,6 +19,8 @@
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "GameFramework/Character.h"
 
+// r.LocalFogVolume.GlobalStartDistance=20  Command to make the local fog visible nearby
+
 // Sets default values
 AChunk::AChunk()
 {
@@ -48,7 +50,6 @@ AChunk::AChunk()
 		UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent = CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(" BASE CELL INSTANCE");
 		InstancedMeshComponent->SetupAttachment(ChunkOverlapComponent);
 		InstancedMeshComponent->SetStaticMesh(CellMeshAsset.Object);
-		InstancedMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 		InstancedMeshComponent->InstancingRandomSeed = FMath::Rand();
 		int counter=0;
 		for (FChunkDataField* CellData : CellsData)

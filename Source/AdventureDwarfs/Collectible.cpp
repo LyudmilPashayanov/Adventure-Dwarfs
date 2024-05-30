@@ -22,6 +22,7 @@ void ACollectible::BeginPlay()
 void ACollectible::Init(UCollectibleDataAsset* data)
 {
 	StaticMeshComponent->SetStaticMesh(data->Mesh);
+	StaticMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 	Size = data->Size;
 	Orientation = data->Orientation;
 }

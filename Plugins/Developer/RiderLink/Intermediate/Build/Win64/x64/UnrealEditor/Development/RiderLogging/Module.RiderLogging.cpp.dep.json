@@ -569,7 +569,10 @@
             "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\misc\\largeworldcoordinatesserializer.h",
             "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\modules\\boilerplate\\moduleboilerplate.h",
             "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\internationalization\\regex.h",
-            "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\misc\\datetime.h"
+            "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\misc\\datetime.h",
+            "s:\\personal projects\\unreal engine projects\\adventuredwarfs 5.4\\plugins\\developer\\riderlink\\source\\riderlogging\\private\\rideroutputdevice.cpp",
+            "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\misc\\outputdeviceredirector.h",
+            "s:\\software\\ue_5.4\\engine\\source\\runtime\\core\\public\\templates\\pimplptr.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

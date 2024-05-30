@@ -2,6 +2,9 @@
 
 
 #include "Raycaster.h"
+
+#include "Cell.h"
+#include "Collectible.h"
 #include "GameFramework/Actor.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
@@ -42,11 +45,11 @@ void URaycaster::CheckFacingObject()
     // Check if the hit actor is the specific object you're interested in
     if (bHit && HitResult.GetActor() != nullptr)
     {
-        if (true)//HitResult.GetActor()->IsA(YourSpecificObjectType::StaticClass()))
+        if (HitResult.GetActor()->IsA(ACollectible::StaticClass()))
         {
-            UE_LOG(LogTemp, Log, TEXT("HitResult.GetActor() = %s"), *(HitResult.GetActor()->GetName()));
-            // Your character is facing the specific object
-            // Do something here
+        	ACollectible* hit = Cast<ACollectible>(HitResult.GetActor());
+        	//hit->Collecting();
+        	UE_LOG(LogTemp, Log, TEXT("Collectible name= %s"), *(hit->GetName()));
         }
     }
 }

@@ -57,8 +57,9 @@ protected:
 	void Look(const FInputActionValue& Value);
 	
 	/** Called for looking input */
-	void InteractAction(const FInputActionValue& Value);
-			
+	void StartInteractAction(const FInputActionValue& Value);
+	void StopInteractAction(const FInputActionValue& Value);
+
 
 protected:
 	// APawn interface
