@@ -7,6 +7,8 @@
 #include "Raycaster.generated.h"
 
 
+class ACollectible;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ADVENTUREDWARFS_API URaycaster : public UActorComponent
 {
@@ -21,10 +23,11 @@ protected:
 
 private:
 	float TraceDistance = 100;
-
+	ACollectible* CurrentInteractable;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void CheckFacingObject();
+	void StopUse();
 };

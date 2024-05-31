@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/Actor.h"
 #include "Collectible.generated.h"
 
@@ -26,13 +27,25 @@ public:
 	FVector Size;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UCell*> ParentCells;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "UI Custom Components")
+	UWidgetComponent* WidgetComponent;
 	
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
+	float HoldStartTime;
+	float HoldDurationThreshold = 2;
+	bool bIsBeingCollected;
+	FTimerHandle HoldTimerHandle;
+	void CheckHoldDuration();
+
+	
 public:
 	void Init(UCollectibleDataAsset* data);
 	void NotifyParentsShow();
+	void StartCollect();
+	void StopCollect();
 };

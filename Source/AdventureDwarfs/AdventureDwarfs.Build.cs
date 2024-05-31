@@ -16,6 +16,8 @@ public class AdventureDwarfs : ModuleRules
 			"HeadMountedDisplay",
 			"EnhancedInput",
 			"Json",
-			"JsonUtilities" });
+			"JsonUtilities",
+			"UMG"
+		});
 	}
 }

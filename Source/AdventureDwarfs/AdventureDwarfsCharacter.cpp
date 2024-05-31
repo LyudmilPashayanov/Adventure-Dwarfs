@@ -91,7 +91,7 @@ void AAdventureDwarfsCharacter::SetupPlayerInputComponent(class UInputComponent*
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AAdventureDwarfsCharacter::Look);	
 		
 		//Interacting
-		EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &AAdventureDwarfsCharacter::StartInteractAction);
+		EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &AAdventureDwarfsCharacter::StartInteractAction);
 		EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Completed, this, &AAdventureDwarfsCharacter::StopInteractAction);
 
 	}
@@ -139,11 +139,12 @@ void AAdventureDwarfsCharacter::StartInteractAction(const FInputActionValue& Val
 	bool clicked = Value.Get<bool>();
 	if(clicked)
 	{
-		//Depending on what you have equipped or not in your left item slot do a specific action:
+		//TODO: Depending on what you have equipped or not in your left item slot do a specific action:
 
-		// Case: Nothing/Pickaxe equipped
-		RaycastChecker->CheckFacingObject();
-		UE_LOG(LogTemp, Log, TEXT("StartInteractAction"));
+		
+		// TODO:Case: Nothing/Pickaxe equipped
+		RaycastChecker->CheckFacingObject(); // TODO: This has to be the pick-axe item itself
+		//UE_LOG(LogTemp, Log, TEXT("StartInteractAction"));
 	}
 }
 
@@ -152,8 +153,8 @@ void AAdventureDwarfsCharacter::StopInteractAction(const FInputActionValue& Valu
 	bool clicked = Value.Get<bool>();
 	if(clicked == false)
 	{
-		RaycastChecker->CheckFacingObject();
-		UE_LOG(LogTemp, Log, TEXT("StopInteractAction"));
+		RaycastChecker->StopUse();
+		//UE_LOG(LogTemp, Log, TEXT("StopInteractAction"));
 	}
 }
 
