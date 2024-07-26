@@ -70,11 +70,10 @@ void AAdventureDwarfsCharacter::BeginPlay()
 void AAdventureDwarfsCharacter::InjectRaycaster(URaycaster* raycastClass)
 {
 	RaycastChecker = raycastClass;
+	raycastClass->OnInteractableBeingCollected.AddUObject(this, &AAdventureDwarfsCharacter::HandleCollecting);
 }
 
-//////////////////////////////////////////////////////////////////////////
 // Input
-
 void AAdventureDwarfsCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
@@ -144,6 +143,7 @@ void AAdventureDwarfsCharacter::StartInteractAction(const FInputActionValue& Val
 		
 		// TODO:Case: Nothing/Pickaxe equipped
 		RaycastChecker->CheckFacingObject(); // TODO: This has to be the pick-axe item itself
+		
 		//UE_LOG(LogTemp, Log, TEXT("StartInteractAction"));
 	}
 }
@@ -156,6 +156,12 @@ void AAdventureDwarfsCharacter::StopInteractAction(const FInputActionValue& Valu
 		RaycastChecker->StopUse();
 		//UE_LOG(LogTemp, Log, TEXT("StopInteractAction"));
 	}
+}
+
+void AAdventureDwarfsCharacter::HandleCollecting(float collectTime)
+{
+	UE_LOG(LogTemp, Log, TEXT("collectTime: %f"), collectTime);
+	CollectionInProgressEvent(collectTime);
 }
 
 

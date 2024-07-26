@@ -8,6 +8,7 @@
 
 
 class ACollectible;
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnCollectingSignature, float);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ADVENTUREDWARFS_API URaycaster : public UActorComponent
@@ -17,6 +18,7 @@ class ADVENTUREDWARFS_API URaycaster : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	URaycaster();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -24,10 +26,13 @@ protected:
 private:
 	float TraceDistance = 100;
 	ACollectible* CurrentInteractable;
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	float HoldStartTime;
+	bool bIsBeingCollected;
+	FTimerHandle HoldTimerHandle;
+	void CollectingUpdate();
+	
+public:
+	FOnCollectingSignature OnInteractableBeingCollected;
 	void CheckFacingObject();
 	void StopUse();
 };

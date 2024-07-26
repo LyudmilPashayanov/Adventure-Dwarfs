@@ -36,16 +36,11 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	float HoldStartTime;
-	float HoldDurationThreshold = 2;
-	bool bIsBeingCollected;
-	FTimerHandle HoldTimerHandle;
-	void CheckHoldDuration();
-
+	float collectTimeRequired = 2;
 	
 public:
 	void Init(UCollectibleDataAsset* data);
 	void NotifyParentsShow();
-	void StartCollect();
-	void StopCollect();
+	void Collect();
+	float GetCollectTimeRequired() const;
 };

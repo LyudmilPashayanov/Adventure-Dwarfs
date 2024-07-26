@@ -10,7 +10,6 @@
 #include "AdventureDwarfsCharacter.generated.h"
 
 class URaycaster;
-
 UCLASS(config=Game)
 class AAdventureDwarfsCharacter : public ACharacter
 {
@@ -46,7 +45,6 @@ class AAdventureDwarfsCharacter : public ACharacter
 
 public:
 	AAdventureDwarfsCharacter();
-	
 
 protected:
 
@@ -59,9 +57,8 @@ protected:
 	/** Called for looking input */
 	void StartInteractAction(const FInputActionValue& Value);
 	void StopInteractAction(const FInputActionValue& Value);
+	void HandleCollecting(float collectTime);
 
-
-protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
@@ -75,8 +72,11 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	
 	URaycaster* RaycastChecker;
-	
+
 	UFUNCTION(BlueprintCallable, Category = "YourCategory")
 	void InjectRaycaster(URaycaster* raycastClass);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Custom Events")
+	void CollectionInProgressEvent(const float& collectionTime);
 };
 

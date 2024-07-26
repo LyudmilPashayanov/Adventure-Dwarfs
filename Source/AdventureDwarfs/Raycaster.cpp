@@ -16,6 +16,12 @@ URaycaster::URaycaster()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+// Called when the game starts
+void URaycaster::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
 void URaycaster::CheckFacingObject()
 {
     FVector InfrontPlayerLocation = GetOwner()->GetActorLocation();
@@ -27,12 +33,10 @@ void URaycaster::CheckFacingObject()
 
     FHitResult HitResult;
 
-    // Perform line trace
 	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(40));
 
     //bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycastLocation, EndLocation, ECC_GameTraceChannel1);
-
-    // Draw a debug line for visualization
+	
     if (bHit)
     {
         DrawDebugSphere(GetWorld(), EndLocation,40, 16, FColor::Green, false, 1, 0, 1);
@@ -42,14 +46,17 @@ void URaycaster::CheckFacingObject()
         DrawDebugSphere(GetWorld(), EndLocation,40, 16, FColor::Red, false, 1, 0, 1);
     }
 
-    // Check if the hit actor is the specific object you're interested in
     if (bHit && HitResult.GetActor() != nullptr)
     {
         if (HitResult.GetActor()->IsA(ACollectible::StaticClass()))
         {
-        	CurrentInteractable = Cast<ACollectible>(HitResult.GetActor());
-        	CurrentInteractable->StartCollect();
-        	//UE_LOG(LogTemp, Log, TEXT("Collectible name= %s"), *(hit->GetName()));
+	        if (bIsBeingCollected == false)
+	        {
+	        	CurrentInteractable = Cast<ACollectible>(HitResult.GetActor());
+	        	HoldStartTime = GetWorld()->GetTimeSeconds();
+	        	bIsBeingCollected = true;
+	        	GetWorld()->GetTimerManager().SetTimer(HoldTimerHandle, this, &URaycaster::CollectingUpdate, 0.03f, true);
+	        }
         }
     }
     else
@@ -60,26 +67,27 @@ void URaycaster::CheckFacingObject()
 
 void URaycaster::StopUse()
 {
-	if(CurrentInteractable)
+	bIsBeingCollected = false;
+	GetWorld()->GetTimerManager().ClearTimer(HoldTimerHandle);
+}
+
+void URaycaster::CollectingUpdate()
+{
+	if (bIsBeingCollected && CurrentInteractable)
 	{
-		CurrentInteractable->StopCollect();
+		float CurrentTime = GetWorld()->GetTimeSeconds();
+		float HoldTime = CurrentTime - HoldStartTime;
+		float requiredTime = CurrentInteractable->GetCollectTimeRequired();
+		float ClampedValue = FMath::Clamp(HoldTime, 0, requiredTime);
+		float NormalizedValue = (ClampedValue - 0) / (requiredTime - 0);
+		OnInteractableBeingCollected.Broadcast(NormalizedValue);
+		
+		if (HoldTime >= CurrentInteractable->GetCollectTimeRequired())
+		{
+			UE_LOG(LogTemp, Log, TEXT("Held for enough time"));
+			bIsBeingCollected = false;
+			GetWorld()->GetTimerManager().ClearTimer(HoldTimerHandle);
+			CurrentInteractable->Collect();
+		}
 	}
-}
-
-// Called when the game starts
-void URaycaster::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
-// Called every frame
-void URaycaster::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
