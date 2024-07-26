@@ -70,7 +70,8 @@ void AAdventureDwarfsCharacter::BeginPlay()
 void AAdventureDwarfsCharacter::InjectRaycaster(URaycaster* raycastClass)
 {
 	RaycastChecker = raycastClass;
-	raycastClass->OnInteractableBeingCollected.AddUObject(this, &AAdventureDwarfsCharacter::HandleCollecting);
+	raycastClass->OnCollectionStarted.AddUObject(this, &AAdventureDwarfsCharacter::StartCollecting_Handler);
+	raycastClass->OnCollectionStopped.AddUObject(this, &AAdventureDwarfsCharacter::StopCollecting_Handler);
 }
 
 // Input
@@ -158,10 +159,15 @@ void AAdventureDwarfsCharacter::StopInteractAction(const FInputActionValue& Valu
 	}
 }
 
-void AAdventureDwarfsCharacter::HandleCollecting(float collectTime)
+void AAdventureDwarfsCharacter::StartCollecting_Handler(float collectTime)
 {
 	UE_LOG(LogTemp, Log, TEXT("collectTime: %f"), collectTime);
-	CollectionInProgressEvent(collectTime);
+	StartCollectionEvent(collectTime);
+}
+
+void AAdventureDwarfsCharacter::StopCollecting_Handler()
+{
+	StopCollectingEvent();
 }
 
 

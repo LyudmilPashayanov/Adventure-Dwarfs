@@ -9,6 +9,7 @@
 
 class ACollectible;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnCollectingSignature, float);
+DECLARE_MULTICAST_DELEGATE(FOnStopCollectingSignature);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ADVENTUREDWARFS_API URaycaster : public UActorComponent
@@ -32,7 +33,8 @@ private:
 	void CollectingUpdate();
 	
 public:
-	FOnCollectingSignature OnInteractableBeingCollected;
+	FOnCollectingSignature OnCollectionStarted;
+	FOnStopCollectingSignature OnCollectionStopped;
 	void CheckFacingObject();
 	void StopUse();
 };

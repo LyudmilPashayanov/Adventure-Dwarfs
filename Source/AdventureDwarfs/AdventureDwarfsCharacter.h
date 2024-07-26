@@ -57,7 +57,8 @@ protected:
 	/** Called for looking input */
 	void StartInteractAction(const FInputActionValue& Value);
 	void StopInteractAction(const FInputActionValue& Value);
-	void HandleCollecting(float collectTime);
+	void StartCollecting_Handler(float collectTime);
+	void StopCollecting_Handler();
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -77,6 +78,9 @@ public:
 	void InjectRaycaster(URaycaster* raycastClass);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Custom Events")
-	void CollectionInProgressEvent(const float& collectionTime);
+	void StartCollectionEvent(const float& collectionTime);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Custom Events")
+	void StopCollectingEvent();
 };
 

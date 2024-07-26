@@ -69,6 +69,7 @@ void URaycaster::StopUse()
 {
 	bIsBeingCollected = false;
 	GetWorld()->GetTimerManager().ClearTimer(HoldTimerHandle);
+	OnCollectionStopped.Broadcast();
 }
 
 void URaycaster::CollectingUpdate()
@@ -80,7 +81,7 @@ void URaycaster::CollectingUpdate()
 		float requiredTime = CurrentInteractable->GetCollectTimeRequired();
 		float ClampedValue = FMath::Clamp(HoldTime, 0, requiredTime);
 		float NormalizedValue = (ClampedValue - 0) / (requiredTime - 0);
-		OnInteractableBeingCollected.Broadcast(NormalizedValue);
+		OnCollectionStarted.Broadcast(NormalizedValue);
 		
 		if (HoldTime >= CurrentInteractable->GetCollectTimeRequired())
 		{
