@@ -34,7 +34,7 @@ AChunk::AChunk()
 	ChunkOverlapComponent = CreateDefaultSubobject<UBoxComponent>("ChunkColliderRoot");
 	ChunkOverlapComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Block);
 	ChunkOverlapComponent->SetRelativeLocation(FVector(0, 0, 150));
-	ChunkOverlapComponent->SetBoxExtent(FVector(490, 490,490 ));
+	ChunkOverlapComponent->SetBoxExtent(FVector(1000, 1000,1000 ));
 	ChunkOverlapComponent->OnComponentBeginOverlap.AddDynamic(this, &AChunk::ChunkStepped);
 	ChunkOverlapComponent->OnComponentEndOverlap.AddDynamic(this, &AChunk::ChunkLeft);
 	ChunkOverlapComponent->SetupAttachment(RootComponent);
@@ -66,10 +66,7 @@ AChunk::AChunk()
 			Rotation.Pitch = CellData->rotation[1];
 			Rotation.Yaw = CellData->rotation[2];
 			
-		
-			// Set up overlap events for the component
-
-			ConstructCell(counter, Translation, Rotation, InstancedMeshComponent, CellData->column, CellData->row); // TODO: ROW AND COLUMN IS REVERSED IN THE JSON DATA
+			ConstructCell(counter, Translation, Rotation, InstancedMeshComponent, CellData->row, CellData->column); // TODO: ROW AND COLUMN IS REVERSED IN THE JSON DATA
 		}
 	}
 	else
@@ -85,6 +82,10 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	cellInstanceBaseName.AppendInt(CellIndex);
 	const FName CellInstanceName(cellInstanceBaseName);
 	UCell* Cell = CreateDefaultSubobject<UCell>(CellInstanceName); // TODO: Maybe make this also instanced class OR a ordinary C++ class and not a unreal class UCell
+	if(row == 8 && column == 2)
+	{
+		UE_LOG(LogTemp, Log, TEXT("column/row to populate"));
+	}
 	Cell->SetupAttachment(RootComponent);
 	Cell->CellMesh = InstancedMeshComponent;	
 	Cell->SetWorldLocation(Translation);
@@ -157,7 +158,7 @@ void AChunk::BeginPlay()
 	FVector BoxExtent;
 	
 	GetActorBounds(false, Origin, BoxExtent);
-	AdjecantsManager = new AdjecantManager<AChunk>( 1000, Origin);
+	AdjecantsManager = new AdjecantManager<AChunk>( 2000, Origin);
 
 	//UE_LOG(LogTemp, Log, TEXT("BeginPlay of NEW CHUNK! "));
 	//UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), Origin.X, Origin.Y,Origin.Z);
@@ -199,7 +200,7 @@ void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 
 UCell* AChunk::GetCell(const GridPosition& GridPosition)
 {
-	FString key = FString::Format(TEXT("{0}-{1}"),{ GridPosition.Column, GridPosition.Row }); //TODO: I Have no IDEA why the column and Row are reversed in this TMap.
+	FString key = FString::Format(TEXT("{0}-{1}"),{ GridPosition.Row, GridPosition.Column }); //TODO: I Have no IDEA why the column and Row are reversed in this TMap.
 	return LocationCellPairs[key];
 }
 

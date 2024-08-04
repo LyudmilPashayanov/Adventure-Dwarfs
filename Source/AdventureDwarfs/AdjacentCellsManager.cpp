@@ -25,8 +25,10 @@ void AdjacentCellsManager::ShowAdjacentCells(int depth)
 	for (auto Combination : combinations)
 	{
 		//UE_LOG(LogTemp, Log, TEXT("Combination column/row to GetAdjacentCell : %d/%d"), Combination.Key,Combination.Value);
+		UCell* CellToShow = GetAdjacentCell(Combination); 		
 
-		GetAdjacentCell(Combination)->ShowCell();
+		if(CellToShow)
+			CellToShow->ShowCell();
 	}
 }
 
@@ -51,6 +53,7 @@ UCell* AdjacentCellsManager::GetAdjacentCell(TPair<int,int> colRowPair)
 			return cell;
 		}*/
 		UE_LOG(LogTemp, Log, TEXT("ERROR ERROR RETURNING NULLPTR CELL- Check this code path !!!!"));
+		UE_LOG(LogTemp, Log, TEXT("row :%d and column :%d:"),colRowPair.Key, colRowPair.Value);
 		UE_LOG(LogTemp, Log, TEXT("positionToCheck was X:%d and Y:%d:"),positionToCheck.X,positionToCheck.Y);
 	}
 
@@ -59,8 +62,8 @@ UCell* AdjacentCellsManager::GetAdjacentCell(TPair<int,int> colRowPair)
 
 GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>  RowColumnPair) const
 {
-	const int GRID_COLUMNS = 10;
-	const int GRID_ROWS = 10;
+	const int GRID_COLUMNS = 20;
+	const int GRID_ROWS = 20;
 
 	const int halfSize = CellParent->CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X * 2;
 	const int ParentLocationX = CellParent->GetComponentLocation().X + (halfSize * RowColumnPair.Value); // maybe has to be switched with bottom

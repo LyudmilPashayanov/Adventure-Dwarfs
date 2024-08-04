@@ -1,0 +1,11 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-RiderLink-0012.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"S:\Personal projects\Unreal engine projects\AdventureDwarfs 5.4\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLink\Module.RiderLink.cpp.obj"
+"S:\Personal projects\Unreal engine projects\AdventureDwarfs 5.4\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLink\Default.rc2.res"
+/OUT:"S:\Personal projects\Unreal engine projects\AdventureDwarfs 5.4\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLink\UnrealEditor-RiderLink-0012.lib"
