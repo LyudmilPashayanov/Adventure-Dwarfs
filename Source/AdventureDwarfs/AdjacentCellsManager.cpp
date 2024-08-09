@@ -13,7 +13,7 @@ AdjacentCellsManager::AdjacentCellsManager(const UCell* ParentCell)
 
 void AdjacentCellsManager::ShowAdjacentCells(int depth)
 {
-	TArray<TPair<int, int>>  combinations; // TODO: This has to be created ones, and can be reused after, if Depth doesn't change.
+	TArray<TPair<int, int>>  combinations; // TODO: This has to be created once, and can be reused after, if Depth doesn't change.
 	for (int col = -depth; col <= depth; ++col) {
 		for (int row = -depth; row <= depth; ++row) {
 			combinations.Push(TPair<int, int>(col,row));
@@ -60,18 +60,18 @@ UCell* AdjacentCellsManager::GetAdjacentCell(TPair<int,int> colRowPair)
 	return nullptr;
 }
 
-GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>  RowColumnPair) const
+GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>  ColumnRowPair) const
 {
 	const int GRID_COLUMNS = 20;
 	const int GRID_ROWS = 20;
 
 	const int halfSize = CellParent->CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X * 2;
-	const int ParentLocationX = CellParent->GetComponentLocation().X + (halfSize * RowColumnPair.Value); // maybe has to be switched with bottom
-	const int ParentLocationY = CellParent->GetComponentLocation().Y + (halfSize * RowColumnPair.Key); // maybe has to be switched with top
+	const int ParentLocationX = CellParent->GetComponentLocation().X + (halfSize * ColumnRowPair.Key); // maybe has to be switched with bottom
+	const int ParentLocationY = CellParent->GetComponentLocation().Y + (halfSize * ColumnRowPair.Value); // maybe has to be switched with top
 	
 	GridPosition resultPosition = GridPosition(ParentLocationX , ParentLocationY);
-	int ColumnResult = CellParent->Column + RowColumnPair.Key;
-	int RowResult = CellParent->Row + RowColumnPair.Value;
+	int ColumnResult = CellParent->Column + ColumnRowPair.Key;
+	int RowResult = CellParent->Row + ColumnRowPair.Value;
 	if(RowResult > GRID_ROWS)
 	{
 		RowResult = RowResult - GRID_ROWS;
@@ -101,7 +101,7 @@ GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>
 	return resultPosition;
 }
 
-bool AdjacentCellsManager::RaycastAdjacentObjects(int posX, int posY, FHitResult& result)
+bool AdjacentCellsManager:: RaycastAdjacentObjects(int posX, int posY, FHitResult& result)
 {
 	FVector StartRaycastLocation = FVector(posX, posY, 1000); // needs to be above the chunk collision 
 	FVector DownwardVector = CellParent->GetOwner()->GetActorUpVector() * -1;

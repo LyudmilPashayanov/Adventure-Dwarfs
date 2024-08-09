@@ -151,7 +151,7 @@ private:
     
     bool RaycastAdjacentObjects(int posX, int posY, FHitResult& result, FVector componentUpVector, UWorld* componentWorld)
     {
-        FVector StartRaycastLocation = FVector(posX, posY, 1000); // CHANGE IF WE INCREASE THE SIZE OF THE CHUNKS
+        FVector StartRaycastLocation = FVector(posX, posY, 1000); 
         FVector DownwardVector = componentUpVector * -1;
         FVector EndLocation = StartRaycastLocation + DownwardVector * TraceDistance;
        

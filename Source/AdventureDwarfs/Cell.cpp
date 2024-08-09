@@ -37,7 +37,7 @@ void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentT
         bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeSphere(40));
         if(bHit)
         {
-            CellSteppedEvent.Broadcast(this);
+            CellSteppedEvent.Broadcast(this); // not used
             ShowAdjacentCells(5);
             CellProcessed=true;
             //DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Green,false,1);

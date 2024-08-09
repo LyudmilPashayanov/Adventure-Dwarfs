@@ -38,8 +38,9 @@ AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
 	float randomChunkIndex = FMath::RandRange(0, ChunksLandforms.Num() - 1);
 	//UE_LOG(LogTemp, Log, TEXT("SpawnActor posX: %d and posY: %d "),posX,posY)
 	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[randomChunkIndex], FVector(posX, posY, 0), FRotator().ZeroRotator);
-	// spawnedChunk->OnChunkStepped.AddUObject(this, &AGridManager::ChunkStepped_Handler);
+	spawnedChunk->OnChunkStepped.AddUObject(this, &AGridManager::ChunkStepped_Handler);
 	spawnedChunk->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+	spawnedChunk->Construct();
 	if (hidden == false)
 	{
 		spawnedChunk->Show();

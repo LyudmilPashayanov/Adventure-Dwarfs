@@ -14,7 +14,7 @@ public:
 	AdjacentCellsManager(const UCell* ParentCell);
 
 	void ShowAdjacentCells(int depth);
-	GridPosition GetAdjacentCellLocation(const  TPair<int, int> RowColumnPair) const;
+	GridPosition GetAdjacentCellLocation(const  TPair<int, int> ColumnRowPair) const;
 	UCell* GetAdjacentCell(TPair<int,int> colRowPair);
 	bool RaycastAdjacentObjects(int posX, int posY, FHitResult& result);
 

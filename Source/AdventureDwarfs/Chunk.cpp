@@ -25,7 +25,7 @@
 AChunk::AChunk()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true; 
+	PrimaryActorTick.bCanEverTick = false; 
 	
 
 	USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("ROOT"));
@@ -38,40 +38,35 @@ AChunk::AChunk()
 	ChunkOverlapComponent->OnComponentBeginOverlap.AddDynamic(this, &AChunk::ChunkStepped);
 	ChunkOverlapComponent->OnComponentEndOverlap.AddDynamic(this, &AChunk::ChunkLeft);
 	ChunkOverlapComponent->SetupAttachment(RootComponent);
+}
 
-	ConstructorHelpers::FObjectFinder<UDataTable> JsonConstructData = GetGridConstructJsonPath();
-	if (JsonConstructData.Succeeded())
+void AChunk::Construct()
+{
+	TArray<FChunkDataField*> CellsData;
+	ChunkJsonData->GetAllRows<FChunkDataField>("", CellsData);
+	
+	UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent = NewObject<UHierarchicalInstancedStaticMeshComponent>(this," BASE CELL INSTANCE");
+	InstancedMeshComponent->SetupAttachment(ChunkOverlapComponent);
+	InstancedMeshComponent->SetStaticMesh(StaticMeshReference);
+	InstancedMeshComponent->InstancingRandomSeed = FMath::Rand();
+	InstancedMeshComponent->RegisterComponent();
+	
+	int counter=0;
+	for (FChunkDataField* CellData : CellsData)
 	{
-		TArray<FChunkDataField*> CellsData;
-		JsonConstructData.Object->GetAllRows<FChunkDataField>("", CellsData);
+		counter++;
+		// Access data from Row as needed
+		FVector Translation;
+		Translation.X = CellData->translation[0]; //- 450;
+		Translation.Y = CellData->translation[1]; //+ 440;
+		Translation.Z = CellData->translation[2];
 
-		static ConstructorHelpers::FObjectFinder<UStaticMesh>CellMeshAsset(TEXT("StaticMesh'/Game/LyudmilContent/Chunks/default_cell.default_cell'")); // Get the building mesh - cell
-
-		UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent = CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(" BASE CELL INSTANCE");
-		InstancedMeshComponent->SetupAttachment(ChunkOverlapComponent);
-		InstancedMeshComponent->SetStaticMesh(CellMeshAsset.Object);
-		InstancedMeshComponent->InstancingRandomSeed = FMath::Rand();
-		int counter=0;
-		for (FChunkDataField* CellData : CellsData)
-		{
-			counter++;
-			// Access data from Row as needed
-			FVector Translation;
-			Translation.X = CellData->translation[0]; //- 450;
-			Translation.Y = CellData->translation[1]; //+ 440;
-			Translation.Z = CellData->translation[2];
-
-			FRotator Rotation;
-			Rotation.Roll = CellData->rotation[0];
-			Rotation.Pitch = CellData->rotation[1];
-			Rotation.Yaw = CellData->rotation[2];
+		FRotator Rotation;
+		Rotation.Roll = CellData->rotation[0];
+		Rotation.Pitch = CellData->rotation[1];
+		Rotation.Yaw = CellData->rotation[2];
 			
-			ConstructCell(counter, Translation, Rotation, InstancedMeshComponent, CellData->row, CellData->column); // TODO: ROW AND COLUMN IS REVERSED IN THE JSON DATA
-		}
-	}
-	else
-	{
-	 	UE_LOG(LogTemp, Log, TEXT("Failed to fetch JSON data table needed for constructing the chunk."));
+		ConstructCell(counter, Translation, Rotation, InstancedMeshComponent, CellData->row, CellData->column);
 	}
 }
 
@@ -81,14 +76,10 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	FString cellInstanceBaseName = "InstanceCell_";
 	cellInstanceBaseName.AppendInt(CellIndex);
 	const FName CellInstanceName(cellInstanceBaseName);
-	UCell* Cell = CreateDefaultSubobject<UCell>(CellInstanceName); // TODO: Maybe make this also instanced class OR a ordinary C++ class and not a unreal class UCell
-	if(row == 8 && column == 2)
-	{
-		UE_LOG(LogTemp, Log, TEXT("column/row to populate"));
-	}
+	UCell* Cell = NewObject<UCell>(this, CellInstanceName); // TODO: Maybe make this also instanced class OR a ordinary C++ class and not a unreal class UCel
 	Cell->SetupAttachment(RootComponent);
 	Cell->CellMesh = InstancedMeshComponent;	
-	Cell->SetWorldLocation(Translation);
+	Cell->SetRelativeLocation(Translation);
 	Cell->LocalLocation = Translation;	
 	Cell->LocalRotation = Rotation;
 	Cell->Row = row;
@@ -96,8 +87,23 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	Cell->ChunkParent = this;
 	OnChunkStepped.AddUObject(Cell, &UCell::Raycast); 
 	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
+	Cell->RegisterComponent();
 	ChunkCells.Add(Cell);
 	LocationCellPairs.Add(FString::Format(TEXT("{0}-{1}"), { row, column }), Cell);	// TODO: I Have no IDEA why in-game the column and Row are reversed in this TMap.
+}
+
+// Called when the game starts or when spawned
+void AChunk::BeginPlay()
+{
+	Super::BeginPlay();	
+	FVector Origin;
+	FVector BoxExtent;
+	GetActorBounds(false, Origin, BoxExtent);
+	AdjecantsManager = new AdjecantManager<AChunk>( 2000, Origin);
+
+	//UE_LOG(LogTemp, Log, TEXT("BeginPlay of NEW CHUNK! "));
+	//UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), Origin.X, Origin.Y,Origin.Z);
+	//UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), BoxExtent.X,BoxExtent.Y,BoxExtent.Z);
 }
 
 void AChunk::Show()
@@ -149,22 +155,6 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 	spawnedCollectible->ParentCells.Add(chosenCell);
 }
 
-// Called when the game starts or when spawned
-void AChunk::BeginPlay()
-{
-	
-	Super::BeginPlay();
-	FVector Origin;
-	FVector BoxExtent;
-	
-	GetActorBounds(false, Origin, BoxExtent);
-	AdjecantsManager = new AdjecantManager<AChunk>( 2000, Origin);
-
-	//UE_LOG(LogTemp, Log, TEXT("BeginPlay of NEW CHUNK! "));
-	//UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), Origin.X, Origin.Y,Origin.Z);
-	//UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), BoxExtent.X,BoxExtent.Y,BoxExtent.Z);
-}
-
 void AChunk::ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// Handle the event
@@ -198,7 +188,7 @@ void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	}	
 }
 
-UCell* AChunk::GetCell(const GridPosition& GridPosition)
+UCell* AChunk::GetCell(const GridPosition& GridPosition) // TODO: Make the LocationCellPair, to work with GridPosition and not with a string.
 {
 	FString key = FString::Format(TEXT("{0}-{1}"),{ GridPosition.Row, GridPosition.Column }); //TODO: I Have no IDEA why the column and Row are reversed in this TMap.
 	return LocationCellPairs[key];
@@ -214,33 +204,3 @@ void AChunk::SetAdjacent()
 {
 	AdjecantsManager->SetAdjacentObjects(GetActorUpVector(), GetWorld());
 }
-
-ConstructorHelpers::FObjectFinder<UDataTable> AChunk::GetGridConstructJsonPath()
-{
-	static ConstructorHelpers::FObjectFinder<UDataTable> DataTableFinderHill(TEXT("/Script/Engine.DataTable'/Game/LyudmilContent/ChunksJSON/chunk_data_HillChunk.chunk_data_HillChunk'"));
-	static ConstructorHelpers::FObjectFinder<UDataTable> DataTableFinderFlat(TEXT("/Script/Engine.DataTable'/Game/LyudmilContent/ChunksJSON/chunk_data_FlatChunk.chunk_data_FlatChunk'"));
-
-	TArray<FString> Substrings;
-	GetName().ParseIntoArray(Substrings, TEXT("_"), true);
-	FString blueprintName;
-	for (int i = 0; i < Substrings.Num(); i++)
-	{
-		if (Substrings[i] == "BP")
-		{
-			blueprintName = Substrings[i + 1];
-			break;
-		}
-	}
-
-	if (blueprintName == "HillChunk")
-	{
-		return DataTableFinderHill;
-	}
-	else if (blueprintName == "FlatChunk")
-	{
-		return DataTableFinderFlat;
-	}
-	
-	return DataTableFinderFlat;
-}
-

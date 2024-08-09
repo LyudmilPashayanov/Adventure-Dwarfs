@@ -32,11 +32,19 @@ class ADVENTUREDWARFS_API AChunk : public AActor
 	
 public:
 	AChunk();
-	
+	void Construct();
+
 	AdjecantManager<AChunk>* AdjecantsManager;
 	FOnChunkStepped OnChunkStepped;
 	FOnChunkLeft OnChunkLeft;
 
+	// DataTable reference
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Assets")
+	UDataTable* ChunkJsonData;
+
+	// StaticMesh reference
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Assets")
+	UStaticMesh* StaticMeshReference;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	UBoxComponent* ChunkOverlapComponent;
@@ -46,15 +54,10 @@ public:
 	TArray<UCell*> ChunkCells;
 	UPROPERTY(EditAnywhere)
 	UCurveFloat* FloatCurve;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	TSoftObjectPtr<UDataTable> ChunkJsonData;
-
-	
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual ConstructorHelpers::FObjectFinder<UDataTable> GetGridConstructJsonPath();
 private:
 	void ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, UHierarchicalInstancedStaticMeshComponent* StaticMeshInstance, int row, int column);
 public:	
