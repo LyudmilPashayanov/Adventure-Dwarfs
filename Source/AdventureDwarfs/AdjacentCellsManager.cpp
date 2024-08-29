@@ -19,12 +19,9 @@ void AdjacentCellsManager::ShowAdjacentCells(int depth)
 			combinations.Push(TPair<int, int>(col,row));
 		}
 	}
-	
-	//UE_LOG(LogTemp, Log, TEXT("this cell column/row : %d/%d"), CellParent->Column,CellParent->Row);
-
+	 
 	for (auto Combination : combinations)
 	{
-		//UE_LOG(LogTemp, Log, TEXT("Combination column/row to GetAdjacentCell : %d/%d"), Combination.Key,Combination.Value);
 		UCell* CellToShow = GetAdjacentCell(Combination); 		
 
 		if(CellToShow)
@@ -60,14 +57,14 @@ UCell* AdjacentCellsManager::GetAdjacentCell(TPair<int,int> colRowPair)
 	return nullptr;
 }
 
-GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>  ColumnRowPair) const
+GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>  ColumnRowPair) const // Key is column and Value is row.
 {
 	const int GRID_COLUMNS = 20;
 	const int GRID_ROWS = 20;
 
 	const int halfSize = CellParent->CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X * 2;
-	const int ParentLocationX = CellParent->GetComponentLocation().X + (halfSize * ColumnRowPair.Key); // maybe has to be switched with bottom
-	const int ParentLocationY = CellParent->GetComponentLocation().Y + (halfSize * ColumnRowPair.Value); // maybe has to be switched with top
+	const int ParentLocationX = CellParent->GetComponentLocation().X + (halfSize * ColumnRowPair.Key);
+	const int ParentLocationY = CellParent->GetComponentLocation().Y + (halfSize * ColumnRowPair.Value);
 	
 	GridPosition resultPosition = GridPosition(ParentLocationX , ParentLocationY);
 	int ColumnResult = CellParent->Column + ColumnRowPair.Key;
