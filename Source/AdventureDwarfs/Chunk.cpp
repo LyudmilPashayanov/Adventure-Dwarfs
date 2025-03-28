@@ -19,8 +19,6 @@
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "GameFramework/Character.h"
 
-// r.LocalFogVolume.GlobalStartDistance=20  Command to make the local fog visible nearby
-
 // Sets default values
 AChunk::AChunk()
 {

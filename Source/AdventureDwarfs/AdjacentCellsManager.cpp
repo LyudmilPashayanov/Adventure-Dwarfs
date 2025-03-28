@@ -35,7 +35,7 @@ UCell* AdjacentCellsManager::GetAdjacentCell(TPair<int,int> colRowPair)
 	GridPosition positionToCheck = GetAdjacentCellLocation(colRowPair);
 	if (RaycastAdjacentObjects(positionToCheck.X, positionToCheck.Y, Hit))
 	{
-		UCell* cell = Cast<AChunk>(Hit.GetActor())->GetCell((positionToCheck));
+		UCell* cell = Cast<AChunk>(Hit.GetActor())->GetCell(positionToCheck);
 		return cell;
 	}
 	else
