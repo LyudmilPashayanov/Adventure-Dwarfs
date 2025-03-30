@@ -6,18 +6,19 @@
 #include "GameFramework/Actor.h"
 #include <Components/BoxComponent.h>
 
-#include "GridPosition.h"
+#include "FGridPosition.h"
 #include "Engine/DataTable.h"
 #include "Containers/Map.h"
 
 #include "Chunk.generated.h"
 
+struct FChunkUnit;
 class UHierarchicalInstancedStaticMeshComponent;
 class UCollectibleDataAsset;
 class ACollectible;
 class UCell;
 struct ConstructorHelpers;
-class FObjectFinder;
+struct FGridPosition;
 class UDataTable;
 template<class T>
 class AdjecantManager;
@@ -49,7 +50,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	UBoxComponent* ChunkOverlapComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	TMap<FString, UCell*> LocationCellPairs;
+	TArray<FChunkUnit> ChunkUnits;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<UCell*> ChunkCells;
 	UPROPERTY(EditAnywhere)
@@ -59,7 +60,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 private:
-	void ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, UHierarchicalInstancedStaticMeshComponent* StaticMeshInstance, int row, int column);
+	void ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, const FVector& Scale, UHierarchicalInstancedStaticMeshComponent* StaticMeshInstance, int row, int column);
+	void AddChunkUnit(FChunkUnit gridPositionKey, UCell* cellToAdd);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -69,7 +71,7 @@ public:
 	UFUNCTION()
 	void ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
-	UCell* GetCell(const GridPosition& GridPosition);
+	TArray<UCell*> GetCell(const FGridPosition& GridPosition);
 	void SetAdjacent();
 	void Show();
 	void SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpawn, UCollectibleDataAsset* data );

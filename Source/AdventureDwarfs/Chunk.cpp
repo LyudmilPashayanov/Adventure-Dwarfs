@@ -14,6 +14,7 @@
 
 #include "Engine/DataTable.h"
 #include "ChunkDataField.h"
+#include "ChunkUnit.h"
 #include "Collectible.h"
 #include "CollectibleDataAsset.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
@@ -57,31 +58,44 @@ void AChunk::Construct()
 		counter++;
 		// Access data from Row as needed
 		FVector Translation;
-		Translation.X = CellData->translation[0]; //- 450;
-		Translation.Y = CellData->translation[1]; //+ 440;
+		Translation.X = CellData->translation[0];
+		Translation.Y = CellData->translation[1];
 		Translation.Z = CellData->translation[2];
 
 		FRotator Rotation;
 		Rotation.Roll = CellData->rotation[0];
 		Rotation.Pitch = CellData->rotation[1];
 		Rotation.Yaw = CellData->rotation[2];
-			
-		ConstructCell(counter, Translation, Rotation, InstancedMeshComponent, CellData->row, CellData->column);
+
+		FVector Scale;
+		Scale.X = CellData->scale[0];
+		Scale.Y = CellData->scale[1];
+		Scale.Z = CellData->scale[2];
+		
+		ConstructCell(counter, Translation, Rotation, Scale, InstancedMeshComponent, CellData->row, CellData->column);
 	}
 }
 
-void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent, int row, int column)
+void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, const FVector& Scale, UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent, int row, int column)
 {
 	// Creating Cell class instances:
 	FString cellInstanceBaseName = "InstanceCell_";
 	cellInstanceBaseName.AppendInt(CellIndex);
 	const FName CellInstanceName(cellInstanceBaseName);
-	UCell* Cell = NewObject<UCell>(this, CellInstanceName); // TODO: Maybe make this also instanced class OR a ordinary C++ class and not a unreal class UCel
+	UCell* Cell = NewObject<UCell>(this, CellInstanceName); // TODO: Maybe make this also instanced class OR a ordinary C++ class and not a unreal class UCell
 	Cell->SetupAttachment(RootComponent);
 	Cell->CellMesh = InstancedMeshComponent;	
 	Cell->SetRelativeLocation(Translation);
 	Cell->LocalLocation = Translation;	
 	Cell->LocalRotation = Rotation;
+	Cell->CellScale = Scale;
+
+	FGridPosition CellPositionOnGrid(Translation.X, Translation.Y);
+	CellPositionOnGrid.SetGridPos(row, column);  // TODO: I Have no IDEA why in-game the column and Row are reversed in this TMap.
+	FChunkUnit newChunkUnit(CellPositionOnGrid); 
+	AddChunkUnit(newChunkUnit, Cell);
+
+	Cell->GridPosition = CellPositionOnGrid;
 	Cell->Row = row;
 	Cell->Column = column;
 	Cell->ChunkParent = this;
@@ -89,7 +103,21 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
 	Cell->RegisterComponent();
 	ChunkCells.Add(Cell);
-	LocationCellPairs.Add(FString::Format(TEXT("{0}-{1}"), { row, column }), Cell);	// TODO: I Have no IDEA why in-game the column and Row are reversed in this TMap.
+}
+
+void AChunk::AddChunkUnit(FChunkUnit chunkUnit, UCell* cellToAdd)
+{
+	FChunkUnit* unit = ChunkUnits.FindByKey(chunkUnit);
+	if(unit)
+	{
+		UE_LOG(LogTemp, Log, TEXT("AddChunkUnit"));
+		unit->AddCell(cellToAdd);
+	}
+	else
+	{
+		chunkUnit.AddCell(cellToAdd);
+		ChunkUnits.Add(chunkUnit);	
+	}
 }
 
 // Called when the game starts or when spawned
@@ -108,9 +136,12 @@ void AChunk::BeginPlay()
 
 void AChunk::Show()
 {
-	for (auto Element : LocationCellPairs)
+	for (auto ChunkUnit : ChunkUnits)
 	{
-		Element.Value->ShowCell();
+		for (auto cell : ChunkUnit.Cells)
+		{
+			cell->ShowCell();
+		}
 	}
 }
 
@@ -123,10 +154,11 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 	spawnedCollectible->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	spawnedCollectible->SetActorRelativeLocation(FVector(chosenCell->LocalLocation.X,chosenCell->LocalLocation.Y,chosenCell->LocalLocation.Z + 150)); // +150 to have elevation above the cell
 	spawnedCollectible->Init(data);
-	TArray<TPair<int,int>> pairs;
 	
 	if(data->Size.X > 1)
 	{
+		TArray<TPair<int,int>> pairs;
+		
 		for(int i=0; i < data->Size.X; i++)
 		{
 			int CellRowToPopulate = (i);		// TODO: Adjust depending on orientation default orientation NORTH:
@@ -142,11 +174,14 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 		for (auto Pair : pairs)
 		{
 			//UE_LOG(LogTemp, Log, TEXT("column/row to populate : %d/%d"), Pair.Key,Pair.Value);
-			UCell* adjacentCell = chosenCell->AdjacentManager->GetAdjacentCell(Pair);
-			if(adjacentCell)
+			TArray<UCell*> adjacentCell = chosenCell->AdjacentManager->GetAdjacentCell(Pair);
+			if(adjacentCell.Num() > 0)
 			{
-				adjacentCell->SetCollectible(spawnedCollectible, false);
-				spawnedCollectible->ParentCells.Add(adjacentCell);
+				for (auto cell : adjacentCell)
+				{
+					cell->SetCollectible(spawnedCollectible, false);
+					spawnedCollectible->ParentCells.Add(cell);
+				}
 			}
 		}
 	}
@@ -188,10 +223,21 @@ void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	}	
 }
 
-UCell* AChunk::GetCell(const GridPosition& GridPosition) // TODO: Make the LocationCellPair, to work with GridPosition and not with a string.
+TArray<UCell*> AChunk::GetCell(const FGridPosition& GridPosition) 
 {
-	FString key = FString::Format(TEXT("{0}-{1}"),{ GridPosition.Row, GridPosition.Column }); //TODO: I Have no IDEA why the column and Row are reversed in this TMap.
-	return LocationCellPairs[key];
+	FChunkUnit* FoundChunkUnit = ChunkUnits.FindByPredicate([&](const FChunkUnit& Unit)
+	{
+		return Unit.GridPosition == GridPosition;
+	});
+	
+	if (FoundChunkUnit)
+	{
+		UE_LOG(LogTemp, Log, TEXT("GetCell"));
+		return FoundChunkUnit->Cells;
+	}
+	
+	UE_LOG(LogTemp, Log, TEXT("NO CELLS FOUND"));
+	return TArray<UCell*>();
 }
 
 // Called every frame

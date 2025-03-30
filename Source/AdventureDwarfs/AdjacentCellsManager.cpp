@@ -25,21 +25,32 @@ void AdjacentCellsManager::ShowAdjacentCells(int depth)
 	for (auto Combination : combinations)
 	{
 		//UE_LOG(LogTemp, Log, TEXT("Combination column/row to GetAdjacentCell : %d/%d"), Combination.Key,Combination.Value);
-		UCell* CellToShow = GetAdjacentCell(Combination); 		
+		TArray<UCell*> CellToShow = GetAdjacentCell(Combination); 		
 
-		if(CellToShow)
-			CellToShow->ShowCell();
+		if(CellToShow.Num() > 0)
+		{
+			UE_LOG(LogTemp, Log, TEXT("cells to show: %d"), CellToShow.Num());
+			for(auto cell : CellToShow)
+			{
+				cell->ShowCell();
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("no cells here"));
+		}
 	}
 }
 
-UCell* AdjacentCellsManager::GetAdjacentCell(TPair<int,int> colRowPair)
+TArray<UCell*> AdjacentCellsManager::GetAdjacentCell(TPair<int,int> colRowPair)
 {
 	FHitResult Hit;
-	GridPosition positionToCheck = GetAdjacentCellLocation(colRowPair);
+	FGridPosition positionToCheck = GetAdjacentCellLocation(colRowPair);
 	if (RaycastAdjacentObjects(positionToCheck.X, positionToCheck.Y, Hit))
 	{
-		UCell* cell = Cast<AChunk>(Hit.GetActor())->GetCell((positionToCheck));
-		return cell;
+		AChunk* ChunkWeHit = Cast<AChunk>(Hit.GetActor());
+		TArray<UCell*> cells = ChunkWeHit->GetCell(positionToCheck);
+		return cells;
 	}
 	else
 	{
@@ -57,10 +68,10 @@ UCell* AdjacentCellsManager::GetAdjacentCell(TPair<int,int> colRowPair)
 		UE_LOG(LogTemp, Log, TEXT("positionToCheck was X:%d and Y:%d:"),positionToCheck.X,positionToCheck.Y);
 	}
 
-	return nullptr;
+	return TArray<UCell*>(); // returns an empty array
 }
 
-GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>  ColumnRowPair) const
+FGridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>  ColumnRowPair) const
 {
 	const int GRID_COLUMNS = 20;
 	const int GRID_ROWS = 20;
@@ -69,7 +80,7 @@ GridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int>
 	const int ParentLocationX = CellParent->GetComponentLocation().X + (halfSize * ColumnRowPair.Key); // maybe has to be switched with bottom
 	const int ParentLocationY = CellParent->GetComponentLocation().Y + (halfSize * ColumnRowPair.Value); // maybe has to be switched with top
 	
-	GridPosition resultPosition = GridPosition(ParentLocationX , ParentLocationY);
+	FGridPosition resultPosition = FGridPosition(ParentLocationX , ParentLocationY);
 	int ColumnResult = CellParent->Column + ColumnRowPair.Key;
 	int RowResult = CellParent->Row + ColumnRowPair.Value;
 	if(RowResult > GRID_ROWS)

@@ -63,10 +63,13 @@ void UCell::ShowAdjacentCells(int depth) const
 
 void UCell::ShowCell()
 {
+    // ChunkParent->GetName();
+    // UE_LOG(LogTemp, Log, TEXT("ShowCell %s"), *ChunkParent->GetName());
     if(IsCellVisible == false)
     {
+        //UE_LOG(LogTemp, Log, TEXT("IsCellVisible ShowCell"));
         IsCellVisible=true;
-        CellMeshIndex = CellMesh->AddInstance(FTransform(LocalRotation,LocalLocation));
+        CellMeshIndex = CellMesh->AddInstance(FTransform(LocalRotation,LocalLocation, CellScale));
         if(SpawnedCollectible)
         {
             SpawnedCollectible->SetActorHiddenInGame(false);

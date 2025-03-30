@@ -3,13 +3,13 @@
 #pragma once
 #include "AdjecantManager.h"
 #include "AdjecantDirections.h"
-#include "GridPosition.h"
+#include "FGridPosition.h"
 #include "Raycaster.h"
 #include "CoreMinimal.h"
 
 
 enum class AdjecantDirections;
-class GridPosition;
+struct FGridPosition;
 
 template<class T>
 class ADVENTUREDWARFS_API AdjecantManager
@@ -45,7 +45,7 @@ public:
         for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
         {
             AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-            GridPosition positionToCheck = GetAdjacentPosition(currentEnumValue);
+            FGridPosition positionToCheck = GetAdjacentPosition(currentEnumValue);
             if (RaycastAdjacentObjects(positionToCheck.X, positionToCheck.Y, hit, componentUpVector, componentWorld))
             {
             	if(hit.GetComponent()->GetOwner()->IsA(T::StaticClass()))
@@ -116,7 +116,7 @@ public:
         return nullptr;
     }
 	
-    GridPosition GetAdjacentPosition(AdjecantDirections directionToGet)
+    FGridPosition GetAdjacentPosition(AdjecantDirections directionToGet)
 	{
 	    const int ParentLocationX = componentLocation.X;
 	    const int ParentLocationY = componentLocation.Y;
@@ -124,23 +124,23 @@ public:
 	    switch (directionToGet)
 	    {
 	    case AdjecantDirections::TopLeft:
-	        return GridPosition(ParentLocationX + halfSize, ParentLocationY - halfSize);
+	        return FGridPosition(ParentLocationX + halfSize, ParentLocationY - halfSize);
 	    case AdjecantDirections::TopCenter:
-	        return GridPosition(ParentLocationX + halfSize, ParentLocationY);
+	        return FGridPosition(ParentLocationX + halfSize, ParentLocationY);
 	    case AdjecantDirections::TopRight:
-	        return GridPosition(ParentLocationX + halfSize, ParentLocationY + halfSize);
+	        return FGridPosition(ParentLocationX + halfSize, ParentLocationY + halfSize);
 	    case AdjecantDirections::Left:
-	        return GridPosition(ParentLocationX, ParentLocationY - halfSize);
+	        return FGridPosition(ParentLocationX, ParentLocationY - halfSize);
 	    case AdjecantDirections::Right:
-	        return GridPosition(ParentLocationX, ParentLocationY + halfSize);
+	        return FGridPosition(ParentLocationX, ParentLocationY + halfSize);
 	    case AdjecantDirections::BottomLeft:
-	        return GridPosition(ParentLocationX - halfSize, ParentLocationY - halfSize);
+	        return FGridPosition(ParentLocationX - halfSize, ParentLocationY - halfSize);
 	    case AdjecantDirections::BottomCenter:
-	        return GridPosition(ParentLocationX - halfSize, ParentLocationY);
+	        return FGridPosition(ParentLocationX - halfSize, ParentLocationY);
 	    case AdjecantDirections::BottomRight:
-	        return GridPosition(ParentLocationX - halfSize, ParentLocationY + halfSize);
+	        return FGridPosition(ParentLocationX - halfSize, ParentLocationY + halfSize);
 	    }
-	    return GridPosition(0, 0);
+	    return FGridPosition(0, 0);
 	}
 	
 private:

@@ -6,7 +6,7 @@
 #include "AdjecantDirections.h"
 #include "AdjecantManager.h"
 #include "Collectible.h"
-#include "GridPosition.h"
+#include "FGridPosition.h"
 
 // Sets default values
 AGridManager::AGridManager()
@@ -65,7 +65,7 @@ void AGridManager::SpawnAdjacentChunks(const AChunk* SteppedChunk)
 		AChunk* ChunkToCheck = SteppedChunk->AdjecantsManager->GetAdjacentObject(currentEnumValue);
 		if (ChunkToCheck == nullptr) 
 		{
-			GridPosition posToSpawn = SteppedChunk->AdjecantsManager->GetAdjacentPosition(currentEnumValue);
+			FGridPosition posToSpawn = SteppedChunk->AdjecantsManager->GetAdjacentPosition(currentEnumValue);
 			//UE_LOG(LogTemp, Log, TEXT("Spawn Chunk at: X = %d  Y = %d"),posToSpawn.X, posToSpawn.Y)
 			AChunk* newChunk = SpawnChunk(posToSpawn.X, posToSpawn.Y, true);
 			SteppedChunk->AdjecantsManager->SetAdjacent(currentEnumValue, newChunk);

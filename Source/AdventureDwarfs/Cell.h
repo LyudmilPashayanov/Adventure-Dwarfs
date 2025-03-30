@@ -13,7 +13,7 @@ class AdjacentCellsManager;
 DECLARE_MULTICAST_DELEGATE_OneParam(FCellEvent, UCell*);
 
 enum class AdjecantDirections;
-class GridPosition;
+struct FGridPosition;
 class UCurveFloat;
 class UCollectibleDataAsset;
 template<class T>
@@ -46,6 +46,9 @@ public:
 	FVector LocalLocation;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	FGridPosition GridPosition;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	int32 Row;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
@@ -53,6 +56,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FRotator LocalRotation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	FVector CellScale;
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
