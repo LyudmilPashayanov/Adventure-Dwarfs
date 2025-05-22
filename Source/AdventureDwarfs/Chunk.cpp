@@ -152,7 +152,14 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 	
 	ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(CollectibleToSpawn);
 	spawnedCollectible->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	spawnedCollectible->SetActorRelativeLocation(FVector(chosenCell->LocalLocation.X,chosenCell->LocalLocation.Y,chosenCell->LocalLocation.Z + 150)); // +150 to have elevation above the cell
+	FBoxSphereBounds Bounds = chosenCell->Bounds;
+
+	FVector Origin = Bounds.Origin;
+	FVector BoxExtent = Bounds.BoxExtent;
+
+	// Top is origin + Z extent
+	FVector TopLocation = Origin + FVector(0, 0, BoxExtent.Z);
+	spawnedCollectible->SetActorRelativeLocation(/*FVector(chosenCell->LocalLocation.X,chosenCell->LocalLocation.Y,chosenCell->LocalLocation.Z + 150)*/TopLocation); // +150 to have elevation above the cell
 	spawnedCollectible->Init(data);
 	
 	if(data->Size.X > 1)
