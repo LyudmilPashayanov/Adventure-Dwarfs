@@ -49,6 +49,9 @@ void AChunk::Construct()
 	UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent = NewObject<UHierarchicalInstancedStaticMeshComponent>(this," BASE CELL INSTANCE");
 	InstancedMeshComponent->SetupAttachment(ChunkOverlapComponent);
 	InstancedMeshComponent->SetStaticMesh(StaticMeshReference);
+	InstancedMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	InstancedMeshComponent->SetCollisionObjectType(ECC_WorldDynamic);
+	InstancedMeshComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Block);
 	InstancedMeshComponent->InstancingRandomSeed = FMath::Rand();
 	InstancedMeshComponent->RegisterComponent();
 	
@@ -82,10 +85,8 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	FString cellInstanceBaseName = "InstanceCell_";
 	cellInstanceBaseName.AppendInt(CellIndex);
 	const FName CellInstanceName(cellInstanceBaseName);
-	UCell* Cell = NewObject<UCell>(this, CellInstanceName); // TODO: Maybe make this also instanced class OR a ordinary C++ class and not a unreal class UCell
-	Cell->SetupAttachment(RootComponent);
+	UCell* Cell = NewObject<UCell>(this, CellInstanceName);
 	Cell->CellMesh = InstancedMeshComponent;	
-	Cell->SetRelativeLocation(Translation);
 	Cell->LocalLocation = Translation;	
 	Cell->LocalRotation = Rotation;
 	Cell->CellScale = Scale;
@@ -101,7 +102,6 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	Cell->ChunkParent = this;
 	OnChunkStepped.AddUObject(Cell, &UCell::Raycast); 
 	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
-	Cell->RegisterComponent();
 	ChunkCells.Add(Cell);
 }
 
@@ -152,7 +152,7 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 	
 	ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(CollectibleToSpawn);
 	spawnedCollectible->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	FBoxSphereBounds Bounds = chosenCell->Bounds;
+	FBoxSphereBounds Bounds = chosenCell->CellMesh->Bounds;
 
 	FVector Origin = Bounds.Origin;
 	FVector BoxExtent = Bounds.BoxExtent;

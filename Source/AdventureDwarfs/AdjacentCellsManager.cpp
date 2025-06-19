@@ -79,8 +79,8 @@ FGridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int
 	const int GRID_ROWS = 20;
 
 	const int halfSize = CellParent->CellMesh->GetStaticMesh()->GetBounds().BoxExtent.X * 2;
-	const int ParentLocationX = CellParent->GetComponentLocation().X + (halfSize * ColumnRowPair.Key); // maybe has to be switched with bottom
-	const int ParentLocationY = CellParent->GetComponentLocation().Y + (halfSize * ColumnRowPair.Value); // maybe has to be switched with top
+	const int ParentLocationX = CellParent->LocalLocation.X + (halfSize * ColumnRowPair.Key); // maybe has to be switched with bottom
+	const int ParentLocationY = CellParent->LocalLocation.Y + (halfSize * ColumnRowPair.Value); // maybe has to be switched with top
 	
 	FGridPosition resultPosition = FGridPosition(ParentLocationX , ParentLocationY);
 	int ColumnResult = CellParent->Column + ColumnRowPair.Key;
@@ -117,7 +117,7 @@ FGridPosition AdjacentCellsManager::GetAdjacentCellLocation(const TPair<int, int
 bool AdjacentCellsManager:: RaycastAdjacentObjects(int posX, int posY, FHitResult& result)
 {
 	FVector StartRaycastLocation = FVector(posX, posY, 1000); // needs to be above the chunk collision 
-	FVector DownwardVector = CellParent->GetOwner()->GetActorUpVector() * -1;
+	FVector DownwardVector = CellParent->ChunkParent->GetActorUpVector() * -1;
 	FVector EndLocation = StartRaycastLocation + DownwardVector * 2000;
 
 	//UE_LOG(LogTemp, Log, TEXT("raycasting :) "));

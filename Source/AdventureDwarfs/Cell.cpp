@@ -13,31 +13,13 @@
 UCell::UCell()
 {
     AdjacentManager = new AdjacentCellsManager(this);
-	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-    MyTimeline.TickTimeline(DeltaTime); // TODO: Check if this ticks even after the animation has finished ...
-    
     if(activateRaycasting && !CellProcessed)
     {
-        // TODO: Make the raycast to be every 10th frame and not every frame for example. More efficient <<<
-        const FVector StartRaycastLocation = FVector(GetComponentLocation().X, GetComponentLocation().Y, GetComponentLocation().Z);
-        const FVector EndLocation = StartRaycastLocation + GetOwner()->GetActorUpVector() * 300;
-        FHitResult HitResult;
-        bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeSphere(40));
-        if(bHit)
-        {
-            CellSteppedEvent.Broadcast(this); // not used
-            ShowAdjacentCells(5);
-            CellProcessed=true;
-            //DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Green,false,1);
-        }
-        else
-        {
-            //DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 40.0f, 12, FColor::Red,false,1);
-        }
+       
     }
 }
 
@@ -116,8 +98,6 @@ void UCell::ShowCell()
         }
     }
 }
-
-
 
 void UCell::HideCell()
 {

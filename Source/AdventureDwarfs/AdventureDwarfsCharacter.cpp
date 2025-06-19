@@ -50,6 +50,8 @@ AAdventureDwarfsCharacter::AAdventureDwarfsCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void AAdventureDwarfsCharacter::BeginPlay()
@@ -66,6 +68,34 @@ void AAdventureDwarfsCharacter::BeginPlay()
 		}
 	}
 }
+
+void AAdventureDwarfsCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	RaycastTerrain();
+}
+
+void AAdventureDwarfsCharacter::RaycastTerrain()
+{
+	//Raycast on the terrain
+	const FVector StartRaycastLocation = FVector(GetTransform().GetLocation().X, GetTransform().GetLocation().Y,GetTransform().GetLocation().Z);
+	const FVector EndLocation = StartRaycastLocation - FVector(0,0,250);
+	FHitResult HitResult;
+	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeSphere(20));
+	if(bHit)
+	{
+		//CellSteppedEvent.Broadcast(this); // not used
+		//ShowAdjacentCells(5);
+		//CellProcessed=true;
+		DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 20.0f, 12, FColor::Green,false,1);
+	}
+	else
+	{
+		DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 20.0f, 12, FColor::Red,false,1);
+	}
+}
+
 
 void AAdventureDwarfsCharacter::InjectRaycaster(URaycaster* raycastClass)
 {

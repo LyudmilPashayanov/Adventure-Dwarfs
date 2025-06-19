@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Chunk.h"
-#include "Components/TimelineComponent.h"
 #include "Cell.generated.h"
-
 
 class AdjacentCellsManager;
 DECLARE_MULTICAST_DELEGATE_OneParam(FCellEvent, UCell*);
@@ -19,7 +17,7 @@ template<class T>
 class AdjecantManager;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ADVENTUREDWARFS_API UCell : public USceneComponent
+class ADVENTUREDWARFS_API UCell : public UObject
 {
 	GENERATED_BODY()
 
@@ -71,7 +69,6 @@ public:
 	void SetCollectible(ACollectible* Collectible, bool IsMainParent);
 
 private:	
-	FTimeline MyTimeline;
 	bool activateRaycasting;
 	bool CellProcessed;
 	bool IsMainCollectibleParent;
