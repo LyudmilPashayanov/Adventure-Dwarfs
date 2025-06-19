@@ -239,7 +239,7 @@ TArray<UCell*> AChunk::GetCell(const FGridPosition& GridPosition)
 	
 	if (FoundChunkUnit)
 	{
-		UE_LOG(LogTemp, Log, TEXT("GetCell"));
+		//UE_LOG(LogTemp, Log, TEXT("GetCell"));
 		return FoundChunkUnit->Cells;
 	}
 	

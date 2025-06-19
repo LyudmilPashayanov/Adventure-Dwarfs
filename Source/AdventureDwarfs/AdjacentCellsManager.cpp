@@ -13,10 +13,12 @@ AdjacentCellsManager::AdjacentCellsManager(const UCell* ParentCell)
 
 void AdjacentCellsManager::ShowAdjacentCells(int depth)
 {
-	TArray<TPair<int, int>>  combinations; // TODO: This has to be created once, and can be reused after, if Depth doesn't change.
-	for (int col = -depth; col <= depth; ++col) {
-		for (int row = -depth; row <= depth; ++row) {
-			combinations.Push(TPair<int, int>(col,row));
+	if (combinations.IsEmpty())
+	{
+		for (int col = -depth; col <= depth; ++col) {
+			for (int row = -depth; row <= depth; ++row) {
+				combinations.Push(TPair<int, int>(col,row));
+			}
 		}
 	}
 	
@@ -29,7 +31,7 @@ void AdjacentCellsManager::ShowAdjacentCells(int depth)
 
 		if(CellToShow.Num() > 0)
 		{
-			UE_LOG(LogTemp, Log, TEXT("cells to show: %d"), CellToShow.Num());
+			//UE_LOG(LogTemp, Log, TEXT("cells to show: %d"), CellToShow.Num());
 			for(auto cell : CellToShow)
 			{
 				cell->ShowCell();

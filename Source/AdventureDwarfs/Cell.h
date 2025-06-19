@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Chunk.h"
-#include "Components/SceneComponent.h"
 #include "Components/TimelineComponent.h"
 #include "Cell.generated.h"
 
@@ -60,16 +59,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FVector CellScale;
 	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
 	
 	void PrintLocation() const;
 	void ShowAdjacentCells(int depth) const;
 	void ShowCell();
-
-	UFUNCTION()
-	void TimelineCallback(float Value);
-	UFUNCTION()
-	void TimelineFinishedCallback();
 
 	void HideCell();
 	void Raycast(AChunk* Chunk);
@@ -82,7 +76,4 @@ private:
 	bool CellProcessed;
 	bool IsMainCollectibleParent;
 	int FrameCounter=0;
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
 };

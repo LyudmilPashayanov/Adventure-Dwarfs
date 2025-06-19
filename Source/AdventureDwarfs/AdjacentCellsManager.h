@@ -17,6 +17,7 @@ public:
 	FGridPosition GetAdjacentCellLocation(const  TPair<int, int> ColumnRowPair) const;
 	TArray<UCell*> GetAdjacentCell(TPair<int,int> colRowPair);
 	bool RaycastAdjacentObjects(int posX, int posY, FHitResult& result);
+	TArray<TPair<int, int>> combinations;
 
 private:
 	int counter=0;
