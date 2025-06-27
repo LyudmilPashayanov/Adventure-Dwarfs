@@ -2,74 +2,74 @@
 
 
 #include "GridManager.h"
+
+#include "AdjacentDirectionHelper.h"
 #include "Chunk.h"
 #include "AdjecantDirections.h"
-#include "AdjecantManager.h"
-#include "Collectible.h"
-#include "FGridPosition.h"
 
-// Sets default values
 AGridManager::AGridManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
 void AGridManager::BeginPlay()
 {
 	Super::BeginPlay();
 	GenerateGrid();
 }
 
-// Called every frame
-void AGridManager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 void AGridManager::GenerateGrid()
 {
-	SpawnChunk(0, 0,false);
+	SpawnChunk(FIntPoint(0,0),false);
 }
 
-AChunk* AGridManager::SpawnChunk(int posX, int posY, bool hidden)
+void AGridManager::AddCellToMap(FIntPoint key, UCell* cell)
 {
+	GlobalCellsMap.FindOrAdd(key).Add(cell);
+}
+
+AChunk* AGridManager::SpawnChunk(FIntPoint position, bool hidden)
+{
+	if (GlobalChunkMap.Contains(position)) 
+	{
+		return nullptr;
+	}
+	
 	float randomChunkIndex = FMath::RandRange(0, ChunksLandforms.Num() - 1);
+
 	//UE_LOG(LogTemp, Log, TEXT("SpawnActor posX: %d and posY: %d "),posX,posY)
-	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[randomChunkIndex], FVector(posX, posY, 0), FRotator().ZeroRotator);
+
+	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[randomChunkIndex], FVector(position.X * 2000, position.Y * 2000, 0), FRotator().ZeroRotator);
+	spawnedChunk->ChunkPosition =  position;
 	spawnedChunk->OnChunkStepped.AddUObject(this, &AGridManager::ChunkStepped_Handler);
-	spawnedChunk->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-	spawnedChunk->Construct();
+	spawnedChunk->Construct(this);
 	if (hidden == false)
 	{
 		spawnedChunk->Show();
 	}
-	SpawnedChunks.Add(spawnedChunk);
+
+	GlobalChunkMap.FindOrAdd(position) = spawnedChunk;
+	
 	return spawnedChunk;
 }
 
 void AGridManager::ChunkStepped_Handler(AChunk* SteppedChunk)
 {
 	//UE_LOG(LogTemp, Log, TEXT("ChunkStepped_Handler: %s "),*SteppedChunk->GetName())
-	SteppedChunk->SetAdjacent();
 	SpawnAdjacentChunks(SteppedChunk);
-	
 }
 
-void AGridManager::SpawnAdjacentChunks(const AChunk* SteppedChunk)
+void AGridManager::SpawnAdjacentChunks(const AChunk* ChunkToSpawnAround)
 {
-	for (int i = 0; i < static_cast<int>(AdjecantDirections::Count); ++i)
+	FIntPoint SpawnCenter  = ChunkToSpawnAround->ChunkPosition;
+	for (EAdjacentDirection Dir : UAdjacentDirectionHelper::GetAllDirections())
 	{
-		AdjecantDirections currentEnumValue = static_cast<AdjecantDirections>(i);
-		AChunk* ChunkToCheck = SteppedChunk->AdjecantsManager->GetAdjacentObject(currentEnumValue);
-		if (ChunkToCheck == nullptr) 
+		FIntPoint Offset = UAdjacentDirectionHelper::GetOffset(Dir);
+		FIntPoint NeighborCoord = SpawnCenter + Offset;
+		
+		AChunk* newChunk = SpawnChunk(NeighborCoord, true);
+		if (newChunk)
 		{
-			FGridPosition posToSpawn = SteppedChunk->AdjecantsManager->GetAdjacentPosition(currentEnumValue);
-			//UE_LOG(LogTemp, Log, TEXT("Spawn Chunk at: X = %d  Y = %d"),posToSpawn.X, posToSpawn.Y)
-			AChunk* newChunk = SpawnChunk(posToSpawn.X, posToSpawn.Y, true);
-			SteppedChunk->AdjecantsManager->SetAdjacent(currentEnumValue, newChunk);
-			SetupCollectibles(newChunk);
+			// SetupCollectibles(newChunk);
 		}
 	}
 }

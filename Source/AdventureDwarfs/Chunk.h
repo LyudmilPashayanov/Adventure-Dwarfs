@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <Components/BoxComponent.h>
-
 #include "FGridPosition.h"
 #include "Engine/DataTable.h"
 #include "Containers/Map.h"
 
 #include "Chunk.generated.h"
 
+class AGridManager;
 struct FChunkUnit;
 class UHierarchicalInstancedStaticMeshComponent;
 class UCollectibleDataAsset;
@@ -20,8 +20,6 @@ class UCell;
 struct ConstructorHelpers;
 struct FGridPosition;
 class UDataTable;
-template<class T>
-class AdjecantManager;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnChunkStepped, AChunk*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnChunkLeft, AChunk*);
@@ -33,9 +31,12 @@ class ADVENTUREDWARFS_API AChunk : public AActor
 	
 public:
 	AChunk();
-	void Construct();
+	void Construct(AGridManager* gridManager);
 
-	AdjecantManager<AChunk>* AdjecantsManager;
+	UPROPERTY()
+	AGridManager* GridManager;
+
+	FIntPoint ChunkPosition;
 	FOnChunkStepped OnChunkStepped;
 	FOnChunkLeft OnChunkLeft;
 
@@ -51,11 +52,13 @@ public:
 	UBoxComponent* ChunkOverlapComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	TArray<FChunkUnit> ChunkUnits;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	TArray<UCell*> ChunkCells;
+
 	UPROPERTY(EditAnywhere)
 	UCurveFloat* FloatCurve;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	TMap<int, UCell*> IndexCellsMap;
 
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -72,7 +75,8 @@ public:
 	void ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 	TArray<UCell*> GetCell(const FGridPosition& GridPosition);
-	void SetAdjacent();
 	void Show();
 	void SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpawn, UCollectibleDataAsset* data );
+	void LinkIndexToCell(int index, UCell* cell);
+	void ShowCellByIndex(int index);
 };

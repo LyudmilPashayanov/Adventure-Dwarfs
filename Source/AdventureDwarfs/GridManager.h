@@ -1,13 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include <deque>
 #include "GridManager.generated.h"
 
-
+class UCell;
 class UCollectibleDataAsset;
 class AChunk;
 
@@ -19,30 +16,27 @@ class ADVENTUREDWARFS_API AGridManager : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AGridManager();
-	//std::deque<std::deque<ACell*>> Grid;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
 private:
-	//void OnCellEventReceived(ACell* Cell);
-	AChunk* grid;
-
 	void ChunkStepped_Handler(AChunk* SteppedChunk);
-	void SpawnAdjacentChunks(const AChunk* SteppedChunk);
+	void SpawnAdjacentChunks(const AChunk* ChunkToSpawnAround);
 	void SetupCollectibles(AChunk* ChunkToSetup);
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	
+public:
+	
+	TMap<FIntPoint, TArray<UCell*>> GlobalCellsMap;
+	TMap<FIntPoint, AChunk*> GlobalChunkMap;
+	
 	UPROPERTY(EditAnywhere, Category = "Cell Manager")
 	TArray<TSubclassOf<class AChunk>> ChunksLandforms;
 	void GenerateGrid();
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute", meta = (AllowPrivateAccess = true))
-	TArray<AChunk*> SpawnedChunks;
-	
+	void AddCellToMap(FIntPoint key, UCell* cell);
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collectibles Collection", meta = (AllowPrivateAccess = true))
 	TSubclassOf<class ACollectible> BaseCollectible;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collectibles Collection", meta = (AllowPrivateAccess = true))
 	TArray<UCollectibleDataAsset*> CollectiblesData;
-	AChunk* SpawnChunk(int posX, int posY, bool hidden);
+	AChunk* SpawnChunk(FIntPoint position, bool hidden);
 };

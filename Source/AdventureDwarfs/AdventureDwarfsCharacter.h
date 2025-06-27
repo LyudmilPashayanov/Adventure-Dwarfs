@@ -10,6 +10,8 @@
 #include "AdventureDwarfsCharacter.generated.h"
 
 class URaycaster;
+class AChunk;
+
 UCLASS(config=Game)
 class AAdventureDwarfsCharacter : public ACharacter
 {
@@ -47,7 +49,10 @@ public:
 	AAdventureDwarfsCharacter();
 
 protected:
-
+	
+	float TimeSinceLastGridCheck = 0.0f;
+	const float GridCheckInterval = 0.25f;
+	
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
@@ -65,6 +70,7 @@ protected:
 	
 	// To add mapping context
 	virtual void BeginPlay();
+	void GetPlayerGridPosition();
 	virtual void Tick(float DeltaSeconds) override;
 public:
 	/** Returns CameraBoom subobject **/
@@ -83,7 +89,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Custom Events")
 	void StopCollectingEvent();
 
+	UPROPERTY()
+	AChunk* CurrentChunk;
+
 private:
 	void RaycastTerrain();
+
 };
 

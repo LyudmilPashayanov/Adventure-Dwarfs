@@ -15,14 +15,6 @@ UCell::UCell()
     AdjacentManager = new AdjacentCellsManager(this);
 }
 
-void UCell::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-    if(activateRaycasting && !CellProcessed)
-    {
-       
-    }
-}
-
 void UCell::PrintLocation() const
 {
     FTransform transform;    
@@ -42,7 +34,7 @@ void UCell::ShowCell()
         IsCellVisible = true;
 
         CellMeshIndex = CellMesh->AddInstance(FTransform(LocalRotation, LocalLocation, CellScale));
-
+        ChunkParent->LinkIndexToCell(CellMeshIndex, this);
         if (SpawnedCollectible)
         {
             SpawnedCollectible->SetActorHiddenInGame(false);
@@ -53,7 +45,6 @@ void UCell::ShowCell()
             UTweenSubsystem* TweenSubsystem = World->GetSubsystem<UTweenSubsystem>();
             if (TweenSubsystem && ChunkParent && ChunkParent->FloatCurve)
             {
-			    //UE_LOG(LogTemp, Log, TEXT("should animate"));
                 FTweenTask Tween;
                 Tween.Duration = 1.0f;
                 Tween.Curve = ChunkParent->FloatCurve;
@@ -102,6 +93,7 @@ void UCell::ShowCell()
 void UCell::HideCell()
 {
     CellMesh->RemoveInstance(CellMeshIndex); // Deletes the instance.
+    IsCellVisible = false;
 }
 
 void UCell::Raycast(AChunk* Chunk)

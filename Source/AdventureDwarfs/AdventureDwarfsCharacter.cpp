@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AdventureDwarfsCharacter.h"
+
+#include "Chunk.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -10,6 +12,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Raycaster.h"
+#include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,11 +72,41 @@ void AAdventureDwarfsCharacter::BeginPlay()
 	}
 }
 
+void AAdventureDwarfsCharacter::GetPlayerGridPosition()
+{
+	FVector PlayerWorldPos = GetActorLocation(); // or wherever your character is
+
+	// 2. Define chunk and cell sizes
+	const int32 ChunkSizeWorld = 2000;
+	const int32 CellsPerChunk = 20;
+	const int32 CellSize = ChunkSizeWorld / CellsPerChunk; // 100 units
+
+	const float HalfChunkSize = static_cast<float>(ChunkSizeWorld) / 2.0f;         // e.g. 1000.0f
+
+	// Shift the world position so that (0,0) is at the top-left corner of the first chunk
+	float ShiftedX = PlayerWorldPos.X + HalfChunkSize;
+	float ShiftedY = PlayerWorldPos.Y + HalfChunkSize;
+
+	// Convert to local cell index and +1 to avoid zero-based indexing
+	int32 CellColumn = FMath::FloorToInt(ShiftedX / CellSize) + 1;
+	int32 CellRow    = FMath::FloorToInt(ShiftedY / CellSize) + 1;
+
+	FIntPoint GlobalCellCoord(CellColumn, CellRow);
+	UE_LOG(LogTemp, Log, TEXT("GlobalCellCoord player position cell X: %d and Y: %d "), GlobalCellCoord.X, GlobalCellCoord.Y);
+}
+
 void AAdventureDwarfsCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
+	
 	RaycastTerrain();
+
+	TimeSinceLastGridCheck += DeltaSeconds;
+	if (TimeSinceLastGridCheck >= GridCheckInterval)
+	{
+		TimeSinceLastGridCheck = 0.0f; // reset timer
+		GetPlayerGridPosition();       // call your grid position logic here
+	}
 }
 
 void AAdventureDwarfsCharacter::RaycastTerrain()
@@ -85,6 +118,18 @@ void AAdventureDwarfsCharacter::RaycastTerrain()
 	bool bHit = GetWorld()->SweepSingleByChannel(HitResult, StartRaycastLocation, EndLocation, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeSphere(20));
 	if(bHit)
 	{
+		if (CurrentChunk)
+		{
+			UHierarchicalInstancedStaticMeshComponent* HISMComponent = Cast<UHierarchicalInstancedStaticMeshComponent>(HitResult.Component);
+			if (HISMComponent)
+			{
+				// Get instance index
+				int32 HitInstanceIndex = HitResult.Item;
+
+				//UE_LOG(LogTemp, Log, TEXT("Hit instance index: %d"), HitInstanceIndex);
+				CurrentChunk->ShowCellByIndex(HitInstanceIndex);
+			}
+		}
 		//CellSteppedEvent.Broadcast(this); // not used
 		//ShowAdjacentCells(5);
 		//CellProcessed=true;

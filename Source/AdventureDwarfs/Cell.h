@@ -57,8 +57,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FVector CellScale;
 	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
-	
 	void PrintLocation() const;
 	void ShowAdjacentCells(int depth) const;
 	void ShowCell();

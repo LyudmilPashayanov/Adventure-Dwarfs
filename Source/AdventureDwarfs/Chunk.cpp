@@ -10,17 +10,14 @@
 #include "Misc/Paths.h"
 #include "Templates/SharedPointer.h"
 #include "Curves/CurveFloat.h" // Spawning Animation needed CurveFloat and Timeline
-#include "AdjecantManager.h"
-
+#include "AdventureDwarfsCharacter.h"
 #include "Engine/DataTable.h"
 #include "ChunkDataField.h"
 #include "ChunkUnit.h"
 #include "Collectible.h"
-#include "CollectibleDataAsset.h"
+#include "GridManager.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "GameFramework/Character.h"
-
-// r.LocalFogVolume.GlobalStartDistance=20  Command to make the local fog visible nearby
 
 // Sets default values
 AChunk::AChunk()
@@ -41,8 +38,9 @@ AChunk::AChunk()
 	ChunkOverlapComponent->SetupAttachment(RootComponent);
 }
 
-void AChunk::Construct()
+void AChunk::Construct(AGridManager* gridManager)
 {
+	GridManager = gridManager;
 	TArray<FChunkDataField*> CellsData;
 	ChunkJsonData->GetAllRows<FChunkDataField>("", CellsData);
 	
@@ -81,13 +79,14 @@ void AChunk::Construct()
 
 void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, const FVector& Scale, UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent, int row, int column)
 {
-	// Creating Cell class instances:
 	FString cellInstanceBaseName = "InstanceCell_";
 	cellInstanceBaseName.AppendInt(CellIndex);
 	const FName CellInstanceName(cellInstanceBaseName);
+	
 	UCell* Cell = NewObject<UCell>(this, CellInstanceName);
+
 	Cell->CellMesh = InstancedMeshComponent;	
-	Cell->LocalLocation = Translation;	
+	Cell->LocalLocation = Translation;
 	Cell->LocalRotation = Rotation;
 	Cell->CellScale = Scale;
 
@@ -102,7 +101,9 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	Cell->ChunkParent = this;
 	OnChunkStepped.AddUObject(Cell, &UCell::Raycast); 
 	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
-	ChunkCells.Add(Cell);
+	
+	FIntPoint GlobalCellPosition(ChunkPosition.X * 20 + column, ChunkPosition.Y * 20 + row);
+	GridManager->AddCellToMap(GlobalCellPosition, Cell);
 }
 
 void AChunk::AddChunkUnit(FChunkUnit chunkUnit, UCell* cellToAdd)
@@ -124,14 +125,6 @@ void AChunk::AddChunkUnit(FChunkUnit chunkUnit, UCell* cellToAdd)
 void AChunk::BeginPlay()
 {
 	Super::BeginPlay();	
-	FVector Origin;
-	FVector BoxExtent;
-	GetActorBounds(false, Origin, BoxExtent);
-	AdjecantsManager = new AdjecantManager<AChunk>( 2000, Origin);
-
-	//UE_LOG(LogTemp, Log, TEXT("BeginPlay of NEW CHUNK! "));
-	//UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), Origin.X, Origin.Y,Origin.Z);
-	//UE_LOG(LogTemp, Log, TEXT("current size is: x- %f,y- %f,z- %f"), BoxExtent.X,BoxExtent.Y,BoxExtent.Z);
 }
 
 void AChunk::Show()
@@ -147,7 +140,7 @@ void AChunk::Show()
 
 void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpawn, UCollectibleDataAsset* data)
 {
-	float randomCellIndex = FMath::RandRange(0, ChunkCells.Num() - 1);
+	/*float randomCellIndex = FMath::RandRange(0, ChunkCells.Num() - 1);
 	UCell* chosenCell = ChunkCells[randomCellIndex];
 	
 	ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(CollectibleToSpawn);
@@ -159,7 +152,7 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 
 	// Top is origin + Z extent
 	FVector TopLocation = Origin + FVector(0, 0, BoxExtent.Z);
-	spawnedCollectible->SetActorRelativeLocation(/*FVector(chosenCell->LocalLocation.X,chosenCell->LocalLocation.Y,chosenCell->LocalLocation.Z + 150)*/TopLocation); // +150 to have elevation above the cell
+	spawnedCollectible->SetActorRelativeLocation(TopLocation);
 	spawnedCollectible->Init(data);
 	
 	if(data->Size.X > 1)
@@ -194,7 +187,22 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 	}
 	
 	chosenCell->SetCollectible(spawnedCollectible,true);
-	spawnedCollectible->ParentCells.Add(chosenCell);
+	spawnedCollectible->ParentCells.Add(chosenCell);*/
+}
+
+void AChunk::LinkIndexToCell(int index, UCell* cell)
+{
+	IndexCellsMap.Add(index, cell);
+}
+
+void AChunk::ShowCellByIndex(int index)
+{
+	if (UCell** FoundCellPtr = IndexCellsMap.Find(index))
+	{
+		UCell* FoundCell = *FoundCellPtr;
+		// Now you can use FoundCell, e.g.:
+		FoundCell->ShowAdjacentCells(5);
+	}
 }
 
 void AChunk::ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -203,10 +211,13 @@ void AChunk::ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 	//SteppedCell->ShowAdjacentCells(4, FloatCurve);
 	// start raycasting each cell;
 	//UE_LOG(LogTemp, Log, TEXT("ChunkStepped- other actor = %s"),*OtherActor->GetName());
-	ACharacter* PlayerCharacter = Cast<ACharacter>(OtherActor);
+	AAdventureDwarfsCharacter* PlayerCharacter = Cast<AAdventureDwarfsCharacter>(OtherActor);
 	if (PlayerCharacter)
 	{
 		OnChunkStepped.Broadcast(this);
+		PlayerCharacter->CurrentChunk = this;
+		UE_LOG(LogTemp, Log, TEXT("NEW CHUNK REGISTERED!"));
+
 		// This code will only execute if the OtherActor is the player pawn
 		// You can put your functionality here
 	}
@@ -251,9 +262,4 @@ TArray<UCell*> AChunk::GetCell(const FGridPosition& GridPosition)
 void AChunk::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void AChunk::SetAdjacent()
-{
-	AdjecantsManager->SetAdjacentObjects(GetActorUpVector(), GetWorld());
 }

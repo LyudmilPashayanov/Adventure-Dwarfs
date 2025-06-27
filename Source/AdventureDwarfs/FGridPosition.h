@@ -18,32 +18,29 @@ public:
 	int32 Y;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Row;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Column;
-
+	FIntPoint LocalGridPosition;
+	
 	FGridPosition()
-		: X(0), Y(0), Row(0), Column(0) {}
+		: X(0), Y(0), LocalGridPosition(0,0) {}
 
 	FGridPosition(int32 PosX, int32 PosY)
-		: X(PosX), Y(PosY), Row(0), Column(0) {}
+		: X(PosX), Y(PosY),  LocalGridPosition(0,0) {}
 
 	void SetGridPos(int32 InRow, int32 InColumn)
 	{
-		Row = InRow;
-		Column = InColumn;
+		LocalGridPosition.X = InRow;
+		LocalGridPosition.Y = InColumn;
 	}
 
 	// Required operator== and hashing function for use in TMap
 	bool operator==(const FGridPosition& Other) const
 	{
-		return Row == Other.Row && Column == Other.Column;
+		return LocalGridPosition == Other.LocalGridPosition;
 	}
 };
 
 // Required hashing function for use in TMap
 FORCEINLINE uint32 GetTypeHash(const FGridPosition& GridPos)
 {
-	return HashCombine(GetTypeHash(GridPos.Row), GetTypeHash(GridPos.Column));
+	return GetTypeHash(GridPos.LocalGridPosition);
 }
