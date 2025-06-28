@@ -17,6 +17,7 @@
 #include "Collectible.h"
 #include "GridManager.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "GameFramework/Character.h"
 
 // Sets default values
@@ -84,7 +85,8 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	const FName CellInstanceName(cellInstanceBaseName);
 	
 	UCell* Cell = NewObject<UCell>(this, CellInstanceName);
-
+	
+	
 	Cell->CellMesh = InstancedMeshComponent;	
 	Cell->LocalLocation = Translation;
 	Cell->LocalRotation = Rotation;
@@ -92,7 +94,7 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 
 	FGridPosition CellPositionOnGrid(Translation.X, Translation.Y);
 	CellPositionOnGrid.SetGridPos(row, column);  // TODO: I Have no IDEA why in-game the column and Row are reversed in this TMap.
-	FChunkUnit newChunkUnit(CellPositionOnGrid); 
+	FChunkUnit newChunkUnit(CellPositionOnGrid);
 	AddChunkUnit(newChunkUnit, Cell);
 
 	Cell->GridPosition = CellPositionOnGrid;
@@ -102,8 +104,21 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	OnChunkStepped.AddUObject(Cell, &UCell::Raycast); 
 	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
 	
-	FIntPoint GlobalCellPosition(ChunkPosition.X * 20 + column, ChunkPosition.Y * 20 + row);
+	FIntPoint GlobalCellPosition((ChunkPosition.X * 20) + row, (ChunkPosition.Y * 20) + column);
 	GridManager->AddCellToMap(GlobalCellPosition, Cell);
+	bool debug = false;
+	if (debug)
+	{
+		UTextRenderComponent* TextComponent = NewObject<UTextRenderComponent>(this);
+		TextComponent->RegisterComponent();
+		TextComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+		TextComponent->SetHorizontalAlignment(EHTA_Center);
+		TextComponent->SetTextRenderColor(FColor::Green);
+		TextComponent->SetWorldSize(15.0f); // Font size
+		TextComponent->SetRelativeLocation(FVector(Translation.X, Translation.Y, 250.f));
+		FString Text = FString::Printf(TEXT("%d, %d"), GlobalCellPosition.X, GlobalCellPosition.Y);
+		TextComponent->SetText(FText::FromString(Text));
+	}
 }
 
 void AChunk::AddChunkUnit(FChunkUnit chunkUnit, UCell* cellToAdd)

@@ -30,6 +30,26 @@ TArray<FIntPoint> UAdjacentDirectionHelper::GetAllDirectionOffsets()
 	};
 }
 
+TArray<FIntPoint> UAdjacentDirectionHelper::GetSquareOffsets(int32 Radius, bool bIncludeCenter)
+{
+	TArray<FIntPoint> Offsets;
+
+	for (int32 Y = -Radius; Y <= Radius; ++Y)
+	{
+		for (int32 X = -Radius; X <= Radius; ++X)
+		{
+			if (!bIncludeCenter && X == 0 && Y == 0)
+			{
+				continue; // skip the center cell
+			}
+
+			Offsets.Add(FIntPoint(X, Y));
+		}
+	}
+
+	return Offsets;
+}
+
 FIntPoint UAdjacentDirectionHelper::GetOffset(EAdjacentDirection Direction)
 {
 	switch (Direction)

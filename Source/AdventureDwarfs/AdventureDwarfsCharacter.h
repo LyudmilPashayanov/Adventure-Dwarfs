@@ -12,6 +12,8 @@
 class URaycaster;
 class AChunk;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerPositionChanged, const FIntPoint&);
+
 UCLASS(config=Game)
 class AAdventureDwarfsCharacter : public ACharacter
 {
@@ -47,6 +49,7 @@ class AAdventureDwarfsCharacter : public ACharacter
 
 public:
 	AAdventureDwarfsCharacter();
+	FOnPlayerPositionChanged OnPlayerPositionChanged;
 
 protected:
 	

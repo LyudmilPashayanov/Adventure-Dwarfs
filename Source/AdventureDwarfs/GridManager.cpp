@@ -6,6 +6,9 @@
 #include "AdjacentDirectionHelper.h"
 #include "Chunk.h"
 #include "AdjecantDirections.h"
+#include "AdventureDwarfsCharacter.h"
+#include "Cell.h"
+#include "Kismet/GameplayStatics.h"
 
 AGridManager::AGridManager()
 {
@@ -15,6 +18,32 @@ void AGridManager::BeginPlay()
 {
 	Super::BeginPlay();
 	GenerateGrid();
+
+	PlayerRevealRadius = UAdjacentDirectionHelper::GetSquareOffsets(15);
+
+	AAdventureDwarfsCharacter* player = Cast<AAdventureDwarfsCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (player)
+	{
+		 player->OnPlayerPositionChanged.AddUObject(this, &AGridManager::RevealCellsAroundPlayer);
+	}
+}
+
+void AGridManager::RevealCellsAroundPlayer(const FIntPoint& playerPosition)
+{
+	if (PlayerRevealRadius.Num() > 0)
+	{
+		for (FIntPoint Offset : PlayerRevealRadius)
+		{	
+			FIntPoint NeighborCoord = playerPosition + Offset;
+			if (GlobalCellsMap.Contains(NeighborCoord))
+			{
+				for (UCell* cell : GlobalCellsMap[NeighborCoord])
+				{
+					cell->ShowCell();
+				}
+			}
+		}
+	}
 }
 
 void AGridManager::GenerateGrid()
@@ -36,7 +65,7 @@ AChunk* AGridManager::SpawnChunk(FIntPoint position, bool hidden)
 	
 	float randomChunkIndex = FMath::RandRange(0, ChunksLandforms.Num() - 1);
 
-	//UE_LOG(LogTemp, Log, TEXT("SpawnActor posX: %d and posY: %d "),posX,posY)
+	UE_LOG(LogTemp, Log, TEXT("CHUNK grid pos X: %d and grid pos Y : %d "),position.X, position.Y)
 
 	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[randomChunkIndex], FVector(position.X * 2000, position.Y * 2000, 0), FRotator().ZeroRotator);
 	spawnedChunk->ChunkPosition =  position;

@@ -22,4 +22,7 @@ public:
 
 	// Get offset from enum
 	static FIntPoint GetOffset(EAdjacentDirection Direction);
+
+	static TArray<FIntPoint> GetSquareOffsets(int32 Radius, bool bIncludeCenter = false);
+
 };

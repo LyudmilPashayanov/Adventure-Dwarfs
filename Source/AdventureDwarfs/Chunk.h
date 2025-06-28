@@ -23,8 +23,8 @@ class UDataTable;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnChunkStepped, AChunk*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnChunkLeft, AChunk*);
-UCLASS()
 
+UCLASS()
 class ADVENTUREDWARFS_API AChunk : public AActor
 {
 	GENERATED_BODY()

@@ -92,6 +92,7 @@ void AAdventureDwarfsCharacter::GetPlayerGridPosition()
 	int32 CellRow    = FMath::FloorToInt(ShiftedY / CellSize) + 1;
 
 	FIntPoint GlobalCellCoord(CellColumn, CellRow);
+	OnPlayerPositionChanged.Broadcast(GlobalCellCoord);
 	UE_LOG(LogTemp, Log, TEXT("GlobalCellCoord player position cell X: %d and Y: %d "), GlobalCellCoord.X, GlobalCellCoord.Y);
 }
 
@@ -99,19 +100,19 @@ void AAdventureDwarfsCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
-	RaycastTerrain();
+	//RaycastTerrain();
 
-	TimeSinceLastGridCheck += DeltaSeconds;
-	if (TimeSinceLastGridCheck >= GridCheckInterval)
+	//TimeSinceLastGridCheck += DeltaSeconds;
+	//if (TimeSinceLastGridCheck >= GridCheckInterval)
 	{
-		TimeSinceLastGridCheck = 0.0f; // reset timer
+	//	TimeSinceLastGridCheck = 0.0f; // reset timer
 		GetPlayerGridPosition();       // call your grid position logic here
 	}
 }
 
 void AAdventureDwarfsCharacter::RaycastTerrain()
 {
-	//Raycast on the terrain
+	/*//Raycast on the terrain
 	const FVector StartRaycastLocation = FVector(GetTransform().GetLocation().X, GetTransform().GetLocation().Y,GetTransform().GetLocation().Z);
 	const FVector EndLocation = StartRaycastLocation - FVector(0,0,250);
 	FHitResult HitResult;
@@ -138,7 +139,7 @@ void AAdventureDwarfsCharacter::RaycastTerrain()
 	else
 	{
 		DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 20.0f, 12, FColor::Red,false,1);
-	}
+	}*/
 }
 
 

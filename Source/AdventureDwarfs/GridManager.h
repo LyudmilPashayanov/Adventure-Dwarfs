@@ -24,6 +24,9 @@ private:
 	void ChunkStepped_Handler(AChunk* SteppedChunk);
 	void SpawnAdjacentChunks(const AChunk* ChunkToSpawnAround);
 	void SetupCollectibles(AChunk* ChunkToSetup);
+	void RevealCellsAroundPlayer(const FIntPoint& playerPosition);
+
+	TArray<FIntPoint> PlayerRevealRadius;
 	
 public:
 	
