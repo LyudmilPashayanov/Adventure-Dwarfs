@@ -1,10 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Cell.h"
-#include "AdjacentCellsManager.h"
 #include "Collectible.h"
 #include "DrawDebugHelpers.h"
-#include "Curves/CurveFloat.h" // Spawning Animation needed CurveFloat and Timeline
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "TweenSubsystem.h"
 #include "FTweenTask.h"
@@ -12,7 +10,6 @@
 // Sets default values for this component's properties
 UCell::UCell()
 {
-    AdjacentManager = new AdjacentCellsManager(this);
 }
 
 void UCell::PrintLocation() const
@@ -20,11 +17,6 @@ void UCell::PrintLocation() const
     FTransform transform;    
     CellMesh->GetInstanceTransform(CellMeshIndex,transform);
 	UE_LOG(LogTemp, Log, TEXT("current position is: x- %f,y- %f,z- %f"), transform.GetLocation().X, transform.GetLocation().Y, transform.GetLocation().Z);
-}
-
-void UCell::ShowAdjacentCells(int depth) const
-{
-    AdjacentManager->ShowAdjacentCells(depth);
 }
 
 void UCell::ShowCell()

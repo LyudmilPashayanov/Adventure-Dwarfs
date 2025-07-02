@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FGridPosition.h"
+#include "FChunkPosition.h"
 #include "ChunkUnit.generated.h"
 
 class UCell;
@@ -15,15 +15,15 @@ struct ADVENTUREDWARFS_API FChunkUnit
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGridPosition GridPosition;
+	FChunkPosition ChunkPosition;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UCell*> Cells;  
 
 	FChunkUnit() {}
 
-	FChunkUnit(FGridPosition& InGridPosition)
-		: GridPosition(InGridPosition) {}
+	FChunkUnit(const FChunkPosition& InChunkPosition)
+		: ChunkPosition(InChunkPosition) {}
 
 	void AddCell(UCell* cellToAdd)
 	{
@@ -40,12 +40,12 @@ public:
 	// Comparison operator for TSet and TMap
 	bool operator==(const FChunkUnit& Other) const
 	{
-		return GridPosition == Other.GridPosition; 
+		return ChunkPosition == Other.ChunkPosition; 
 	}
 };
 
 // Hash function for FChunkUnit (needed for using it as a key in TSet or as a map key in a TMap)
 FORCEINLINE uint32 GetTypeHash(const FChunkUnit& ChunkUnit)
 {
-	return GetTypeHash(ChunkUnit.GridPosition);
+	return GetTypeHash(ChunkUnit.ChunkPosition);
 }

@@ -3,7 +3,6 @@
 
 #include "Chunk.h"
 
-#include "AdjacentCellsManager.h"
 #include "Cell.h"
 
 #include "Misc/FileHelper.h"
@@ -78,7 +77,7 @@ void AChunk::Construct(AGridManager* gridManager)
 	}
 }
 
-void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, const FVector& Scale, UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent, int row, int column)
+void AChunk::ConstructCell(int CellIndex, const FVector& CellLocalTranslation, const FRotator& Rotation, const FVector& Scale, UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent, int chunkRow, int ChunkColumn)
 {
 	FString cellInstanceBaseName = "InstanceCell_";
 	cellInstanceBaseName.AppendInt(CellIndex);
@@ -88,23 +87,22 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 	
 	
 	Cell->CellMesh = InstancedMeshComponent;	
-	Cell->LocalLocation = Translation;
+	Cell->LocalLocation = CellLocalTranslation;
 	Cell->LocalRotation = Rotation;
 	Cell->CellScale = Scale;
 
-	FGridPosition CellPositionOnGrid(Translation.X, Translation.Y);
-	CellPositionOnGrid.SetGridPos(row, column);  // TODO: I Have no IDEA why in-game the column and Row are reversed in this TMap.
-	FChunkUnit newChunkUnit(CellPositionOnGrid);
+	FChunkPosition LocalChunkPosition(CellLocalTranslation.X, CellLocalTranslation.Y);
+	LocalChunkPosition.SetChunkCoordinates(chunkRow, ChunkColumn);
+	FChunkUnit newChunkUnit(LocalChunkPosition);
 	AddChunkUnit(newChunkUnit, Cell);
 
-	Cell->GridPosition = CellPositionOnGrid;
-	Cell->Row = row;
-	Cell->Column = column;
+	Cell->RowInChunk = chunkRow;
+	Cell->ColumnInChunk = ChunkColumn;
 	Cell->ChunkParent = this;
 	OnChunkStepped.AddUObject(Cell, &UCell::Raycast); 
 	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
 	
-	FIntPoint GlobalCellPosition((ChunkPosition.X * 20) + row, (ChunkPosition.Y * 20) + column);
+	FIntPoint GlobalCellPosition((ChunkPosition.X * 20) + chunkRow, (ChunkPosition.Y * 20) + ChunkColumn);
 	GridManager->AddCellToMap(GlobalCellPosition, Cell);
 	bool debug = false;
 	if (debug)
@@ -115,7 +113,7 @@ void AChunk::ConstructCell(int CellIndex, const FVector& Translation, const FRot
 		TextComponent->SetHorizontalAlignment(EHTA_Center);
 		TextComponent->SetTextRenderColor(FColor::Green);
 		TextComponent->SetWorldSize(15.0f); // Font size
-		TextComponent->SetRelativeLocation(FVector(Translation.X, Translation.Y, 250.f));
+		TextComponent->SetRelativeLocation(FVector(CellLocalTranslation.X, CellLocalTranslation.Y, 250.f));
 		FString Text = FString::Printf(TEXT("%d, %d"), GlobalCellPosition.X, GlobalCellPosition.Y);
 		TextComponent->SetText(FText::FromString(Text));
 	}
@@ -210,16 +208,6 @@ void AChunk::LinkIndexToCell(int index, UCell* cell)
 	IndexCellsMap.Add(index, cell);
 }
 
-void AChunk::ShowCellByIndex(int index)
-{
-	if (UCell** FoundCellPtr = IndexCellsMap.Find(index))
-	{
-		UCell* FoundCell = *FoundCellPtr;
-		// Now you can use FoundCell, e.g.:
-		FoundCell->ShowAdjacentCells(5);
-	}
-}
-
 void AChunk::ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// Handle the event
@@ -256,11 +244,11 @@ void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	}	
 }
 
-TArray<UCell*> AChunk::GetCell(const FGridPosition& GridPosition) 
+TArray<UCell*> AChunk::GetCell(const FChunkPosition& GridPosition) 
 {
 	FChunkUnit* FoundChunkUnit = ChunkUnits.FindByPredicate([&](const FChunkUnit& Unit)
 	{
-		return Unit.GridPosition == GridPosition;
+		return Unit.ChunkPosition == GridPosition;
 	});
 	
 	if (FoundChunkUnit)

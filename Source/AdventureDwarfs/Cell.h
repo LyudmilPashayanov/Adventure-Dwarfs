@@ -6,15 +6,11 @@
 #include "Chunk.h"
 #include "Cell.generated.h"
 
-class AdjacentCellsManager;
 DECLARE_MULTICAST_DELEGATE_OneParam(FCellEvent, UCell*);
 
-enum class AdjecantDirections;
-struct FGridPosition;
+struct FChunkPosition;
 class UCurveFloat;
 class UCollectibleDataAsset;
-template<class T>
-class AdjecantManager;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ADVENTUREDWARFS_API UCell : public UObject
@@ -25,7 +21,6 @@ public:
 	// Sets default values for this component's properties
 	UCell();
 	
-	AdjacentCellsManager* AdjacentManager;
 	AChunk* ChunkParent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	ACollectible* SpawnedCollectible;
@@ -43,13 +38,13 @@ public:
 	FVector LocalLocation;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	FGridPosition GridPosition;
+	FChunkPosition GridPosition;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	int32 Row;
+	int32 RowInChunk;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	int32 Column;
+	int32 ColumnInChunk;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FRotator LocalRotation;
@@ -58,7 +53,6 @@ public:
 	FVector CellScale;
 	
 	void PrintLocation() const;
-	void ShowAdjacentCells(int depth) const;
 	void ShowCell();
 
 	void HideCell();

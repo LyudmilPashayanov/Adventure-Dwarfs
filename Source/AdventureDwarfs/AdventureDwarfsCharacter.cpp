@@ -131,10 +131,6 @@ void AAdventureDwarfsCharacter::RaycastTerrain()
 				CurrentChunk->ShowCellByIndex(HitInstanceIndex);
 			}
 		}
-		//CellSteppedEvent.Broadcast(this); // not used
-		//ShowAdjacentCells(5);
-		//CellProcessed=true;
-		DrawDebugSphere(GetWorld(),(StartRaycastLocation + EndLocation) / 2.0f, 20.0f, 12, FColor::Green,false,1);
 	}
 	else
 	{

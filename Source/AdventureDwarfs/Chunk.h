@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <Components/BoxComponent.h>
-#include "FGridPosition.h"
+#include "FChunkPosition.h"
 #include "Engine/DataTable.h"
 #include "Containers/Map.h"
 
@@ -18,7 +18,7 @@ class UCollectibleDataAsset;
 class ACollectible;
 class UCell;
 struct ConstructorHelpers;
-struct FGridPosition;
+struct FChunkPosition;
 class UDataTable;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnChunkStepped, AChunk*);
@@ -63,7 +63,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 private:
-	void ConstructCell(int CellIndex, const FVector& Translation, const FRotator& Rotation, const FVector& Scale, UHierarchicalInstancedStaticMeshComponent* StaticMeshInstance, int row, int column);
+	void ConstructCell(int CellIndex, const FVector& CellLocalTranslation, const FRotator& Rotation, const FVector& Scale, UHierarchicalInstancedStaticMeshComponent* StaticMeshInstance, int chunkRow, int ChunkColumn);
 	void AddChunkUnit(FChunkUnit gridPositionKey, UCell* cellToAdd);
 public:	
 	// Called every frame
@@ -74,9 +74,8 @@ public:
 	UFUNCTION()
 	void ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
-	TArray<UCell*> GetCell(const FGridPosition& GridPosition);
+	TArray<UCell*> GetCell(const FChunkPosition& GridPosition);
 	void Show();
 	void SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpawn, UCollectibleDataAsset* data );
 	void LinkIndexToCell(int index, UCell* cell);
-	void ShowCellByIndex(int index);
 };
