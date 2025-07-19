@@ -30,13 +30,14 @@ private:
 	
 public:
 	
-	TMap<FIntPoint, TArray<UCell*>> GlobalCellsMap;
+	TMap<FIntPoint, TArray<UCell*>> GlobalCellsMap2D; // Map used to reveal nearby cells when players walks
+	TMap<FIntVector, UCell*> GlobalCellsMap3D; // Map used for pathfinding.
 	TMap<FIntPoint, AChunk*> GlobalChunkMap;
 	
 	UPROPERTY(EditAnywhere, Category = "Cell Manager")
 	TArray<TSubclassOf<class AChunk>> ChunksLandforms;
 	void GenerateGrid();
-	void AddCellToMap(FIntPoint key, UCell* cell);
+	void AddCellToMap(FIntPoint coordinates2D, FIntVector coordinates3D, UCell* cell);
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collectibles Collection", meta = (AllowPrivateAccess = true))
 	TSubclassOf<class ACollectible> BaseCollectible;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collectibles Collection", meta = (AllowPrivateAccess = true))

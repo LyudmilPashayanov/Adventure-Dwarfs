@@ -35,9 +35,9 @@ void AGridManager::RevealCellsAroundPlayer(const FIntPoint& playerPosition)
 		for (FIntPoint Offset : PlayerRevealRadius)
 		{	
 			FIntPoint NeighborCoord = playerPosition + Offset;
-			if (GlobalCellsMap.Contains(NeighborCoord))
+			if (GlobalCellsMap2D.Contains(NeighborCoord))
 			{
-				for (UCell* cell : GlobalCellsMap[NeighborCoord])
+				for (UCell* cell : GlobalCellsMap2D[NeighborCoord])
 				{
 					cell->ShowCell();
 				}
@@ -51,9 +51,9 @@ void AGridManager::GenerateGrid()
 	SpawnChunk(FIntPoint(0,0),false);
 }
 
-void AGridManager::AddCellToMap(FIntPoint key, UCell* cell)
+void AGridManager::AddCellToMap(FIntPoint coordinates2D, FIntVector coordinates3D, UCell* cell)
 {
-	GlobalCellsMap.FindOrAdd(key).Add(cell);
+	GlobalCellsMap2D.FindOrAdd(coordinates2D).Add(cell);
 }
 
 AChunk* AGridManager::SpawnChunk(FIntPoint position, bool hidden)

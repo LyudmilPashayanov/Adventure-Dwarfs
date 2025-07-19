@@ -32,7 +32,7 @@ void UCell::ShowCell()
             SpawnedCollectible->SetActorHiddenInGame(false);
         }
 
-        if (UWorld* World = GetWorld())
+       if (UWorld* World = GetWorld())
         {
             UTweenSubsystem* TweenSubsystem = World->GetSubsystem<UTweenSubsystem>();
             if (TweenSubsystem && ChunkParent && ChunkParent->FloatCurve)
@@ -51,6 +51,7 @@ void UCell::ShowCell()
                     {
                         FVector NewLocation = InstanceTransform.GetLocation();
                         NewLocation.Z = StartLocation.Z + Value * MoveDistance;
+
                         InstanceTransform.SetLocation(NewLocation);
 
                         CellMesh->UpdateInstanceTransform(CellMeshIndex, InstanceTransform, false);
@@ -71,9 +72,14 @@ void UCell::ShowCell()
                     }
                 };
 
-                Tween.OnComplete = []()
+                Tween.OnComplete = [this]()
                 {
-                    //UE_LOG(LogTemp, Log, TEXT("Cell animation finished"));
+                    /*FTransform InstanceTransform;
+                    if (CellMesh->GetInstanceTransform(CellMeshIndex, InstanceTransform, false))
+                    {
+                        FVector NewLocation = InstanceTransform.GetLocation();
+                        UE_LOG(LogTemp, Log, TEXT("Cell location in memory = %f, %f, %f AND Cell instance location = %f, %f, %f"), LocalLocation.X, LocalLocation.Y, LocalLocation.Z, NewLocation.X, NewLocation.Y, NewLocation.Z);
+                    }*/
                 };
 
                 TweenSubsystem->AddTween(MoveTemp(Tween));
@@ -88,14 +94,17 @@ void UCell::HideCell()
     IsCellVisible = false;
 }
 
-void UCell::Raycast(AChunk* Chunk)
+void UCell::SetLocation(const FVector& Location)
 {
-    activateRaycasting = true;
-}
-
-void UCell::StopRaycast(AChunk* Chunk)
-{
-    activateRaycasting = false;
+    LocalLocation = Location;
+    // Get mesh bounds (use original unscaled bounds)
+    UStaticMesh* mesh = CellMesh->GetStaticMesh();
+    if (mesh)
+    {
+        FVector BoxExtent = mesh->GetBoundingBox().GetExtent();
+        float TopSurfaceZ = LocalLocation.Z + BoxExtent.Z * CellScale.Z;
+        CellSurface = FVector(0, 0, TopSurfaceZ);
+    }
 }
 
 void UCell::SetCollectible(ACollectible* Collectible, bool IsMainParent)
@@ -106,4 +115,12 @@ void UCell::SetCollectible(ACollectible* Collectible, bool IsMainParent)
     {
         SpawnedCollectible->SetActorHiddenInGame(true);
     }
+}
+
+void UCell::InitTransform(const FVector& Location, const FRotator& Rotation, const FVector& Scale)
+{
+    LocalRotation = Rotation;
+    CellScale = Scale;
+    SetLocation(Location);
+    Height = FMath::Floor(CellSurface.Z / 100);
 }

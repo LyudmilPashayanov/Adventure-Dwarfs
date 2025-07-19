@@ -20,17 +20,27 @@ class ADVENTUREDWARFS_API UCell : public UObject
 public:	
 	// Sets default values for this component's properties
 	UCell();
-	
+	void PrintLocation() const;
+	void ShowCell();
+	void HideCell();
+	void SetCollectible(ACollectible* Collectible, bool IsMainParent);
+	void InitTransform(const FVector& Location, const FRotator& Rotation, const FVector& Scale);
+
 	AChunk* ChunkParent;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	ACollectible* SpawnedCollectible;
+	FVector CellSurface;
+	
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel1; // Custom trace channel
 
 	FCellEvent CellSteppedEvent;
+
 	bool ShouldRaycast;
 	bool IsCellVisible = false;
+
 	UHierarchicalInstancedStaticMeshComponent* CellMesh; //TODO: Clear out pointer afterwards destroying of object
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	ACollectible* SpawnedCollectible;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	int CellMeshIndex;
 	
@@ -45,6 +55,9 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	int32 ColumnInChunk;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	int32 Height;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FRotator LocalRotation;
@@ -52,17 +65,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FVector CellScale;
 	
-	void PrintLocation() const;
-	void ShowCell();
+private:
+	void SetLocation(const FVector& Location);
 
-	void HideCell();
-	void Raycast(AChunk* Chunk);
-	void StopRaycast(AChunk* Chunk);
-	void SetCollectible(ACollectible* Collectible, bool IsMainParent);
-
-private:	
-	bool activateRaycasting;
-	bool CellProcessed;
 	bool IsMainCollectibleParent;
 	int FrameCounter=0;
 };

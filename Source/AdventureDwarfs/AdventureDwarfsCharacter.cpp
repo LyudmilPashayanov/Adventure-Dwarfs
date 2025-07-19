@@ -93,7 +93,7 @@ void AAdventureDwarfsCharacter::GetPlayerGridPosition()
 
 	FIntPoint GlobalCellCoord(CellColumn, CellRow);
 	OnPlayerPositionChanged.Broadcast(GlobalCellCoord);
-	UE_LOG(LogTemp, Log, TEXT("GlobalCellCoord player position cell X: %d and Y: %d "), GlobalCellCoord.X, GlobalCellCoord.Y);
+	//UE_LOG(LogTemp, Log, TEXT("GlobalCellCoord player position cell X: %d and Y: %d "), GlobalCellCoord.X, GlobalCellCoord.Y);
 }
 
 void AAdventureDwarfsCharacter::Tick(float DeltaSeconds)

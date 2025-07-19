@@ -45,7 +45,7 @@ void AChunk::Construct(AGridManager* gridManager)
 	ChunkJsonData->GetAllRows<FChunkDataField>("", CellsData);
 	
 	UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent = NewObject<UHierarchicalInstancedStaticMeshComponent>(this," BASE CELL INSTANCE");
-	InstancedMeshComponent->SetupAttachment(ChunkOverlapComponent);
+	InstancedMeshComponent->SetupAttachment(RootComponent);
 	InstancedMeshComponent->SetStaticMesh(StaticMeshReference);
 	InstancedMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	InstancedMeshComponent->SetCollisionObjectType(ECC_WorldDynamic);
@@ -85,11 +85,9 @@ void AChunk::ConstructCell(int CellIndex, const FVector& CellLocalTranslation, c
 	
 	UCell* Cell = NewObject<UCell>(this, CellInstanceName);
 	
+	Cell->CellMesh = InstancedMeshComponent;
 	
-	Cell->CellMesh = InstancedMeshComponent;	
-	Cell->LocalLocation = CellLocalTranslation;
-	Cell->LocalRotation = Rotation;
-	Cell->CellScale = Scale;
+	Cell->InitTransform(CellLocalTranslation, Rotation, Scale);
 
 	FChunkPosition LocalChunkPosition(CellLocalTranslation.X, CellLocalTranslation.Y);
 	LocalChunkPosition.SetChunkCoordinates(chunkRow, ChunkColumn);
@@ -99,23 +97,28 @@ void AChunk::ConstructCell(int CellIndex, const FVector& CellLocalTranslation, c
 	Cell->RowInChunk = chunkRow;
 	Cell->ColumnInChunk = ChunkColumn;
 	Cell->ChunkParent = this;
-	OnChunkStepped.AddUObject(Cell, &UCell::Raycast); 
-	OnChunkLeft.AddUObject(Cell, &UCell::StopRaycast);
 	
-	FIntPoint GlobalCellPosition((ChunkPosition.X * 20) + chunkRow, (ChunkPosition.Y * 20) + ChunkColumn);
-	GridManager->AddCellToMap(GlobalCellPosition, Cell);
-	bool debug = false;
+	FIntPoint GlobalCellPosition2D((ChunkPosition.X * 20) + chunkRow, (ChunkPosition.Y * 20) + ChunkColumn);
+	FIntVector GlobalCellPosition3D(GlobalCellPosition2D.X, GlobalCellPosition2D.Y, Cell->Height);
+	GridManager->AddCellToMap(GlobalCellPosition2D, GlobalCellPosition3D, Cell);
+	bool debug = true;
 	if (debug)
 	{
 		UTextRenderComponent* TextComponent = NewObject<UTextRenderComponent>(this);
 		TextComponent->RegisterComponent();
-		TextComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+		TextComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		TextComponent->SetHorizontalAlignment(EHTA_Center);
 		TextComponent->SetTextRenderColor(FColor::Green);
 		TextComponent->SetWorldSize(15.0f); // Font size
-		TextComponent->SetRelativeLocation(FVector(CellLocalTranslation.X, CellLocalTranslation.Y, 250.f));
-		FString Text = FString::Printf(TEXT("%d, %d"), GlobalCellPosition.X, GlobalCellPosition.Y);
+		TextComponent->SetRelativeLocation(FVector(CellLocalTranslation.X, CellLocalTranslation.Y, Cell->CellSurface.Z));
+		FString Text = FString::Printf(TEXT("%d, %d, %d"), GlobalCellPosition2D.X, GlobalCellPosition2D.Y, Cell->Height);
 		TextComponent->SetText(FText::FromString(Text));
+
+		//ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(GridManager->BaseCollectible);
+		//spawnedCollectible->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
+//
+		//spawnedCollectible->SetActorRelativeLocation(FVector(Cell->LocalLocation.X, Cell->LocalLocation.Y, Cell->CellSurface.Z+150));
+		//spawnedCollectible->Init(GridManager->CollectiblesData[0]);
 	}
 }
 
@@ -158,14 +161,8 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 	
 	ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(CollectibleToSpawn);
 	spawnedCollectible->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	FBoxSphereBounds Bounds = chosenCell->CellMesh->Bounds;
 
-	FVector Origin = Bounds.Origin;
-	FVector BoxExtent = Bounds.BoxExtent;
-
-	// Top is origin + Z extent
-	FVector TopLocation = Origin + FVector(0, 0, BoxExtent.Z);
-	spawnedCollectible->SetActorRelativeLocation(TopLocation);
+	spawnedCollectible->SetActorRelativeLocation(chosenCell->CellSurface);
 	spawnedCollectible->Init(data);
 	
 	if(data->Size.X > 1)
