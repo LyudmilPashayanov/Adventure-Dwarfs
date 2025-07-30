@@ -26,7 +26,7 @@ public:
 	void SetCollectible(ACollectible* Collectible, bool IsMainParent);
 	void InitTransform(const FVector& Location, const FRotator& Rotation, const FVector& Scale);
 
-	AChunk* ChunkParent;
+
 	FVector CellSurface;
 	
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel1; // Custom trace channel
@@ -35,9 +35,16 @@ public:
 
 	bool ShouldRaycast;
 	bool IsCellVisible = false;
-
-	UHierarchicalInstancedStaticMeshComponent* CellMesh; //TODO: Clear out pointer afterwards destroying of object
-
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	UHierarchicalInstancedStaticMeshComponent* CellMesh;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	FIntVector Coordinates;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	AChunk* ChunkParent;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	ACollectible* SpawnedCollectible;
 	
@@ -45,10 +52,7 @@ public:
 	int CellMeshIndex;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	FVector LocalLocation;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	FChunkPosition GridPosition;
+	FVector OriginCenterLocation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	int32 RowInChunk;

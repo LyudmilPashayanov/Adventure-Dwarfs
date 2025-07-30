@@ -25,7 +25,7 @@ void UCell::ShowCell()
     {
         IsCellVisible = true;
 
-        CellMeshIndex = CellMesh->AddInstance(FTransform(LocalRotation, LocalLocation, CellScale));
+        CellMeshIndex = CellMesh->AddInstance(FTransform(LocalRotation, OriginCenterLocation, CellScale));
         ChunkParent->LinkIndexToCell(CellMeshIndex, this);
         if (SpawnedCollectible)
         {
@@ -39,20 +39,25 @@ void UCell::ShowCell()
             {
                 FTweenTask Tween;
                 Tween.Duration = 1.0f;
-                Tween.Curve = ChunkParent->FloatCurve;
+                Tween.Curve = ChunkParent->FloatCurve; // Curve is from -250 to 0.
 
-                FVector StartLocation = LocalLocation;
+                FVector CellStartLocation = OriginCenterLocation;
+                FVector SpawnableStartLocation;
+                if (SpawnedCollectible)
+                {
+                    if (IsMainCollectibleParent)
+                    {
+                        SpawnableStartLocation = SpawnedCollectible->GetActorTransform().GetLocation();
+                    }
+                }
                 float MoveDistance = 3.0f;
 
-                Tween.OnUpdate = [this, StartLocation, MoveDistance](float Value)
+                Tween.OnUpdate = [this, CellStartLocation, MoveDistance, SpawnableStartLocation](float Value)
                 {
                     FTransform InstanceTransform;
                     if (CellMesh->GetInstanceTransform(CellMeshIndex, InstanceTransform, false))
                     {
-                        FVector NewLocation = InstanceTransform.GetLocation();
-                        NewLocation.Z = StartLocation.Z + Value * MoveDistance;
-
-                        InstanceTransform.SetLocation(NewLocation);
+                        InstanceTransform.SetLocation({CellStartLocation.X, CellStartLocation.Y, CellStartLocation.Z + Value * MoveDistance});
 
                         CellMesh->UpdateInstanceTransform(CellMeshIndex, InstanceTransform, false);
 
@@ -60,9 +65,10 @@ void UCell::ShowCell()
                         {
                             if (IsMainCollectibleParent)
                             {
-                                FTransform SpawnableLocation;
-                                SpawnableLocation.SetLocation(FVector(NewLocation.X, NewLocation.Y, NewLocation.Z + 170));
-                                SpawnedCollectible->SetActorRelativeTransform(SpawnableLocation, false);
+                                FTransform SpawnableTransform;
+
+                                SpawnableTransform.SetLocation({SpawnableStartLocation.X, SpawnableStartLocation.Y, SpawnableStartLocation.Z + Value * MoveDistance});
+                                SpawnedCollectible->SetActorRelativeTransform(SpawnableTransform, false);
                             }
                             else
                             {
@@ -96,14 +102,14 @@ void UCell::HideCell()
 
 void UCell::SetLocation(const FVector& Location)
 {
-    LocalLocation = Location;
+    OriginCenterLocation = Location;
     // Get mesh bounds (use original unscaled bounds)
     UStaticMesh* mesh = CellMesh->GetStaticMesh();
     if (mesh)
     {
         FVector BoxExtent = mesh->GetBoundingBox().GetExtent();
-        float TopSurfaceZ = LocalLocation.Z + BoxExtent.Z * CellScale.Z;
-        CellSurface = FVector(0, 0, TopSurfaceZ);
+        float TopSurfaceZ = OriginCenterLocation.Z + BoxExtent.Z * CellScale.Z;
+        CellSurface = FVector(Location.X, Location.Y, TopSurfaceZ);
     }
 }
 

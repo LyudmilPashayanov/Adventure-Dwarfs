@@ -54,6 +54,12 @@ void AGridManager::GenerateGrid()
 void AGridManager::AddCellToMap(FIntPoint coordinates2D, FIntVector coordinates3D, UCell* cell)
 {
 	GlobalCellsMap2D.FindOrAdd(coordinates2D).Add(cell);
+	if (GlobalCellsMap3D.Contains(coordinates3D))
+	{
+		UE_LOG(LogTemp, Error, TEXT("A CELL WITH THAT COORDINATE ALREADY EXISTS, PLEASE CHECK WHY AND MAKE SURE EACH 3D coordinates is unique!"));
+		return;
+	}
+	GlobalCellsMap3D.Add(coordinates3D, cell);
 }
 
 AChunk* AGridManager::SpawnChunk(FIntPoint position, bool hidden)
@@ -98,7 +104,7 @@ void AGridManager::SpawnAdjacentChunks(const AChunk* ChunkToSpawnAround)
 		AChunk* newChunk = SpawnChunk(NeighborCoord, true);
 		if (newChunk)
 		{
-			// SetupCollectibles(newChunk);
+			SetupCollectibles(newChunk);
 		}
 	}
 }

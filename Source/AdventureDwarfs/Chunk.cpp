@@ -14,6 +14,7 @@
 #include "ChunkDataField.h"
 #include "ChunkUnit.h"
 #include "Collectible.h"
+#include "CollectibleDataAsset.h"
 #include "GridManager.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -31,11 +32,11 @@ AChunk::AChunk()
 	
 	ChunkOverlapComponent = CreateDefaultSubobject<UBoxComponent>("ChunkColliderRoot");
 	ChunkOverlapComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Block);
+	ChunkOverlapComponent->SetupAttachment(RootComponent);
 	ChunkOverlapComponent->SetRelativeLocation(FVector(0, 0, 150));
 	ChunkOverlapComponent->SetBoxExtent(FVector(1000, 1000,1000 ));
 	ChunkOverlapComponent->OnComponentBeginOverlap.AddDynamic(this, &AChunk::ChunkStepped);
 	ChunkOverlapComponent->OnComponentEndOverlap.AddDynamic(this, &AChunk::ChunkLeft);
-	ChunkOverlapComponent->SetupAttachment(RootComponent);
 }
 
 void AChunk::Construct(AGridManager* gridManager)
@@ -100,6 +101,7 @@ void AChunk::ConstructCell(int CellIndex, const FVector& CellLocalTranslation, c
 	
 	FIntPoint GlobalCellPosition2D((ChunkPosition.X * 20) + chunkRow, (ChunkPosition.Y * 20) + ChunkColumn);
 	FIntVector GlobalCellPosition3D(GlobalCellPosition2D.X, GlobalCellPosition2D.Y, Cell->Height);
+	Cell->Coordinates = GlobalCellPosition3D;
 	GridManager->AddCellToMap(GlobalCellPosition2D, GlobalCellPosition3D, Cell);
 	bool debug = true;
 	if (debug)
@@ -156,13 +158,15 @@ void AChunk::Show()
 
 void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpawn, UCollectibleDataAsset* data)
 {
-	/*float randomCellIndex = FMath::RandRange(0, ChunkCells.Num() - 1);
-	UCell* chosenCell = ChunkCells[randomCellIndex];
+	float randomCoordinationIndex = FMath::RandRange(0, ChunkUnits.Num() - 1);
+	float randomCellIndex = FMath::RandRange(0, ChunkUnits[randomCoordinationIndex].Cells.Num() - 1);
+	UCell* chosenCell = ChunkUnits[randomCoordinationIndex].Cells[randomCellIndex];
 	
 	ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(CollectibleToSpawn);
-	spawnedCollectible->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	spawnedCollectible->SetActorLocation(chosenCell->CellSurface);
 
-	spawnedCollectible->SetActorRelativeLocation(chosenCell->CellSurface);
+	spawnedCollectible->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+
 	spawnedCollectible->Init(data);
 	
 	if(data->Size.X > 1)
@@ -175,7 +179,7 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 			for(int k=0; k < data->Size.Y; k++)
 			{
 				int CellColumnToPopulate = (k);		// TODO: Adjust depending on orientation default orientation NORTH:
-				if(CellColumnToPopulate== 0 && CellRowToPopulate==0)
+				if (CellColumnToPopulate== 0 && CellRowToPopulate==0)
 					continue;
 
 				pairs.Add(TPair<int,int>{CellColumnToPopulate,CellRowToPopulate});
@@ -184,10 +188,11 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 		for (auto Pair : pairs)
 		{
 			//UE_LOG(LogTemp, Log, TEXT("column/row to populate : %d/%d"), Pair.Key,Pair.Value);
-			TArray<UCell*> adjacentCell = chosenCell->AdjacentManager->GetAdjacentCell(Pair);
-			if(adjacentCell.Num() > 0)
+
+			FIntPoint NeighborCoord = FIntPoint(chosenCell->Coordinates.X + Pair.Key, chosenCell->Coordinates.Y + Pair.Value);
+			if (GridManager->GlobalCellsMap2D.Contains(NeighborCoord))
 			{
-				for (auto cell : adjacentCell)
+				for (UCell* cell : GridManager->GlobalCellsMap2D[NeighborCoord])
 				{
 					cell->SetCollectible(spawnedCollectible, false);
 					spawnedCollectible->ParentCells.Add(cell);
@@ -197,7 +202,7 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 	}
 	
 	chosenCell->SetCollectible(spawnedCollectible,true);
-	spawnedCollectible->ParentCells.Add(chosenCell);*/
+	spawnedCollectible->ParentCells.Add(chosenCell);
 }
 
 void AChunk::LinkIndexToCell(int index, UCell* cell)
@@ -239,23 +244,6 @@ void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	{
 		UE_LOG(LogTemp, Log, TEXT("CHUNK LEFT- other actor = %s"),*OtherActor->GetName());
 	}	
-}
-
-TArray<UCell*> AChunk::GetCell(const FChunkPosition& GridPosition) 
-{
-	FChunkUnit* FoundChunkUnit = ChunkUnits.FindByPredicate([&](const FChunkUnit& Unit)
-	{
-		return Unit.ChunkPosition == GridPosition;
-	});
-	
-	if (FoundChunkUnit)
-	{
-		//UE_LOG(LogTemp, Log, TEXT("GetCell"));
-		return FoundChunkUnit->Cells;
-	}
-	
-	UE_LOG(LogTemp, Log, TEXT("NO CELLS FOUND"));
-	return TArray<UCell*>();
 }
 
 // Called every frame

@@ -30,9 +30,9 @@ private:
 	
 public:
 	
-	TMap<FIntPoint, TArray<UCell*>> GlobalCellsMap2D; // Map used to reveal nearby cells when players walks
+	TMap<FIntPoint, TArray<UCell*>> GlobalCellsMap2D; // Map used to reveal nearby cells when players walk.
 	TMap<FIntVector, UCell*> GlobalCellsMap3D; // Map used for pathfinding.
-	TMap<FIntPoint, AChunk*> GlobalChunkMap;
+	TMap<FIntPoint, AChunk*> GlobalChunkMap; // Map used to find Chunks by their coordinates.
 	
 	UPROPERTY(EditAnywhere, Category = "Cell Manager")
 	TArray<TSubclassOf<class AChunk>> ChunksLandforms;
