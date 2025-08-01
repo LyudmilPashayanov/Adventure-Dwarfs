@@ -27,11 +27,12 @@ private:
 	void RevealCellsAroundPlayer(const FIntPoint& playerPosition);
 
 	TArray<FIntPoint> PlayerRevealRadius;
-	
+	UPROPERTY()
+	TMap<FIntVector, UCell*> GlobalCellsMap3D; // Map used for pathfinding.
+
 public:
 	
 	TMap<FIntPoint, TArray<UCell*>> GlobalCellsMap2D; // Map used to reveal nearby cells when players walk.
-	TMap<FIntVector, UCell*> GlobalCellsMap3D; // Map used for pathfinding.
 	TMap<FIntPoint, AChunk*> GlobalChunkMap; // Map used to find Chunks by their coordinates.
 	
 	UPROPERTY(EditAnywhere, Category = "Cell Manager")
@@ -43,4 +44,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collectibles Collection", meta = (AllowPrivateAccess = true))
 	TArray<UCollectibleDataAsset*> CollectiblesData;
 	AChunk* SpawnChunk(FIntPoint position, bool hidden);
+	UCell* GetCellAt(FIntVector coordinates);
 };

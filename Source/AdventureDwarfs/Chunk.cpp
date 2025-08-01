@@ -129,7 +129,7 @@ void AChunk::AddChunkUnit(FChunkUnit chunkUnit, UCell* cellToAdd)
 	FChunkUnit* unit = ChunkUnits.FindByKey(chunkUnit);
 	if(unit)
 	{
-		UE_LOG(LogTemp, Log, TEXT("AddChunkUnit"));
+		//UE_LOG(LogTemp, Log, TEXT("AddChunkUnit"));
 		unit->AddCell(cellToAdd);
 	}
 	else
@@ -175,10 +175,10 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 		
 		for(int i=0; i < data->Size.X; i++)
 		{
-			int CellRowToPopulate = (i);		// TODO: Adjust depending on orientation default orientation NORTH:
+			int CellRowToPopulate = i;		// TODO: Adjust depending on orientation default orientation NORTH:
 			for(int k=0; k < data->Size.Y; k++)
 			{
-				int CellColumnToPopulate = (k);		// TODO: Adjust depending on orientation default orientation NORTH:
+				int CellColumnToPopulate = k;		// TODO: Adjust depending on orientation default orientation NORTH:
 				if (CellColumnToPopulate== 0 && CellRowToPopulate==0)
 					continue;
 
@@ -205,11 +205,6 @@ void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpaw
 	spawnedCollectible->ParentCells.Add(chosenCell);
 }
 
-void AChunk::LinkIndexToCell(int index, UCell* cell)
-{
-	IndexCellsMap.Add(index, cell);
-}
-
 void AChunk::ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// Handle the event
@@ -221,7 +216,7 @@ void AChunk::ChunkStepped(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 	{
 		OnChunkStepped.Broadcast(this);
 		PlayerCharacter->CurrentChunk = this;
-		UE_LOG(LogTemp, Log, TEXT("NEW CHUNK REGISTERED!"));
+		//UE_LOG(LogTemp, Log, TEXT("NEW CHUNK REGISTERED!"));
 
 		// This code will only execute if the OtherActor is the player pawn
 		// You can put your functionality here
@@ -238,11 +233,11 @@ void AChunk::ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	if (PlayerCharacter)
 	{
 		OnChunkLeft.Broadcast(this);
-		UE_LOG(LogTemp, Log, TEXT("CHUNK LEFT BY PLAYER"));
+		//UE_LOG(LogTemp, Log, TEXT("CHUNK LEFT BY PLAYER"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("CHUNK LEFT- other actor = %s"),*OtherActor->GetName());
+		//UE_LOG(LogTemp, Log, TEXT("CHUNK LEFT- other actor = %s"),*OtherActor->GetName());
 	}	
 }
 

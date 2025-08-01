@@ -8,6 +8,7 @@
 #include "AdjecantDirections.h"
 #include "AdventureDwarfsCharacter.h"
 #include "Cell.h"
+#include "PathfindingManager.h"
 #include "Kismet/GameplayStatics.h"
 
 AGridManager::AGridManager()
@@ -25,6 +26,14 @@ void AGridManager::BeginPlay()
 	if (player)
 	{
 		 player->OnPlayerPositionChanged.AddUObject(this, &AGridManager::RevealCellsAroundPlayer);
+	}
+
+	if (UWorld* World = GetWorld())
+	{
+		if (UPathfindingManager* pathfindingManager = World->GetSubsystem<UPathfindingManager>()) 
+		{
+			pathfindingManager->SetGridManager(this);
+		}
 	}
 }
 
@@ -85,6 +94,18 @@ AChunk* AGridManager::SpawnChunk(FIntPoint position, bool hidden)
 	GlobalChunkMap.FindOrAdd(position) = spawnedChunk;
 	
 	return spawnedChunk;
+}
+
+UCell* AGridManager::GetCellAt(FIntVector coordinates)
+{
+	if (GlobalCellsMap3D.Contains(coordinates))
+	{
+		return *GlobalCellsMap3D.Find(coordinates);
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 void AGridManager::ChunkStepped_Handler(AChunk* SteppedChunk)

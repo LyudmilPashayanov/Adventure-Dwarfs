@@ -5,6 +5,7 @@
 
 #include "Cell.h"
 #include "CollectibleDataAsset.h"
+#include "PathfindingManager.h"
 
 // Sets default values
 ACollectible::ACollectible()
@@ -38,6 +39,11 @@ void ACollectible::NotifyParentsShow()
 void ACollectible::Collect()
 {
 	UE_LOG(LogTemp, Log, TEXT("Collected"));
+
+	UWorld* world = GetWorld();
+	UPathfindingManager* pathfinding = world->GetSubsystem<UPathfindingManager>();
+	pathfinding->HighlightPath(ParentCells[0]->Coordinates, FIntVector(1,1,1));
+	
 	GetWorld()->DestroyActor(this);
 }
 

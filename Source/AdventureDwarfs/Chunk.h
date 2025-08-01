@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <Components/BoxComponent.h>
-#include "FChunkPosition.h"
 #include "Engine/DataTable.h"
 #include "Containers/Map.h"
 
@@ -55,8 +54,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UCurveFloat* FloatCurve;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	TMap<int, UCell*> IndexCellsMap;
+
 
 	
 protected:
@@ -75,5 +73,4 @@ public:
 	void ChunkLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	void Show();
 	void SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpawn, UCollectibleDataAsset* data );
-	void LinkIndexToCell(int index, UCell* cell);
 };

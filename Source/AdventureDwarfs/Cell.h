@@ -12,7 +12,7 @@ struct FChunkPosition;
 class UCurveFloat;
 class UCollectibleDataAsset;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS()
 class ADVENTUREDWARFS_API UCell : public UObject
 {
 	GENERATED_BODY()
@@ -25,7 +25,8 @@ public:
 	void HideCell();
 	void SetCollectible(ACollectible* Collectible, bool IsMainParent);
 	void InitTransform(const FVector& Location, const FRotator& Rotation, const FVector& Scale);
-
+	bool IsWalkable();
+	void Highlight(int number);
 
 	FVector CellSurface;
 	

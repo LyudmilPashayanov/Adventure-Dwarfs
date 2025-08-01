@@ -26,7 +26,7 @@ void UCell::ShowCell()
         IsCellVisible = true;
 
         CellMeshIndex = CellMesh->AddInstance(FTransform(LocalRotation, OriginCenterLocation, CellScale));
-        ChunkParent->LinkIndexToCell(CellMeshIndex, this);
+
         if (SpawnedCollectible)
         {
             SpawnedCollectible->SetActorHiddenInGame(false);
@@ -128,5 +128,20 @@ void UCell::InitTransform(const FVector& Location, const FRotator& Rotation, con
     LocalRotation = Rotation;
     CellScale = Scale;
     SetLocation(Location);
-    Height = FMath::Floor(CellSurface.Z / 100);
+    Height = FMath::RoundToInt(CellSurface.Z / 50);
+}
+
+bool UCell::IsWalkable()
+{
+    if (SpawnedCollectible)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+void UCell::Highlight(int number)
+{
+    DrawDebugString(GetWorld(), CellSurface + FVector(0, 0, 30), FString::Printf(TEXT("%d"), number), nullptr, FColor::Red, -1,false, 30);
 }

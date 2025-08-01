@@ -233,7 +233,7 @@ void AAdventureDwarfsCharacter::StopInteractAction(const FInputActionValue& Valu
 
 void AAdventureDwarfsCharacter::StartCollecting_Handler(float collectTime)
 {
-	UE_LOG(LogTemp, Log, TEXT("collectTime: %f"), collectTime);
+	//UE_LOG(LogTemp, Log, TEXT("collectTime: %f"), collectTime);
 	StartCollectionEvent(collectTime);
 }
 
