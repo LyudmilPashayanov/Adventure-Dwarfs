@@ -24,11 +24,12 @@ public:
 	void ShowCell();
 	void HideCell();
 	void SetCollectible(ACollectible* Collectible, bool IsMainParent);
-	void InitTransform(const FVector& Location, const FRotator& Rotation, const FVector& Scale);
+	void InitTransform(const FVector& LocalPosition, const FVector2D& WorldPosition, const FRotator& Rotation, const FVector& Scale);
 	bool IsWalkable();
 	void Highlight(int number);
 
-	FVector CellSurface;
+	FVector CellLocalSurface;
+	FVector WorldCellSurface;
 	
 	static constexpr ECollisionChannel TraceChannelValue = ECC_GameTraceChannel1; // Custom trace channel
 
@@ -68,10 +69,13 @@ public:
 	FRotator LocalRotation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
+	FVector CellWorldSurface;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FVector CellScale;
 	
 private:
-	void SetLocation(const FVector& Location);
+	void SetLocation(const FVector& Location, const FVector2D& WorldPosition);
 
 	bool IsMainCollectibleParent;
 	int FrameCounter=0;

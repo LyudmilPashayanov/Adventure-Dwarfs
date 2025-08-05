@@ -14,17 +14,16 @@ TArray<FIntVector> UPathfindingManager::FindPath(FIntVector StartCoordinates, FI
 	
 	TArray<FIntVector> FinalPath;
 	TMap<FIntVector, PathNode> OpenMap;
-	TSet<FIntVector> Visited;
+	TMap<FIntVector, PathNode> Visited;
 	
 	OpenMap.Add(StartCoordinates, PathNode(StartCoordinates, 0.0f, Heuristic(StartCoordinates, DestinationCoordinates) , StartCoordinates));
 
 	while (OpenMap.Num() > 0)
 	{
-		// Find node with lowest F = G + H
 		PathNode Current;
 		float BestF = FLT_MAX;
 
-		for (const auto& Pair : OpenMap) // TODO: Find the lowest F in a map with a binary tree container for optimizations 
+		for (const TPair<FIntVector, PathNode>& Pair : OpenMap) // TODO: Find the lowest F in a map with a binary tree container for optimizations 
 		{
 			const PathNode& Node = Pair.Value;
 			if (Node.F() < BestF)
@@ -35,7 +34,7 @@ TArray<FIntVector> UPathfindingManager::FindPath(FIntVector StartCoordinates, FI
 		}
 
 		OpenMap.Remove(Current.Coordinates);
-		Visited.Add(Current.Coordinates);
+		Visited.Add(Current.Coordinates, Current);
 
 		if (Current.Coordinates == DestinationCoordinates)
 		{
@@ -44,14 +43,14 @@ TArray<FIntVector> UPathfindingManager::FindPath(FIntVector StartCoordinates, FI
 			while (Step != StartCoordinates)
 			{
 				FinalPath.Insert(Step, 0);
-				Step = OpenMap.Contains(Step) ? OpenMap[Step].Parent : Current.Parent;
+				Step = Visited[Step].Parent;
 			}
 			FinalPath.Insert(StartCoordinates, 0);
 			return FinalPath;
 		}
 
 		// 26 directions
-		for (auto direction : PathDirections)
+		for (FIntVector direction : PathDirections)
 		{
 			FIntVector NeighborCoord = Current.Coordinates + FIntVector(direction.X, direction.Y, direction.Z);
 
@@ -65,7 +64,7 @@ TArray<FIntVector> UPathfindingManager::FindPath(FIntVector StartCoordinates, FI
 				continue;
 			}
 			float MovementCost = FVector(direction.X, direction.Y, direction.Z).Size(); // Cost for diagonals
-			float G = Current.G + MovementCost;
+			float G = Current.G + 1; //MovementCost;
 			float H = Heuristic(NeighborCoord, DestinationCoordinates);
 
 			if (OpenMap.Contains(NeighborCoord) == false || G < OpenMap[NeighborCoord].G)

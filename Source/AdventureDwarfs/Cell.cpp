@@ -66,7 +66,6 @@ void UCell::ShowCell()
                             if (IsMainCollectibleParent)
                             {
                                 FTransform SpawnableTransform;
-
                                 SpawnableTransform.SetLocation({SpawnableStartLocation.X, SpawnableStartLocation.Y, SpawnableStartLocation.Z + Value * MoveDistance});
                                 SpawnedCollectible->SetActorRelativeTransform(SpawnableTransform, false);
                             }
@@ -100,7 +99,7 @@ void UCell::HideCell()
     IsCellVisible = false;
 }
 
-void UCell::SetLocation(const FVector& Location)
+void UCell::SetLocation(const FVector& Location, const FVector2D& InWorldPosition)
 {
     OriginCenterLocation = Location;
     // Get mesh bounds (use original unscaled bounds)
@@ -109,7 +108,8 @@ void UCell::SetLocation(const FVector& Location)
     {
         FVector BoxExtent = mesh->GetBoundingBox().GetExtent();
         float TopSurfaceZ = OriginCenterLocation.Z + BoxExtent.Z * CellScale.Z;
-        CellSurface = FVector(Location.X, Location.Y, TopSurfaceZ);
+        CellLocalSurface = FVector(Location.X, Location.Y, TopSurfaceZ);
+        CellWorldSurface = FVector(InWorldPosition.X, InWorldPosition.Y, TopSurfaceZ);
     }
 }
 
@@ -123,12 +123,12 @@ void UCell::SetCollectible(ACollectible* Collectible, bool IsMainParent)
     }
 }
 
-void UCell::InitTransform(const FVector& Location, const FRotator& Rotation, const FVector& Scale)
+void UCell::InitTransform(const FVector& LocalPosition, const FVector2D& WorldPosition, const FRotator& Rotation, const FVector& Scale)
 {
     LocalRotation = Rotation;
     CellScale = Scale;
-    SetLocation(Location);
-    Height = FMath::RoundToInt(CellSurface.Z / 50);
+    SetLocation(LocalPosition, WorldPosition);
+    Height = FMath::RoundToInt(CellLocalSurface.Z / 100);
 }
 
 bool UCell::IsWalkable()
@@ -143,5 +143,5 @@ bool UCell::IsWalkable()
 
 void UCell::Highlight(int number)
 {
-    DrawDebugString(GetWorld(), CellSurface + FVector(0, 0, 30), FString::Printf(TEXT("%d"), number), nullptr, FColor::Red, -1,false, 30);
+    DrawDebugString(GetWorld(), CellWorldSurface + FVector(0, 0, 10), FString::Printf(TEXT("number- %d Coord= %d ,%d ,%d"), number, Coordinates.X, Coordinates.Y, Coordinates.Z), nullptr, FColor::Red, -1,false, 2);
 }

@@ -57,7 +57,12 @@ void AGridManager::RevealCellsAroundPlayer(const FIntPoint& playerPosition)
 
 void AGridManager::GenerateGrid()
 {
-	SpawnChunk(FIntPoint(0,0),false);
+	AChunk* newChunk = SpawnChunk(FIntPoint(0,0));
+	if (newChunk)
+	{
+		SetupCollectibles(newChunk);
+	}
+	newChunk->Show();
 }
 
 void AGridManager::AddCellToMap(FIntPoint coordinates2D, FIntVector coordinates3D, UCell* cell)
@@ -71,7 +76,7 @@ void AGridManager::AddCellToMap(FIntPoint coordinates2D, FIntVector coordinates3
 	GlobalCellsMap3D.Add(coordinates3D, cell);
 }
 
-AChunk* AGridManager::SpawnChunk(FIntPoint position, bool hidden)
+AChunk* AGridManager::SpawnChunk(FIntPoint position)
 {
 	if (GlobalChunkMap.Contains(position)) 
 	{
@@ -82,14 +87,10 @@ AChunk* AGridManager::SpawnChunk(FIntPoint position, bool hidden)
 
 	UE_LOG(LogTemp, Log, TEXT("CHUNK grid pos X: %d and grid pos Y : %d "),position.X, position.Y)
 
-	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[randomChunkIndex], FVector(position.X * 2000, position.Y * 2000, 0), FRotator().ZeroRotator);
+	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[/*randomChunkIndex*/ 1], FVector(position.X * 2000, position.Y * 2000, 0), FRotator().ZeroRotator);
 	spawnedChunk->ChunkPosition =  position;
 	spawnedChunk->OnChunkStepped.AddUObject(this, &AGridManager::ChunkStepped_Handler);
 	spawnedChunk->Construct(this);
-	if (hidden == false)
-	{
-		spawnedChunk->Show();
-	}
 
 	GlobalChunkMap.FindOrAdd(position) = spawnedChunk;
 	
@@ -122,7 +123,7 @@ void AGridManager::SpawnAdjacentChunks(const AChunk* ChunkToSpawnAround)
 		FIntPoint Offset = UAdjacentDirectionHelper::GetOffset(Dir);
 		FIntPoint NeighborCoord = SpawnCenter + Offset;
 		
-		AChunk* newChunk = SpawnChunk(NeighborCoord, true);
+		AChunk* newChunk = SpawnChunk(NeighborCoord);
 		if (newChunk)
 		{
 			SetupCollectibles(newChunk);

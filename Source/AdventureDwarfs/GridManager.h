@@ -43,6 +43,6 @@ public:
 	TSubclassOf<class ACollectible> BaseCollectible;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collectibles Collection", meta = (AllowPrivateAccess = true))
 	TArray<UCollectibleDataAsset*> CollectiblesData;
-	AChunk* SpawnChunk(FIntPoint position, bool hidden);
+	AChunk* SpawnChunk(FIntPoint position);
 	UCell* GetCellAt(FIntVector coordinates);
 };

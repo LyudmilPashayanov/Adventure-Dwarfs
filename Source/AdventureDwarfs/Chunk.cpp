@@ -87,9 +87,14 @@ void AChunk::ConstructCell(int CellIndex, const FVector& CellLocalTranslation, c
 	UCell* Cell = NewObject<UCell>(this, CellInstanceName);
 	
 	Cell->CellMesh = InstancedMeshComponent;
-	
-	Cell->InitTransform(CellLocalTranslation, Rotation, Scale);
 
+	FTransform CellTransform;
+	CellTransform.SetLocation(CellLocalTranslation);
+
+	FVector2D WorldPositionCell((2000 * ChunkPosition.X) + CellLocalTranslation.X, (2000 * ChunkPosition.Y) + CellLocalTranslation.Y);
+
+	Cell->InitTransform(CellLocalTranslation, WorldPositionCell, Rotation, Scale);
+	
 	FChunkPosition LocalChunkPosition(CellLocalTranslation.X, CellLocalTranslation.Y);
 	LocalChunkPosition.SetChunkCoordinates(chunkRow, ChunkColumn);
 	FChunkUnit newChunkUnit(LocalChunkPosition);
@@ -103,25 +108,26 @@ void AChunk::ConstructCell(int CellIndex, const FVector& CellLocalTranslation, c
 	FIntVector GlobalCellPosition3D(GlobalCellPosition2D.X, GlobalCellPosition2D.Y, Cell->Height);
 	Cell->Coordinates = GlobalCellPosition3D;
 	GridManager->AddCellToMap(GlobalCellPosition2D, GlobalCellPosition3D, Cell);
-	bool debug = true;
-	if (debug)
-	{
-		UTextRenderComponent* TextComponent = NewObject<UTextRenderComponent>(this);
-		TextComponent->RegisterComponent();
-		TextComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
-		TextComponent->SetHorizontalAlignment(EHTA_Center);
-		TextComponent->SetTextRenderColor(FColor::Green);
-		TextComponent->SetWorldSize(15.0f); // Font size
-		TextComponent->SetRelativeLocation(FVector(CellLocalTranslation.X, CellLocalTranslation.Y, Cell->CellSurface.Z));
-		FString Text = FString::Printf(TEXT("%d, %d, %d"), GlobalCellPosition2D.X, GlobalCellPosition2D.Y, Cell->Height);
-		TextComponent->SetText(FText::FromString(Text));
-
-		//ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(GridManager->BaseCollectible);
-		//spawnedCollectible->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
-//
-		//spawnedCollectible->SetActorRelativeLocation(FVector(Cell->LocalLocation.X, Cell->LocalLocation.Y, Cell->CellSurface.Z+150));
-		//spawnedCollectible->Init(GridManager->CollectiblesData[0]);
-	}
+	
+				bool debug = true;
+				if (debug)
+				{
+					UTextRenderComponent* TextComponent = NewObject<UTextRenderComponent>(this);
+					TextComponent->RegisterComponent();
+					TextComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+					TextComponent->SetHorizontalAlignment(EHTA_Center);
+					TextComponent->SetTextRenderColor(FColor::Green);
+					TextComponent->SetWorldSize(15.0f); // Font size
+					TextComponent->SetRelativeLocation(FVector(CellLocalTranslation.X, CellLocalTranslation.Y, Cell->CellLocalSurface.Z));
+					FString Text = FString::Printf(TEXT("%d, %d, %d"), GlobalCellPosition2D.X, GlobalCellPosition2D.Y, Cell->Height);
+					TextComponent->SetText(FText::FromString(Text));
+		
+					//ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(GridManager->BaseCollectible);
+					//spawnedCollectible->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
+					//
+					//spawnedCollectible->SetActorRelativeLocation(FVector(Cell->LocalLocation.X, Cell->LocalLocation.Y, Cell->CellSurface.Z+150));
+					//spawnedCollectible->Init(GridManager->CollectiblesData[0]);
+				}
 }
 
 void AChunk::AddChunkUnit(FChunkUnit chunkUnit, UCell* cellToAdd)
@@ -158,13 +164,12 @@ void AChunk::Show()
 
 void AChunk::SpawnCollectible(const TSubclassOf<ACollectible>& CollectibleToSpawn, UCollectibleDataAsset* data)
 {
-	float randomCoordinationIndex = FMath::RandRange(0, ChunkUnits.Num() - 1);
-	float randomCellIndex = FMath::RandRange(0, ChunkUnits[randomCoordinationIndex].Cells.Num() - 1);
+	int randomCoordinationIndex = FMath::RandRange(0, ChunkUnits.Num() - 1);
+	int randomCellIndex = FMath::RandRange(0, ChunkUnits[randomCoordinationIndex].Cells.Num() - 1);
 	UCell* chosenCell = ChunkUnits[randomCoordinationIndex].Cells[randomCellIndex];
 	
 	ACollectible* spawnedCollectible = GetWorld()->SpawnActor<ACollectible>(CollectibleToSpawn);
-	spawnedCollectible->SetActorLocation(chosenCell->CellSurface);
-
+	spawnedCollectible->SetActorLocation(chosenCell->CellLocalSurface);
 	spawnedCollectible->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
 	spawnedCollectible->Init(data);

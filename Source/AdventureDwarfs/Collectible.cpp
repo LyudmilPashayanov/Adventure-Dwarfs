@@ -38,11 +38,11 @@ void ACollectible::NotifyParentsShow()
 
 void ACollectible::Collect()
 {
-	UE_LOG(LogTemp, Log, TEXT("Collected"));
+	UE_LOG(LogTemp, Log, TEXT("Collecteddasdasd"));
 
 	UWorld* world = GetWorld();
 	UPathfindingManager* pathfinding = world->GetSubsystem<UPathfindingManager>();
-	pathfinding->HighlightPath(ParentCells[0]->Coordinates, FIntVector(1,1,1));
+	pathfinding->HighlightPath(ParentCells[0]->Coordinates, FIntVector(1,1,0));
 	
 	GetWorld()->DestroyActor(this);
 }
