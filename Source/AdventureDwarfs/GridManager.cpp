@@ -85,9 +85,9 @@ AChunk* AGridManager::SpawnChunk(FIntPoint position)
 	
 	float randomChunkIndex = FMath::RandRange(0, ChunksLandforms.Num() - 1);
 
-	UE_LOG(LogTemp, Log, TEXT("CHUNK grid pos X: %d and grid pos Y : %d "),position.X, position.Y)
+	//UE_LOG(LogTemp, Log, TEXT("CHUNK grid pos X: %d and grid pos Y : %d "),position.X, position.Y)
 
-	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[/*randomChunkIndex*/ 1], FVector(position.X * 2000, position.Y * 2000, 0), FRotator().ZeroRotator);
+	AChunk* spawnedChunk = GetWorld()->SpawnActor<AChunk>(ChunksLandforms[randomChunkIndex], FVector(position.X * 2000, position.Y * 2000, 0), FRotator().ZeroRotator);
 	spawnedChunk->ChunkPosition =  position;
 	spawnedChunk->OnChunkStepped.AddUObject(this, &AGridManager::ChunkStepped_Handler);
 	spawnedChunk->Construct(this);

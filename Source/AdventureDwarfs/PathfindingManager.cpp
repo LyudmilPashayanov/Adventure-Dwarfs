@@ -64,12 +64,17 @@ TArray<FIntVector> UPathfindingManager::FindPath(FIntVector StartCoordinates, FI
 				continue;
 			}
 			float MovementCost = FVector(direction.X, direction.Y, direction.Z).Size(); // Cost for diagonals
-			float G = Current.G + 1; //MovementCost;
+			float G = Current.G + MovementCost; ;
 			float H = Heuristic(NeighborCoord, DestinationCoordinates);
 
-			if (OpenMap.Contains(NeighborCoord) == false || G < OpenMap[NeighborCoord].G)
+			if (OpenMap.Contains(NeighborCoord) == false) // If a path doesn't exist to be checked. Add it.
 			{
 				OpenMap.Add(NeighborCoord, PathNode(NeighborCoord, G, H, Current.Coordinates));
+			}
+			else if (G < OpenMap[NeighborCoord].G) // If a path exists, but this is a better option. Replace the existing path.
+			{
+				OpenMap.Remove(NeighborCoord);
+				OpenMap.FindOrAdd(NeighborCoord,PathNode(NeighborCoord, G, H, Current.Coordinates));
 			}
 		}
 	}

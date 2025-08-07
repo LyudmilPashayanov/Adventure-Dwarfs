@@ -143,5 +143,5 @@ bool UCell::IsWalkable()
 
 void UCell::Highlight(int number)
 {
-    DrawDebugString(GetWorld(), CellWorldSurface + FVector(0, 0, 10), FString::Printf(TEXT("number- %d Coord= %d ,%d ,%d"), number, Coordinates.X, Coordinates.Y, Coordinates.Z), nullptr, FColor::Red, -1,false, 2);
+    DrawDebugString(GetWorld(), CellWorldSurface + FVector(0, 0, 10), FString::Printf(TEXT("%d"), number), nullptr, FColor::Orange, 30,false, 2);
 }
