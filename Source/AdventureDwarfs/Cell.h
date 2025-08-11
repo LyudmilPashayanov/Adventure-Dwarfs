@@ -6,6 +6,7 @@
 #include "Chunk.h"
 #include "Cell.generated.h"
 
+class ADebugTextActor;
 DECLARE_MULTICAST_DELEGATE_OneParam(FCellEvent, UCell*);
 
 struct FChunkPosition;
@@ -16,7 +17,9 @@ UCLASS()
 class ADVENTUREDWARFS_API UCell : public UObject
 {
 	GENERATED_BODY()
-
+private:
+	UPROPERTY()
+	ADebugTextActor* DebugActor;
 public:	
 	// Sets default values for this component's properties
 	UCell();
@@ -27,6 +30,7 @@ public:
 	void InitTransform(const FVector& LocalPosition, const FVector2D& WorldPosition, const FRotator& Rotation, const FVector& Scale);
 	bool IsWalkable();
 	void Highlight(int number);
+	void ShowPathfindingDebugData(FString debugData);
 
 	FVector CellLocalSurface;
 	FVector WorldCellSurface;

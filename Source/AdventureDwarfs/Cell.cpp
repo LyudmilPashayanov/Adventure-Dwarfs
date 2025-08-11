@@ -2,6 +2,7 @@
 
 #include "Cell.h"
 #include "Collectible.h"
+#include "DebugTextActor.h"
 #include "DrawDebugHelpers.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "TweenSubsystem.h"
@@ -143,5 +144,20 @@ bool UCell::IsWalkable()
 
 void UCell::Highlight(int number)
 {
-    DrawDebugString(GetWorld(), CellWorldSurface + FVector(0, 0, 10), FString::Printf(TEXT("%d"), number), nullptr, FColor::Orange, 30,false, 2);
+    DrawDebugString(GetWorld(), CellWorldSurface + FVector(0, 0, 10), FString::Printf(TEXT("%d"), number), nullptr, FColor::Orange, -1,false, 2);
+}
+
+void UCell::ShowPathfindingDebugData(FString debugData)
+{
+    if (DebugActor == nullptr)
+    {
+        DebugActor = GetWorld()->SpawnActor<ADebugTextActor>(FVector(0, 0, 0), FRotator::ZeroRotator);
+        DebugActor->ShowDebugString(debugData, CellWorldSurface + FVector(0, 0, 5));
+    }
+    if (DebugActor != nullptr)
+    {
+        GetWorld()->DestroyActor(DebugActor);
+        DebugActor = GetWorld()->SpawnActor<ADebugTextActor>(FVector(0, 0, 0), FRotator::ZeroRotator);
+        DebugActor->ShowDebugString(debugData, CellWorldSurface + FVector(0, 0, 5));
+    }
 }
