@@ -43,7 +43,7 @@ public:
 	bool IsCellVisible = false;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
-	UHierarchicalInstancedStaticMeshComponent* CellMesh;
+	UInstancedStaticMeshComponent* CellMesh;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Attribute")
 	FIntVector Coordinates;

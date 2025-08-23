@@ -45,13 +45,19 @@ void AChunk::Construct(AGridManager* gridManager)
 	TArray<FChunkDataField*> CellsData;
 	ChunkJsonData->GetAllRows<FChunkDataField>("", CellsData);
 	
-	UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent = NewObject<UHierarchicalInstancedStaticMeshComponent>(this," BASE CELL INSTANCE");
+	UInstancedStaticMeshComponent* InstancedMeshComponent = NewObject<UInstancedStaticMeshComponent>(this," BASE CELL INSTANCE");
 	InstancedMeshComponent->SetupAttachment(RootComponent);
 	InstancedMeshComponent->SetStaticMesh(StaticMeshReference);
 	InstancedMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	InstancedMeshComponent->SetCollisionObjectType(ECC_WorldDynamic);
 	InstancedMeshComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Block);
 	InstancedMeshComponent->InstancingRandomSeed = FMath::Rand();
+	FBox ChunkBounds;
+	ChunkBounds.Min = FVector(-1000.0f, -1000.0f, -500.0f);  // allow some depth
+	ChunkBounds.Max = FVector( 1000.0f,  1000.0f, 1500.0f); // allow upward space
+	//InstancedMeshComponent->(ChunkBounds);
+	//InstancedMeshComponent->bUseDefaultBounds = false;
+	
 	InstancedMeshComponent->RegisterComponent();
 	
 	int counter=0;
@@ -78,7 +84,7 @@ void AChunk::Construct(AGridManager* gridManager)
 	}
 }
 
-void AChunk::ConstructCell(int CellIndex, const FVector& CellLocalTranslation, const FRotator& Rotation, const FVector& Scale, UHierarchicalInstancedStaticMeshComponent* InstancedMeshComponent, int chunkRow, int ChunkColumn)
+void AChunk::ConstructCell(int CellIndex, const FVector& CellLocalTranslation, const FRotator& Rotation, const FVector& Scale, UInstancedStaticMeshComponent* InstancedMeshComponent, int chunkRow, int ChunkColumn)
 {
 	FString cellInstanceBaseName = "InstanceCell_";
 	cellInstanceBaseName.AppendInt(CellIndex);

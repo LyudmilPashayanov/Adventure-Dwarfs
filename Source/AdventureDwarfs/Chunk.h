@@ -61,7 +61,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 private:
-	void ConstructCell(int CellIndex, const FVector& CellLocalTranslation, const FRotator& Rotation, const FVector& Scale, UHierarchicalInstancedStaticMeshComponent* StaticMeshInstance, int chunkRow, int ChunkColumn);
+	void ConstructCell(int CellIndex, const FVector& CellLocalTranslation, const FRotator& Rotation, const FVector& Scale, UInstancedStaticMeshComponent* StaticMeshInstance, int chunkRow, int ChunkColumn);
 	void AddChunkUnit(FChunkUnit gridPositionKey, UCell* cellToAdd);
 public:	
 	// Called every frame
