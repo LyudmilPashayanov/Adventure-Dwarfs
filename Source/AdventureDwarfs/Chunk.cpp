@@ -109,7 +109,7 @@ void AChunk::ConstructCell(int CellIndex, const FVector& CellLocalTranslation, c
 	Cell->Coordinates = GlobalCellPosition3D;
 	GridManager->AddCellToMap(GlobalCellPosition2D, GlobalCellPosition3D, Cell);
 	
-				bool debug = true;
+				bool debug = false;
 				if (debug)
 				{
 					UTextRenderComponent* TextComponent = NewObject<UTextRenderComponent>(this);
